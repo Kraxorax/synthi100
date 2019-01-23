@@ -1,4 +1,4 @@
-module Main exposing (Knob10, Model, Msg(..), init, knob, knob10Svg, knobValueToAngle, main, subs, table, update, view)
+module Main exposing (Knob10, Model, Msg(..), init, knob10Svg, knobSvg, knobValueToAngle, main, subs, table, update, view)
 
 import Array
 import Browser
@@ -17,6 +17,46 @@ init flags =
 table : Matrix (Svg msg)
 table =
     generate 8 7 (\x y -> knob10Svg ( x * 50, y * 80 ) True (toFloat (x + y)))
+
+
+pinTable : Matrix (Svg msg)
+pinTable =
+    generate 60
+        60
+        (\x y ->
+            let
+                yPos =
+                    if y >= 30 then
+                        y * 8 + 15
+
+                    else
+                        y * 8
+
+                xPos =
+                    x * 8
+            in
+            pinSvg ( xPos, yPos ) (shouldDarkenPin x y)
+        )
+
+
+shouldDarkenPin : Int -> Int -> Bool
+shouldDarkenPin x y =
+    (x // 4 |> isEven)
+        && (if y < 30 then
+                y // 3 |> isEven
+
+            else
+                y // 3 |> isEven |> not
+           )
+
+
+isEven x =
+    case modBy 2 x of
+        0 ->
+            True
+
+        _ ->
+            False
 
 
 subs : Model -> Sub msg
@@ -58,6 +98,26 @@ knobValueToAngle x =
     30 + x * 30
 
 
+pinSvg : ( Int, Int ) -> Bool -> Svg msg
+pinSvg ( xp, yp ) isDarken =
+    rect
+        [ width "4"
+        , height "4"
+        , rx "2"
+        , ry "2"
+        , x (String.fromInt xp)
+        , y (String.fromInt yp)
+        , fill
+            (if isDarken then
+                "#333333"
+
+             else
+                "#999999"
+            )
+        ]
+        []
+
+
 knob10Svg : ( Int, Int ) -> Bool -> Float -> Svg msg
 knob10Svg ( kx, ky ) active val =
     let
@@ -77,13 +137,13 @@ knob10Svg ( kx, ky ) active val =
             [ text (String.fromFloat val)
             ]
         , svg [ y "30" ]
-            [ knob rotation
+            [ knobSvg rotation
             ]
         ]
 
 
-knob : String -> Svg msg
-knob rotation =
+knobSvg : String -> Svg msg
+knobSvg rotation =
     svg
         [ width "40"
         , height "40"
@@ -122,5 +182,12 @@ view model =
             , height "2400"
             , viewBox "0 0 1400 2400"
             ]
-            knobs
+            [ svg [ x "0", y "0" ]
+                knobs
+            , svg [ x "0", y "560" ]
+                (pinTable
+                    |> toArray
+                    |> Array.toList
+                )
+            ]
         ]
