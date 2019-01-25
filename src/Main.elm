@@ -2,6 +2,7 @@ module Main exposing (Knob10, Model, Msg(..), init, knob10Svg, knobSvg, knobValu
 
 import Array
 import Browser
+import Debug
 import Html
 import Matrix exposing (Matrix, generate, toArray)
 import Svg exposing (..)
@@ -9,14 +10,29 @@ import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 
 
+hoverColor =
+    "#FF8800"
+
+
 init : () -> ( Model, Cmd msg )
 init flags =
-    ( { circleFill = "#0000ff" }, Cmd.none )
+    ( { circleFill = "#0000ff", hoverKnob = ( -1, -1 ) }, Cmd.none )
 
 
-table : Matrix (Svg msg)
-table =
-    generate 8 7 (\x y -> knob10Svg ( x * 50, y * 80 ) True (toFloat (x + y)))
+table : ( Int, Int ) -> Matrix (Html.Html Msg)
+table ( hx, hy ) =
+    generate 8
+        7
+        (\x y ->
+            let
+                isActive =
+                    x == hx && y == hy
+            in
+            knob10Svg
+                ( x, y )
+                isActive
+                (toFloat (x + y))
+        )
 
 
 pinTable : Matrix (Svg msg)
@@ -71,10 +87,13 @@ main =
 type Msg
     = OverCircle
     | OutCircle
+    | OverKnob ( Int, Int )
+    | OutKnob
 
 
 type alias Model =
     { circleFill : String
+    , hoverKnob : ( Int, Int )
     }
 
 
@@ -91,6 +110,12 @@ update msg model =
 
         OutCircle ->
             ( { model | circleFill = "#0000ff" }, Cmd.none )
+
+        OverKnob ( x, y ) ->
+            ( { model | hoverKnob = ( x, y ) }, Cmd.none )
+
+        OutKnob ->
+            ( { model | hoverKnob = ( -1, -1 ) }, Cmd.none )
 
 
 knobValueToAngle : Float -> Float
@@ -118,32 +143,49 @@ pinSvg ( xp, yp ) isDarken =
         []
 
 
-knob10Svg : ( Int, Int ) -> Bool -> Float -> Svg msg
+knob10Svg : ( Int, Int ) -> Bool -> Float -> Html.Html Msg
 knob10Svg ( kx, ky ) active val =
     let
+        xPos =
+            kx * 50
+
+        yPos =
+            ky * 80
+
         rotation =
             "rotate(" ++ String.fromFloat (knobValueToAngle val) ++ " 20 20)"
+
+        textColor =
+            if active then
+                hoverColor
+
+            else
+                "#333333"
     in
     svg
-        [ x (String.fromInt kx)
-        , y (String.fromInt ky)
+        [ x (String.fromInt xPos)
+        , y (String.fromInt yPos)
         , width "40"
         , height "70"
+        , onMouseOver (OverKnob ( kx, ky ))
+        , onMouseOut OutKnob
         ]
         [ text_
-            [ dx "15"
-            , dy "15"
+            [ dx "20"
+            , dy "20"
+            , textAnchor "middle"
+            , color textColor
             ]
             [ text (String.fromFloat val)
             ]
         , svg [ y "30" ]
-            [ knobSvg rotation
+            [ knobSvg active rotation
             ]
         ]
 
 
-knobSvg : String -> Svg msg
-knobSvg rotation =
+knobSvg : Bool -> String -> Svg msg
+knobSvg active rotation =
     svg
         [ width "40"
         , height "40"
@@ -154,7 +196,13 @@ knobSvg rotation =
             [ cx "20"
             , cy "20"
             , r "20"
-            , fill "#333333"
+            , fill
+                (if active then
+                    hoverColor
+
+                 else
+                    "#333333"
+                )
             ]
             []
         , rect
@@ -174,7 +222,7 @@ view : Model -> Html.Html Msg
 view model =
     let
         knobs =
-            table |> toArray |> Array.toList
+            table model.hoverKnob |> toArray |> Array.toList
     in
     Html.div []
         [ svg
