@@ -5,6 +5,7 @@ import Browser
 import Debug
 import Html
 import Matrix exposing (Matrix, generate, toArray)
+import PinTable exposing (PinMsg, pinTable)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
@@ -16,7 +17,7 @@ hoverColor =
 
 init : () -> ( Model, Cmd msg )
 init flags =
-    ( { circleFill = "#0000ff", hoverKnob = ( -1, -1 ) }, Cmd.none )
+    ( { pinModel = PinTable.initModel, circleFill = "#0000ff", hoverKnob = ( -1, -1 ) }, Cmd.none )
 
 
 table : ( Int, Int ) -> Matrix (Html.Html Msg)
@@ -35,46 +36,6 @@ table ( hx, hy ) =
         )
 
 
-pinTable : Matrix (Svg msg)
-pinTable =
-    generate 60
-        60
-        (\x y ->
-            let
-                yPos =
-                    if y >= 30 then
-                        y * 8 + 15
-
-                    else
-                        y * 8
-
-                xPos =
-                    x * 8
-            in
-            pinSvg ( xPos, yPos ) (shouldDarkenPin x y)
-        )
-
-
-shouldDarkenPin : Int -> Int -> Bool
-shouldDarkenPin x y =
-    (x // 4 |> isEven)
-        && (if y < 30 then
-                y // 3 |> isEven
-
-            else
-                y // 3 |> isEven |> not
-           )
-
-
-isEven x =
-    case modBy 2 x of
-        0 ->
-            True
-
-        _ ->
-            False
-
-
 subs : Model -> Sub msg
 subs model =
     Sub.none
@@ -89,11 +50,13 @@ type Msg
     | OutCircle
     | OverKnob ( Int, Int )
     | OutKnob
+    | PinEvent PinMsg
 
 
 type alias Model =
     { circleFill : String
     , hoverKnob : ( Int, Int )
+    , pinModel : PinTable.PinModel
     }
 
 
@@ -117,30 +80,13 @@ update msg model =
         OutKnob ->
             ( { model | hoverKnob = ( -1, -1 ) }, Cmd.none )
 
+        PinEvent pinMsg ->
+            ( { model | pinModel = PinTable.update pinMsg model.pinModel }, Cmd.none )
+
 
 knobValueToAngle : Float -> Float
 knobValueToAngle x =
     30 + x * 30
-
-
-pinSvg : ( Int, Int ) -> Bool -> Svg msg
-pinSvg ( xp, yp ) isDarken =
-    rect
-        [ width "4"
-        , height "4"
-        , rx "2"
-        , ry "2"
-        , x (String.fromInt xp)
-        , y (String.fromInt yp)
-        , fill
-            (if isDarken then
-                "#333333"
-
-             else
-                "#999999"
-            )
-        ]
-        []
 
 
 knob10Svg : ( Int, Int ) -> Bool -> Float -> Html.Html Msg
@@ -232,10 +178,12 @@ view model =
             ]
             [ svg [ x "0", y "0" ]
                 knobs
-            , svg [ x "0", y "560" ]
-                (pinTable
-                    |> toArray
-                    |> Array.toList
+            , Html.map (\pinMsg -> PinEvent pinMsg)
+                (svg [ x "0", y "560" ]
+                    (pinTable model.pinModel
+                        |> toArray
+                        |> Array.toList
+                    )
                 )
             ]
         ]
