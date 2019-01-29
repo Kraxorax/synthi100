@@ -42,30 +42,20 @@ update : PinMsg -> PinModel -> PinModel
 update msg model =
     case msg of
         PinIn ( x, y ) ->
-            { model | hoverPin = Debug.log "in" ( x, y ) }
+            { model | hoverPin = ( x, y ) }
 
         PinOut ->
-            { model | hoverPin = Debug.log "out" ( -1, -1 ) }
+            { model | hoverPin = ( -1, -1 ) }
 
         PinClick ( x, y ) ->
-            { model | activePin = Debug.log "click" ( x, y ) }
+            { model | activePin = ( x, y ) }
 
 
 pinSvg : ( Int, Int ) -> PinModel -> Svg PinMsg
 pinSvg ( xp, yp ) model =
     let
         pinColor =
-            if sameCoordinate model.hoverPin ( xp, yp ) then
-                color.hover
-
-            else if sameCoordinate model.activePin ( xp, yp ) then
-                color.active
-
-            else if shouldDarkenPin xp yp then
-                color.offD
-
-            else
-                color.offL
+            getPinColor ( xp, yp ) model
 
         yPos =
             (if yp >= 30 then
@@ -99,6 +89,21 @@ pinTable model =
         (\x y ->
             pinSvg ( x, y ) model
         )
+
+
+getPinColor : ( Int, Int ) -> PinModel -> String
+getPinColor ( x, y ) model =
+    if sameCoordinate model.activePin ( x, y ) then
+        color.active
+
+    else if sameCoordinate model.hoverPin ( x, y ) then
+        color.hover
+
+    else if shouldDarkenPin x y then
+        color.offD
+
+    else
+        color.offL
 
 
 shouldDarkenPin : Int -> Int -> Bool

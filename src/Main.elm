@@ -1,9 +1,10 @@
-module Main exposing (Knob10, Model, Msg(..), init, knob10Svg, knobSvg, knobValueToAngle, main, subs, table, update, view)
+module Main exposing (Model, Msg(..), init, main, subs, table, update, view)
 
 import Array
 import Browser
 import Debug
 import Html
+import Knob exposing (KnobMsg, knob10Svg)
 import Matrix exposing (Matrix, generate, toArray)
 import PinTable exposing (PinMsg, pinTable)
 import Svg exposing (..)
@@ -11,16 +12,12 @@ import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 
 
-hoverColor =
-    "#FF8800"
-
-
 init : () -> ( Model, Cmd msg )
 init flags =
     ( { pinModel = PinTable.initModel, circleFill = "#0000ff", hoverKnob = ( -1, -1 ) }, Cmd.none )
 
 
-table : ( Int, Int ) -> Matrix (Html.Html Msg)
+table : ( Int, Int ) -> Matrix (Html.Html KnobMsg)
 table ( hx, hy ) =
     generate 8
         7
@@ -42,14 +39,11 @@ subs model =
 
 
 main =
-    Browser.element { init = init, subscriptions = subs, update = update, view = view }
+    Browser.document { init = init, subscriptions = subs, update = update, view = view }
 
 
 type Msg
-    = OverCircle
-    | OutCircle
-    | OverKnob ( Int, Int )
-    | OutKnob
+    = KnobEvent KnobMsg
     | PinEvent PinMsg
 
 
@@ -60,124 +54,39 @@ type alias Model =
     }
 
 
-type alias Knob10 =
-    { value : Float
-    }
-
-
 update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
-        OverCircle ->
-            ( { model | circleFill = "#00ff00" }, Cmd.none )
-
-        OutCircle ->
-            ( { model | circleFill = "#0000ff" }, Cmd.none )
-
-        OverKnob ( x, y ) ->
-            ( { model | hoverKnob = ( x, y ) }, Cmd.none )
-
-        OutKnob ->
-            ( { model | hoverKnob = ( -1, -1 ) }, Cmd.none )
+        KnobEvent knobMsg ->
+            ( model, Cmd.none )
 
         PinEvent pinMsg ->
             ( { model | pinModel = PinTable.update pinMsg model.pinModel }, Cmd.none )
 
 
-knobValueToAngle : Float -> Float
-knobValueToAngle x =
-    30 + x * 30
-
-
-knob10Svg : ( Int, Int ) -> Bool -> Float -> Html.Html Msg
-knob10Svg ( kx, ky ) active val =
-    let
-        xPos =
-            kx * 50
-
-        yPos =
-            ky * 80
-
-        rotation =
-            "rotate(" ++ String.fromFloat (knobValueToAngle val) ++ " 20 20)"
-
-        textColor =
-            if active then
-                hoverColor
-
-            else
-                "#333333"
-    in
-    svg
-        [ x (String.fromInt xPos)
-        , y (String.fromInt yPos)
-        , width "40"
-        , height "70"
-        , onMouseOver (OverKnob ( kx, ky ))
-        , onMouseOut OutKnob
-        ]
-        [ text_
-            [ dx "20"
-            , dy "20"
-            , textAnchor "middle"
-            , color textColor
-            ]
-            [ text (String.fromFloat val)
-            ]
-        , svg [ y "30" ]
-            [ knobSvg active rotation
-            ]
-        ]
-
-
-knobSvg : Bool -> String -> Svg msg
-knobSvg active rotation =
-    svg
-        [ width "40"
-        , height "40"
-        , viewBox "0 0 40 40"
-        , transform rotation
-        ]
-        [ circle
-            [ cx "20"
-            , cy "20"
-            , r "20"
-            , fill
-                (if active then
-                    hoverColor
-
-                 else
-                    "#333333"
-                )
-            ]
-            []
-        , rect
-            [ x "18"
-            , y "20"
-            , rx "2"
-            , ry "2"
-            , width "4"
-            , height "20"
-            , fill "#999999"
-            ]
-            []
-        ]
-
-
-view : Model -> Html.Html Msg
+view : Model -> Browser.Document Msg
 view model =
+    { title = "Synthi100"
+    , body = page model
+    }
+
+
+page : Model -> List (Html.Html Msg)
+page model =
     let
         knobs =
             table model.hoverKnob |> toArray |> Array.toList
     in
-    Html.div []
+    [ Html.div []
         [ svg
             [ width "1400"
             , height "2400"
             , viewBox "0 0 1400 2400"
             ]
-            [ svg [ x "0", y "0" ]
-                knobs
+            [ Html.map (\knobMsg -> KnobEvent knobMsg)
+                (svg [ x "0", y "0" ]
+                    knobs
+                )
             , Html.map (\pinMsg -> PinEvent pinMsg)
                 (svg [ x "0", y "560" ]
                     (pinTable model.pinModel
@@ -187,3 +96,4 @@ view model =
                 )
             ]
         ]
+    ]
