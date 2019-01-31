@@ -4,6 +4,7 @@ import Array
 import Browser
 import Debug
 import Html
+import Html.Attributes as HA
 import Knob exposing (KnobMsg, knob10Svg)
 import Matrix exposing (Matrix, generate, toArray)
 import PinTable exposing (PinMsg, pinTable)
@@ -78,7 +79,14 @@ page model =
             table model.hoverKnob |> toArray |> Array.toList
     in
     [ Html.div []
-        [ svg
+        [ Html.audio
+            [ HA.src
+                "http://freesound.org/data/previews/457/457744_3162775-lq.mp3"
+            , HA.autoplay True
+            , HA.controls True
+            ]
+            []
+        , svg
             [ width "1400"
             , height "2400"
             , viewBox "0 0 1400 2400"
