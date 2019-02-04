@@ -3872,43 +3872,6 @@ function _VirtualDom_dekey(keyedNode)
 
 
 
-var _Bitwise_and = F2(function(a, b)
-{
-	return a & b;
-});
-
-var _Bitwise_or = F2(function(a, b)
-{
-	return a | b;
-});
-
-var _Bitwise_xor = F2(function(a, b)
-{
-	return a ^ b;
-});
-
-function _Bitwise_complement(a)
-{
-	return ~a;
-};
-
-var _Bitwise_shiftLeftBy = F2(function(offset, a)
-{
-	return a << offset;
-});
-
-var _Bitwise_shiftRightBy = F2(function(offset, a)
-{
-	return a >> offset;
-});
-
-var _Bitwise_shiftRightZfBy = F2(function(offset, a)
-{
-	return a >>> offset;
-});
-
-
-
 
 // ELEMENT
 
@@ -4347,8 +4310,8 @@ function _Browser_load(url)
 		}
 	}));
 }
+var author$project$AudioPlayer$audios = {ff: 'https://mdn.mozillademos.org/files/2587/AudioTest (1).ogg', more: 'http://freesound.org/data/previews/458/458248_9581521-lq.mp3'};
 var elm$core$Basics$False = {$: 'False'};
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
@@ -4611,6 +4574,7 @@ var elm$core$Array$initialize = F2(
 var elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
+var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -4826,226 +4790,48 @@ var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$AudioPlayer$init = function (flags) {
 	return _Utils_Tuple2(
-		{
-			audioFile: {artist: elm$core$Maybe$Nothing, mediaUrl: elm$core$Maybe$Nothing, thumbnail: elm$core$Maybe$Nothing, title: elm$core$Maybe$Nothing},
-			currentTime: 0.0,
-			duration: 0.0,
-			playbackRate: 1.0,
-			playbackStep: 0.25,
-			playing: false,
-			userConfig: flags
-		},
+		{audioSrc: author$project$AudioPlayer$audios.more, duration: 0.0, playing: false, seekerPosition: 0.0},
 		elm$core$Platform$Cmd$none);
 };
-var author$project$AudioPlayer$FileUpdate = function (a) {
-	return {$: 'FileUpdate', a: a};
+var author$project$AudioPlayer$NoOp = {$: 'NoOp'};
+var author$project$AudioPlayer$onTick = function (timeDelta) {
+	return author$project$AudioPlayer$NoOp;
 };
-var elm$json$Json$Decode$andThen = _Json_andThen;
-var elm$json$Json$Decode$field = _Json_decodeField;
-var elm$json$Json$Decode$map = _Json_map1;
-var elm$json$Json$Decode$null = _Json_decodeNull;
-var elm$json$Json$Decode$oneOf = _Json_oneOf;
-var elm$json$Json$Decode$string = _Json_decodeString;
-var elm$json$Json$Decode$succeed = _Json_succeed;
-var author$project$AudioPlayer$updateAudioFile = _Platform_incomingPort(
-	'updateAudioFile',
-	A2(
-		elm$json$Json$Decode$andThen,
-		function (title) {
-			return A2(
-				elm$json$Json$Decode$andThen,
-				function (thumbnail) {
-					return A2(
-						elm$json$Json$Decode$andThen,
-						function (mediaUrl) {
-							return A2(
-								elm$json$Json$Decode$andThen,
-								function (artist) {
-									return elm$json$Json$Decode$succeed(
-										{artist: artist, mediaUrl: mediaUrl, thumbnail: thumbnail, title: title});
-								},
-								A2(
-									elm$json$Json$Decode$field,
-									'artist',
-									elm$json$Json$Decode$oneOf(
-										_List_fromArray(
-											[
-												elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
-												A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
-											]))));
-						},
-						A2(
-							elm$json$Json$Decode$field,
-							'mediaUrl',
-							elm$json$Json$Decode$oneOf(
-								_List_fromArray(
-									[
-										elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
-										A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
-									]))));
-				},
-				A2(
-					elm$json$Json$Decode$field,
-					'thumbnail',
-					elm$json$Json$Decode$oneOf(
-						_List_fromArray(
-							[
-								elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
-								A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
-							]))));
-		},
-		A2(
-			elm$json$Json$Decode$field,
-			'title',
-			elm$json$Json$Decode$oneOf(
-				_List_fromArray(
-					[
-						elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
-						A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
-					])))));
-var author$project$AudioPlayer$subscriptions = function (model) {
-	return author$project$AudioPlayer$updateAudioFile(author$project$AudioPlayer$FileUpdate);
+var elm$browser$Browser$AnimationManager$Delta = function (a) {
+	return {$: 'Delta', a: a};
 };
-var elm$json$Json$Encode$null = _Json_encodeNull;
-var author$project$AudioPlayer$pause = _Platform_outgoingPort(
-	'pause',
-	function ($) {
-		return elm$json$Json$Encode$null;
+var elm$browser$Browser$AnimationManager$State = F3(
+	function (subs, request, oldTime) {
+		return {oldTime: oldTime, request: request, subs: subs};
 	});
-var author$project$AudioPlayer$pauseIt = author$project$AudioPlayer$pause(_Utils_Tuple0);
-var author$project$AudioPlayer$play = _Platform_outgoingPort(
-	'play',
-	function ($) {
-		return elm$json$Json$Encode$null;
-	});
-var author$project$AudioPlayer$playIt = author$project$AudioPlayer$play(_Utils_Tuple0);
-var elm$json$Json$Encode$float = _Json_wrap;
-var author$project$AudioPlayer$setCurrentTime = _Platform_outgoingPort('setCurrentTime', elm$json$Json$Encode$float);
-var author$project$AudioPlayer$setPlaybackRate = _Platform_outgoingPort('setPlaybackRate', elm$json$Json$Encode$float);
-var author$project$AudioPlayer$validatePlaybackRate = F2(
-	function (currentRate, newRate) {
-		return ((newRate > 0.0) && (newRate < 3.0)) ? newRate : currentRate;
-	});
-var elm$core$Debug$log = _Debug_log;
-var author$project$AudioPlayer$update = F2(
-	function (msg, model) {
-		switch (msg.$) {
-			case 'FileUpdate':
-				var file = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{audioFile: file, playing: true}),
-					author$project$AudioPlayer$playIt);
-			case 'TimeUpdate':
-				var time = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{currentTime: time}),
-					elm$core$Platform$Cmd$none);
-			case 'SetDuration':
-				var duration = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{duration: duration}),
-					elm$core$Platform$Cmd$none);
-			case 'Playing':
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{playing: true}),
-					elm$core$Platform$Cmd$none);
-			case 'Paused':
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{playing: false}),
-					elm$core$Platform$Cmd$none);
-			case 'Play':
-				return _Utils_Tuple2(model, author$project$AudioPlayer$playIt);
-			case 'Pause':
-				return _Utils_Tuple2(model, author$project$AudioPlayer$pauseIt);
-			case 'SetTime':
-				var time = msg.a;
-				return _Utils_Tuple2(
-					model,
-					author$project$AudioPlayer$setCurrentTime(
-						A2(elm$core$Debug$log, 'setting time: ', time)));
-			case 'Slower':
-				var newPlaybackRate = model.playbackRate - model.playbackStep;
-				var validatedRate = A2(author$project$AudioPlayer$validatePlaybackRate, model.playbackRate, newPlaybackRate);
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{playbackRate: validatedRate}),
-					author$project$AudioPlayer$setPlaybackRate(validatedRate));
-			case 'Faster':
-				var newPlaybackRate = model.playbackRate + model.playbackStep;
-				var validatedRate = A2(author$project$AudioPlayer$validatePlaybackRate, model.playbackRate, newPlaybackRate);
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{playbackRate: validatedRate}),
-					author$project$AudioPlayer$setPlaybackRate(validatedRate));
-			default:
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{playbackRate: 1}),
-					author$project$AudioPlayer$setPlaybackRate(1));
-		}
-	});
-var author$project$AudioPlayer$fileLoaded = function (url) {
-	if (url.$ === 'Just') {
-		var u = url.a;
-		return true;
-	} else {
-		return false;
+var elm$core$Task$succeed = _Scheduler_succeed;
+var elm$browser$Browser$AnimationManager$init = elm$core$Task$succeed(
+	A3(elm$browser$Browser$AnimationManager$State, _List_Nil, elm$core$Maybe$Nothing, 0));
+var elm$browser$Browser$External = function (a) {
+	return {$: 'External', a: a};
+};
+var elm$browser$Browser$Internal = function (a) {
+	return {$: 'Internal', a: a};
+};
+var elm$browser$Browser$Dom$NotFound = function (a) {
+	return {$: 'NotFound', a: a};
+};
+var elm$core$Basics$never = function (_n0) {
+	never:
+	while (true) {
+		var nvr = _n0.a;
+		var $temp$_n0 = nvr;
+		_n0 = $temp$_n0;
+		continue never;
 	}
-};
-var author$project$AudioPlayer$Paused = {$: 'Paused'};
-var author$project$AudioPlayer$Playing = {$: 'Playing'};
-var author$project$AudioPlayer$SetDuration = function (a) {
-	return {$: 'SetDuration', a: a};
-};
-var author$project$AudioPlayer$TimeUpdate = function (a) {
-	return {$: 'TimeUpdate', a: a};
-};
-var elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
 };
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
-var elm$json$Json$Decode$map2 = _Json_map2;
-var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
-	switch (handler.$) {
-		case 'Normal':
-			return 0;
-		case 'MayStopPropagation':
-			return 1;
-		case 'MayPreventDefault':
-			return 2;
-		default:
-			return 3;
-	}
+var elm$core$Task$Perform = function (a) {
+	return {$: 'Perform', a: a};
 };
-var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			elm$virtual_dom$VirtualDom$on,
-			event,
-			elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var author$project$AudioPlayer$onEnded = function (msg) {
-	return A2(
-		elm$html$Html$Events$on,
-		'ended',
-		elm$json$Json$Decode$succeed(msg));
-};
+var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
 var elm$core$List$foldrHelper = F4(
 	function (fn, acc, ctr, ls) {
 		if (!ls.b) {
@@ -5101,407 +4887,6 @@ var elm$core$List$foldr = F3(
 	function (fn, acc, ls) {
 		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
 	});
-var elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
-	});
-var elm$json$Json$Decode$float = _Json_decodeFloat;
-var author$project$AudioPlayer$targetDuration = A2(
-	elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'duration']),
-	elm$json$Json$Decode$float);
-var author$project$AudioPlayer$onLoadedMetadata = function (msg) {
-	return A2(
-		elm$html$Html$Events$on,
-		'loadedmetadata',
-		A2(elm$json$Json$Decode$map, msg, author$project$AudioPlayer$targetDuration));
-};
-var author$project$AudioPlayer$onPause = function (msg) {
-	return A2(
-		elm$html$Html$Events$on,
-		'pause',
-		elm$json$Json$Decode$succeed(msg));
-};
-var author$project$AudioPlayer$onPlaying = function (msg) {
-	return A2(
-		elm$html$Html$Events$on,
-		'play',
-		elm$json$Json$Decode$succeed(msg));
-};
-var author$project$AudioPlayer$targetCurrentTime = A2(
-	elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'currentTime']),
-	elm$json$Json$Decode$float);
-var author$project$AudioPlayer$onTimeUpdate = function (msg) {
-	return A2(
-		elm$html$Html$Events$on,
-		'timeupdate',
-		A2(elm$json$Json$Decode$map, msg, author$project$AudioPlayer$targetCurrentTime));
-};
-var elm$html$Html$audio = _VirtualDom_node('audio');
-var elm$json$Json$Encode$string = _Json_wrap;
-var elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			elm$json$Json$Encode$string(string));
-	});
-var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
-var elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
-var author$project$AudioPlayer$viewAudioFile = function (file) {
-	var _n0 = file.mediaUrl;
-	if (_n0.$ === 'Just') {
-		var url = _n0.a;
-		return A2(
-			elm$html$Html$audio,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$id('elm-audio-file'),
-					elm$html$Html$Attributes$src(url),
-					author$project$AudioPlayer$onLoadedMetadata(author$project$AudioPlayer$SetDuration),
-					author$project$AudioPlayer$onTimeUpdate(author$project$AudioPlayer$TimeUpdate),
-					author$project$AudioPlayer$onPause(author$project$AudioPlayer$Paused),
-					author$project$AudioPlayer$onPlaying(author$project$AudioPlayer$Playing),
-					author$project$AudioPlayer$onEnded(author$project$AudioPlayer$Paused)
-				]),
-			_List_Nil);
-	} else {
-		return A2(
-			elm$html$Html$audio,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$id('elm-audio-file')
-				]),
-			_List_Nil);
-	}
-};
-var elm$core$String$cons = _String_cons;
-var elm$core$String$fromChar = function (_char) {
-	return A2(elm$core$String$cons, _char, '');
-};
-var elm$core$String$length = _String_length;
-var elm$core$Bitwise$and = _Bitwise_and;
-var elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
-var elm$core$String$repeatHelp = F3(
-	function (n, chunk, result) {
-		return (n <= 0) ? result : A3(
-			elm$core$String$repeatHelp,
-			n >> 1,
-			_Utils_ap(chunk, chunk),
-			(!(n & 1)) ? result : _Utils_ap(result, chunk));
-	});
-var elm$core$String$repeat = F2(
-	function (n, chunk) {
-		return A3(elm$core$String$repeatHelp, n, chunk, '');
-	});
-var elm$core$String$padLeft = F3(
-	function (n, _char, string) {
-		return _Utils_ap(
-			A2(
-				elm$core$String$repeat,
-				n - elm$core$String$length(string),
-				elm$core$String$fromChar(_char)),
-			string);
-	});
-var author$project$AudioPlayer$padTimeString = function (timeUnit) {
-	return A3(
-		elm$core$String$padLeft,
-		2,
-		_Utils_chr('0'),
-		elm$core$String$fromInt(timeUnit));
-};
-var author$project$AudioPlayer$formatTime = function (time) {
-	var seconds = author$project$AudioPlayer$padTimeString((60 % 3600) % time);
-	var minutes = author$project$AudioPlayer$padTimeString(((3600 % time) / 60) | 0);
-	var hours = author$project$AudioPlayer$padTimeString((time / 3600) | 0);
-	var timeList = (hours === '00') ? _List_fromArray(
-		[minutes, seconds]) : _List_fromArray(
-		[hours, minutes, seconds]);
-	return A2(elm$core$String$join, ':', timeList);
-};
-var elm$core$Basics$round = _Basics_round;
-var elm$html$Html$div = _VirtualDom_node('div');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
-var elm$html$Html$Attributes$class = elm$html$Html$Attributes$stringProperty('className');
-var author$project$AudioPlayer$viewClock = F2(
-	function (currentTime, duration) {
-		return A2(
-			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('time')
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text(
-					author$project$AudioPlayer$formatTime(
-						elm$core$Basics$round(currentTime)) + (' / ' + author$project$AudioPlayer$formatTime(
-						elm$core$Basics$round(duration))))
-				]));
-	});
-var elm$html$Html$img = _VirtualDom_node('img');
-var author$project$AudioPlayer$viewImg = F2(
-	function (src, _class) {
-		if (src.$ === 'Just') {
-			var s = src.a;
-			return A2(
-				elm$html$Html$img,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$src(s),
-						elm$html$Html$Attributes$class(_class)
-					]),
-				_List_Nil);
-		} else {
-			return elm$html$Html$text('');
-		}
-	});
-var author$project$AudioPlayer$Pause = {$: 'Pause'};
-var author$project$AudioPlayer$Play = {$: 'Play'};
-var elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
-var elm$svg$Svg$path = elm$svg$Svg$trustedNode('path');
-var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
-var elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
-var elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var author$project$AudioPlayer$pauseIcon = A2(
-	elm$svg$Svg$svg,
-	_List_fromArray(
-		[
-			elm$svg$Svg$Attributes$viewBox('0 0 100 100')
-		]),
-	_List_fromArray(
-		[
-			A2(
-			elm$svg$Svg$path,
-			_List_fromArray(
-				[
-					elm$svg$Svg$Attributes$d('M40.53 19.96c-.096 0-.19.015-.282.028v-.03H29.912c-1.195 0-2.164.97-2.164 2.164V77.88c0 1.193.968 2.16 2.162 2.16h10.62c1.194 0 2.162-.967 2.162-2.16V22.126v-.005c0-1.195-.968-2.163-2.16-2.163zM72.25 77.87V22.127l.002-.005c0-1.195-.97-2.163-2.162-2.163-.097 0-.19.015-.283.028v-.03H59.47c-1.194 0-2.163.97-2.163 2.164V77.88c0 1.193.968 2.16 2.162 2.16h10.617c1.194 0 2.162-.967 2.162-2.16v-.01z')
-				]),
-			_List_Nil)
-		]));
-var author$project$AudioPlayer$playIcon = A2(
-	elm$svg$Svg$svg,
-	_List_fromArray(
-		[
-			elm$svg$Svg$Attributes$viewBox('0 0 100 100')
-		]),
-	_List_fromArray(
-		[
-			A2(
-			elm$svg$Svg$path,
-			_List_fromArray(
-				[
-					elm$svg$Svg$Attributes$d('M76.982 50c0-.847-.474-1.575-1.167-1.957L26.54 19.595c-.362-.253-.802-.404-1.278-.404-1.24 0-2.244 1.005-2.244 2.244 0 .087.016.17.026.253h-.026v57.13h.026c.127 1.12 1.066 1.99 2.218 1.99.41 0 .787-.116 1.117-.307l.02.035L75.874 51.97l-.02-.035c.67-.388 1.127-1.105 1.127-1.935z')
-				]),
-			_List_Nil)
-		]));
-var elm$html$Html$button = _VirtualDom_node('button');
-var elm$html$Html$Attributes$name = elm$html$Html$Attributes$stringProperty('name');
-var elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		elm$html$Html$Events$on,
-		'click',
-		elm$json$Json$Decode$succeed(msg));
-};
-var author$project$AudioPlayer$viewPlayButton = function (playing) {
-	return playing ? A2(
-		elm$html$Html$button,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$class('pause'),
-				elm$html$Html$Attributes$name('pause'),
-				elm$html$Html$Events$onClick(author$project$AudioPlayer$Pause)
-			]),
-		_List_fromArray(
-			[author$project$AudioPlayer$pauseIcon])) : A2(
-		elm$html$Html$button,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$class('play'),
-				elm$html$Html$Attributes$name('play'),
-				elm$html$Html$Events$onClick(author$project$AudioPlayer$Play)
-			]),
-		_List_fromArray(
-			[author$project$AudioPlayer$playIcon]));
-};
-var author$project$AudioPlayer$Faster = {$: 'Faster'};
-var author$project$AudioPlayer$ResetPlayback = {$: 'ResetPlayback'};
-var author$project$AudioPlayer$Slower = {$: 'Slower'};
-var author$project$AudioPlayer$msgToString = function (msg) {
-	switch (msg.$) {
-		case 'FileUpdate':
-			var af = msg.a;
-			return 'FileUpdate';
-		case 'TimeUpdate':
-			var f = msg.a;
-			return 'TimeUpdate';
-		case 'SetDuration':
-			var f = msg.a;
-			return 'SetDuration';
-		case 'Playing':
-			return 'Playing';
-		case 'Paused':
-			return 'Paused';
-		case 'Play':
-			return 'Play';
-		case 'Pause':
-			return 'Pause';
-		case 'SetTime':
-			var f = msg.a;
-			return 'SetTime';
-		case 'Slower':
-			return 'Slower';
-		case 'Faster':
-			return 'Faster';
-		default:
-			return 'ResetPlayback';
-	}
-};
-var elm$core$String$toLower = _String_toLower;
-var author$project$AudioPlayer$controlButton = F3(
-	function (display, msg, label) {
-		if (display) {
-			var name = elm$core$String$toLower(
-				author$project$AudioPlayer$msgToString(msg));
-			return A2(
-				elm$html$Html$button,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class(name),
-						elm$html$Html$Attributes$name(name),
-						elm$html$Html$Events$onClick(msg)
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text(label)
-					]));
-		} else {
-			return elm$html$Html$text('');
-		}
-	});
-var elm$core$String$fromFloat = _String_fromNumber;
-var author$project$AudioPlayer$viewSpeedControls = F2(
-	function (display, playbackRate) {
-		return display ? A2(
-			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('playback')
-				]),
-			_List_fromArray(
-				[
-					A3(author$project$AudioPlayer$controlButton, display, author$project$AudioPlayer$Slower, '-'),
-					A3(
-					author$project$AudioPlayer$controlButton,
-					display,
-					author$project$AudioPlayer$ResetPlayback,
-					elm$core$String$fromFloat(playbackRate) + 'x'),
-					A3(author$project$AudioPlayer$controlButton, display, author$project$AudioPlayer$Faster, '+')
-				])) : elm$html$Html$text('');
-	});
-var author$project$AudioPlayer$SetTime = function (a) {
-	return {$: 'SetTime', a: a};
-};
-var author$project$AudioPlayer$targetRangeValue = A2(
-	elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'valueAsNumber']),
-	elm$json$Json$Decode$float);
-var author$project$AudioPlayer$onInputRange = function (msg) {
-	return A2(
-		elm$html$Html$Events$on,
-		'input',
-		A2(
-			elm$core$Debug$log,
-			'range',
-			A2(elm$json$Json$Decode$map, msg, author$project$AudioPlayer$targetRangeValue)));
-};
-var author$project$AudioPlayer$positionPercentage = F2(
-	function (position, duration) {
-		return (position / duration) * 100.0;
-	});
-var elm$html$Html$input = _VirtualDom_node('input');
-var elm$html$Html$Attributes$max = elm$html$Html$Attributes$stringProperty('max');
-var elm$html$Html$Attributes$step = function (n) {
-	return A2(elm$html$Html$Attributes$stringProperty, 'step', n);
-};
-var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
-var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
-var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
-var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
-var author$project$AudioPlayer$viewTimeline = F2(
-	function (position, duration) {
-		return A2(
-			elm$html$Html$input,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('timeline'),
-					elm$html$Html$Attributes$max(
-					elm$core$String$fromFloat(duration)),
-					elm$html$Html$Attributes$name('timeline'),
-					elm$html$Html$Attributes$step('0.01'),
-					A2(
-					elm$html$Html$Attributes$style,
-					'background-size',
-					elm$core$String$fromFloat(
-						A2(author$project$AudioPlayer$positionPercentage, position, duration)) + '% 100%'),
-					elm$html$Html$Attributes$type_('range'),
-					elm$html$Html$Attributes$value(
-					elm$core$String$fromFloat(position)),
-					author$project$AudioPlayer$onInputRange(author$project$AudioPlayer$SetTime)
-				]),
-			_List_Nil);
-	});
-var elm$core$Basics$neq = _Utils_notEqual;
-var elm$html$Html$span = _VirtualDom_node('span');
-var author$project$AudioPlayer$viewSpan = F2(
-	function (text, _class) {
-		if (text.$ === 'Just') {
-			var t = text.a;
-			return (t !== '') ? A2(
-				elm$html$Html$span,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class(_class)
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text(t)
-					])) : elm$html$Html$text('');
-		} else {
-			return elm$html$Html$text('');
-		}
-	});
-var author$project$AudioPlayer$viewTitle = function (file) {
-	return A2(
-		elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(author$project$AudioPlayer$viewSpan, file.artist, 'artist'),
-				A2(author$project$AudioPlayer$viewSpan, file.title, 'title')
-			]));
-};
-var elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2(elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var elm$core$List$map = F2(
 	function (f, xs) {
 		return A3(
@@ -5516,91 +4901,6 @@ var elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
-var elm$core$Tuple$second = function (_n0) {
-	var y = _n0.b;
-	return y;
-};
-var elm$html$Html$Attributes$classList = function (classes) {
-	return elm$html$Html$Attributes$class(
-		A2(
-			elm$core$String$join,
-			' ',
-			A2(
-				elm$core$List$map,
-				elm$core$Tuple$first,
-				A2(elm$core$List$filter, elm$core$Tuple$second, classes))));
-};
-var elm$virtual_dom$VirtualDom$lazy = _VirtualDom_lazy;
-var elm$html$Html$Lazy$lazy = elm$virtual_dom$VirtualDom$lazy;
-var elm$virtual_dom$VirtualDom$lazy2 = _VirtualDom_lazy2;
-var elm$html$Html$Lazy$lazy2 = elm$virtual_dom$VirtualDom$lazy2;
-var author$project$AudioPlayer$view = function (model) {
-	return A2(
-		elm$html$Html$div,
-		_List_fromArray(
-			[
-				elm$html$Html$Attributes$classList(
-				_List_fromArray(
-					[
-						_Utils_Tuple2('wrapper', true),
-						_Utils_Tuple2(
-						'open',
-						author$project$AudioPlayer$fileLoaded(model.audioFile.mediaUrl))
-					]))
-			]),
-		_List_fromArray(
-			[
-				A2(elm$html$Html$Lazy$lazy, author$project$AudioPlayer$viewAudioFile, model.audioFile),
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('player')
-					]),
-				_List_fromArray(
-					[
-						A3(elm$html$Html$Lazy$lazy2, author$project$AudioPlayer$viewImg, model.audioFile.thumbnail, 'thumbnail'),
-						A2(elm$html$Html$Lazy$lazy, author$project$AudioPlayer$viewPlayButton, model.playing),
-						A3(elm$html$Html$Lazy$lazy2, author$project$AudioPlayer$viewSpeedControls, model.userConfig.speedControl, model.playbackRate),
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('info')
-							]),
-						_List_fromArray(
-							[
-								A3(elm$html$Html$Lazy$lazy2, author$project$AudioPlayer$viewTimeline, model.currentTime, model.duration),
-								A2(elm$html$Html$Lazy$lazy, author$project$AudioPlayer$viewTitle, model.audioFile),
-								A3(elm$html$Html$Lazy$lazy2, author$project$AudioPlayer$viewClock, model.currentTime, model.duration)
-							])),
-						A3(elm$html$Html$Lazy$lazy2, author$project$AudioPlayer$viewImg, model.userConfig.logo, 'logo')
-					]))
-			]));
-};
-var elm$browser$Browser$External = function (a) {
-	return {$: 'External', a: a};
-};
-var elm$browser$Browser$Internal = function (a) {
-	return {$: 'Internal', a: a};
-};
-var elm$browser$Browser$Dom$NotFound = function (a) {
-	return {$: 'NotFound', a: a};
-};
-var elm$core$Basics$never = function (_n0) {
-	never:
-	while (true) {
-		var nvr = _n0.a;
-		var $temp$_n0 = nvr;
-		_n0 = $temp$_n0;
-		continue never;
-	}
-};
-var elm$core$Task$Perform = function (a) {
-	return {$: 'Perform', a: a};
-};
-var elm$core$Task$succeed = _Scheduler_succeed;
-var elm$core$Task$init = elm$core$Task$succeed(_Utils_Tuple0);
 var elm$core$Task$andThen = _Scheduler_andThen;
 var elm$core$Task$map = F2(
 	function (func, taskA) {
@@ -5675,6 +4975,22 @@ var elm$core$Task$perform = F2(
 			elm$core$Task$Perform(
 				A2(elm$core$Task$map, toMessage, task)));
 	});
+var elm$json$Json$Decode$map = _Json_map1;
+var elm$json$Json$Decode$map2 = _Json_map2;
+var elm$json$Json$Decode$succeed = _Json_succeed;
+var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
+	switch (handler.$) {
+		case 'Normal':
+			return 0;
+		case 'MayStopPropagation':
+			return 1;
+		case 'MayPreventDefault':
+			return 2;
+		default:
+			return 3;
+	}
+};
+var elm$core$String$length = _String_length;
 var elm$core$String$slice = _String_slice;
 var elm$core$String$dropLeft = F2(
 	function (n, string) {
@@ -5803,33 +5119,376 @@ var elm$url$Url$fromString = function (str) {
 		elm$url$Url$Https,
 		A2(elm$core$String$dropLeft, 8, str)) : elm$core$Maybe$Nothing);
 };
+var elm$browser$Browser$AnimationManager$now = _Browser_now(_Utils_Tuple0);
+var elm$browser$Browser$AnimationManager$rAF = _Browser_rAF(_Utils_Tuple0);
+var elm$core$Platform$sendToSelf = _Platform_sendToSelf;
+var elm$core$Process$kill = _Scheduler_kill;
+var elm$core$Process$spawn = _Scheduler_spawn;
+var elm$browser$Browser$AnimationManager$onEffects = F3(
+	function (router, subs, _n0) {
+		var request = _n0.request;
+		var oldTime = _n0.oldTime;
+		var _n1 = _Utils_Tuple2(request, subs);
+		if (_n1.a.$ === 'Nothing') {
+			if (!_n1.b.b) {
+				var _n2 = _n1.a;
+				return elm$browser$Browser$AnimationManager$init;
+			} else {
+				var _n4 = _n1.a;
+				return A2(
+					elm$core$Task$andThen,
+					function (pid) {
+						return A2(
+							elm$core$Task$andThen,
+							function (time) {
+								return elm$core$Task$succeed(
+									A3(
+										elm$browser$Browser$AnimationManager$State,
+										subs,
+										elm$core$Maybe$Just(pid),
+										time));
+							},
+							elm$browser$Browser$AnimationManager$now);
+					},
+					elm$core$Process$spawn(
+						A2(
+							elm$core$Task$andThen,
+							elm$core$Platform$sendToSelf(router),
+							elm$browser$Browser$AnimationManager$rAF)));
+			}
+		} else {
+			if (!_n1.b.b) {
+				var pid = _n1.a.a;
+				return A2(
+					elm$core$Task$andThen,
+					function (_n3) {
+						return elm$browser$Browser$AnimationManager$init;
+					},
+					elm$core$Process$kill(pid));
+			} else {
+				return elm$core$Task$succeed(
+					A3(elm$browser$Browser$AnimationManager$State, subs, request, oldTime));
+			}
+		}
+	});
+var elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var elm$time$Time$millisToPosix = elm$time$Time$Posix;
+var elm$browser$Browser$AnimationManager$onSelfMsg = F3(
+	function (router, newTime, _n0) {
+		var subs = _n0.subs;
+		var oldTime = _n0.oldTime;
+		var send = function (sub) {
+			if (sub.$ === 'Time') {
+				var tagger = sub.a;
+				return A2(
+					elm$core$Platform$sendToApp,
+					router,
+					tagger(
+						elm$time$Time$millisToPosix(newTime)));
+			} else {
+				var tagger = sub.a;
+				return A2(
+					elm$core$Platform$sendToApp,
+					router,
+					tagger(newTime - oldTime));
+			}
+		};
+		return A2(
+			elm$core$Task$andThen,
+			function (pid) {
+				return A2(
+					elm$core$Task$andThen,
+					function (_n1) {
+						return elm$core$Task$succeed(
+							A3(
+								elm$browser$Browser$AnimationManager$State,
+								subs,
+								elm$core$Maybe$Just(pid),
+								newTime));
+					},
+					elm$core$Task$sequence(
+						A2(elm$core$List$map, send, subs)));
+			},
+			elm$core$Process$spawn(
+				A2(
+					elm$core$Task$andThen,
+					elm$core$Platform$sendToSelf(router),
+					elm$browser$Browser$AnimationManager$rAF)));
+	});
+var elm$browser$Browser$AnimationManager$Time = function (a) {
+	return {$: 'Time', a: a};
+};
+var elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var elm$browser$Browser$AnimationManager$subMap = F2(
+	function (func, sub) {
+		if (sub.$ === 'Time') {
+			var tagger = sub.a;
+			return elm$browser$Browser$AnimationManager$Time(
+				A2(elm$core$Basics$composeL, func, tagger));
+		} else {
+			var tagger = sub.a;
+			return elm$browser$Browser$AnimationManager$Delta(
+				A2(elm$core$Basics$composeL, func, tagger));
+		}
+	});
+_Platform_effectManagers['Browser.AnimationManager'] = _Platform_createManager(elm$browser$Browser$AnimationManager$init, elm$browser$Browser$AnimationManager$onEffects, elm$browser$Browser$AnimationManager$onSelfMsg, 0, elm$browser$Browser$AnimationManager$subMap);
+var elm$browser$Browser$AnimationManager$subscription = _Platform_leaf('Browser.AnimationManager');
+var elm$browser$Browser$AnimationManager$onAnimationFrameDelta = function (tagger) {
+	return elm$browser$Browser$AnimationManager$subscription(
+		elm$browser$Browser$AnimationManager$Delta(tagger));
+};
+var elm$browser$Browser$Events$onAnimationFrameDelta = elm$browser$Browser$AnimationManager$onAnimationFrameDelta;
+var elm$core$Platform$Sub$batch = _Platform_batch;
+var author$project$AudioPlayer$subscriptions = function (model) {
+	return elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				elm$browser$Browser$Events$onAnimationFrameDelta(author$project$AudioPlayer$onTick)
+			]));
+};
+var elm$json$Json$Encode$null = _Json_encodeNull;
+var author$project$AudioPlayer$pause = _Platform_outgoingPort(
+	'pause',
+	function ($) {
+		return elm$json$Json$Encode$null;
+	});
+var author$project$AudioPlayer$play = _Platform_outgoingPort(
+	'play',
+	function ($) {
+		return elm$json$Json$Encode$null;
+	});
+var elm$core$Basics$not = _Basics_not;
+var author$project$AudioPlayer$update = F2(
+	function (msg, model) {
+		switch (msg.$) {
+			case 'NoOp':
+				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+			case 'Play':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{playing: true}),
+					author$project$AudioPlayer$play(_Utils_Tuple0));
+			case 'Pause':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{playing: false}),
+					author$project$AudioPlayer$pause(_Utils_Tuple0));
+			case 'TimeUpdate':
+				var time = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{seekerPosition: 100 / (model.duration / time)}),
+					elm$core$Platform$Cmd$none);
+			case 'Tick':
+				var deltaTime = msg.a;
+				return (!model.playing) ? _Utils_Tuple2(model, elm$core$Platform$Cmd$none) : _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{seekerPosition: model.seekerPosition + deltaTime}),
+					elm$core$Platform$Cmd$none);
+			case 'ChangeTrack':
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							audioSrc: _Utils_eq(model.audioSrc, author$project$AudioPlayer$audios.ff) ? author$project$AudioPlayer$audios.more : author$project$AudioPlayer$audios.ff,
+							playing: false,
+							seekerPosition: 0.0
+						}),
+					elm$core$Platform$Cmd$none);
+			case 'DurationChanged':
+				var duration = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{duration: duration}),
+					elm$core$Platform$Cmd$none);
+			default:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{playing: false, seekerPosition: 0}),
+					elm$core$Platform$Cmd$none);
+		}
+	});
+var author$project$AudioPlayer$DurationChanged = function (a) {
+	return {$: 'DurationChanged', a: a};
+};
+var author$project$AudioPlayer$Ended = {$: 'Ended'};
+var author$project$AudioPlayer$TimeUpdate = function (a) {
+	return {$: 'TimeUpdate', a: a};
+};
+var elm$json$Json$Decode$field = _Json_decodeField;
+var elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
+	});
+var elm$json$Json$Decode$float = _Json_decodeFloat;
+var author$project$AudioPlayer$targetDuration = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'duration']),
+	elm$json$Json$Decode$float);
+var elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			elm$virtual_dom$VirtualDom$on,
+			event,
+			elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var author$project$AudioPlayer$onDurationChange = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'durationchange',
+		A2(elm$json$Json$Decode$map, msg, author$project$AudioPlayer$targetDuration));
+};
+var author$project$AudioPlayer$onEnded = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'ended',
+		elm$json$Json$Decode$succeed(msg));
+};
+var author$project$AudioPlayer$targetCurrentTime = A2(
+	elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'currentTime']),
+	elm$json$Json$Decode$float);
+var author$project$AudioPlayer$onTimeUpdate = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'timeupdate',
+		A2(elm$json$Json$Decode$map, msg, author$project$AudioPlayer$targetCurrentTime));
+};
+var elm$html$Html$audio = _VirtualDom_node('audio');
+var elm$json$Json$Encode$string = _Json_wrap;
+var elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			elm$json$Json$Encode$string(string));
+	});
+var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
+var elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var author$project$AudioPlayer$viewAudio = function (model) {
+	return A2(
+		elm$html$Html$audio,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$id('elm-audio-file'),
+				elm$html$Html$Attributes$src(model.audioSrc),
+				author$project$AudioPlayer$onEnded(author$project$AudioPlayer$Ended),
+				author$project$AudioPlayer$onDurationChange(author$project$AudioPlayer$DurationChanged),
+				author$project$AudioPlayer$onTimeUpdate(author$project$AudioPlayer$TimeUpdate)
+			]),
+		_List_Nil);
+};
+var author$project$AudioPlayer$ChangeTrack = {$: 'ChangeTrack'};
+var elm$html$Html$button = _VirtualDom_node('button');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'click',
+		elm$json$Json$Decode$succeed(msg));
+};
+var author$project$AudioPlayer$viewChangeSource = function (model) {
+	return A2(
+		elm$html$Html$button,
+		_List_fromArray(
+			[
+				elm$html$Html$Events$onClick(author$project$AudioPlayer$ChangeTrack)
+			]),
+		_List_fromArray(
+			[
+				elm$html$Html$text('other')
+			]));
+};
+var elm$core$String$fromFloat = _String_fromNumber;
+var elm$html$Html$span = _VirtualDom_node('span');
+var author$project$AudioPlayer$viewDuration = function (model) {
+	var duration = elm$core$String$fromFloat(model.duration);
+	return A2(
+		elm$html$Html$span,
+		_List_Nil,
+		_List_fromArray(
+			[
+				elm$html$Html$text(duration)
+			]));
+};
+var author$project$AudioPlayer$Pause = {$: 'Pause'};
+var author$project$AudioPlayer$Play = {$: 'Play'};
+var author$project$AudioPlayer$viewPlayPause = function (model) {
+	var plB = model.playing ? A2(
+		elm$html$Html$button,
+		_List_fromArray(
+			[
+				elm$html$Html$Events$onClick(author$project$AudioPlayer$Pause)
+			]),
+		_List_fromArray(
+			[
+				elm$html$Html$text('Pause')
+			])) : A2(
+		elm$html$Html$button,
+		_List_fromArray(
+			[
+				elm$html$Html$Events$onClick(author$project$AudioPlayer$Play)
+			]),
+		_List_fromArray(
+			[
+				elm$html$Html$text('Play')
+			]));
+	return plB;
+};
+var elm$html$Html$input = _VirtualDom_node('input');
+var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
+var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
+var author$project$AudioPlayer$viewSeeker = function (model) {
+	var seekerPos = elm$core$String$fromFloat(model.seekerPosition);
+	return A2(
+		elm$html$Html$input,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$type_('range'),
+				elm$html$Html$Attributes$value(seekerPos)
+			]),
+		_List_Nil);
+};
+var elm$html$Html$div = _VirtualDom_node('div');
+var author$project$AudioPlayer$view = function (model) {
+	return A2(
+		elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				author$project$AudioPlayer$viewPlayPause(model),
+				author$project$AudioPlayer$viewSeeker(model),
+				author$project$AudioPlayer$viewAudio(model),
+				author$project$AudioPlayer$viewDuration(model),
+				author$project$AudioPlayer$viewChangeSource(model)
+			]));
+};
 var elm$browser$Browser$element = _Browser_element;
-var elm$json$Json$Decode$bool = _Json_decodeBool;
 var author$project$AudioPlayer$main = elm$browser$Browser$element(
 	{init: author$project$AudioPlayer$init, subscriptions: author$project$AudioPlayer$subscriptions, update: author$project$AudioPlayer$update, view: author$project$AudioPlayer$view});
 _Platform_export({'AudioPlayer':{'init':author$project$AudioPlayer$main(
-	A2(
-		elm$json$Json$Decode$andThen,
-		function (volumeControl) {
-			return A2(
-				elm$json$Json$Decode$andThen,
-				function (speedControl) {
-					return A2(
-						elm$json$Json$Decode$andThen,
-						function (logo) {
-							return elm$json$Json$Decode$succeed(
-								{logo: logo, speedControl: speedControl, volumeControl: volumeControl});
-						},
-						A2(
-							elm$json$Json$Decode$field,
-							'logo',
-							elm$json$Json$Decode$oneOf(
-								_List_fromArray(
-									[
-										elm$json$Json$Decode$null(elm$core$Maybe$Nothing),
-										A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, elm$json$Json$Decode$string)
-									]))));
-				},
-				A2(elm$json$Json$Decode$field, 'speedControl', elm$json$Json$Decode$bool));
-		},
-		A2(elm$json$Json$Decode$field, 'volumeControl', elm$json$Json$Decode$bool)))(0)}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
