@@ -4,7 +4,9 @@ import Browser
 import Browser.Events exposing (onAnimationFrameDelta)
 import Html
 import Html.Attributes as HA
+import Html.Attributes.Extra as HAE
 import Html.Events as HE
+import Html.Events.Extra as HEE
 import Json.Decode as JD
 import Json.Encode as JE
 import Time exposing (Posix)
@@ -21,6 +23,7 @@ type alias Model =
     , audioSrc : String
     , duration : Float
     , seekerPosition : Float
+    , volume : Float
     }
 
 
@@ -33,6 +36,8 @@ type Msg
     | Ended
     | ChangeTrack
     | DurationChanged Float
+    | SeekerDrag Float
+    | VolumeDrag Float
 
 
 init : () -> ( Model, Cmd msg )
@@ -41,6 +46,7 @@ init flags =
       , audioSrc = audios.more
       , seekerPosition = 0.0
       , duration = 0.0
+      , volume = 1.0
       }
     , Cmd.none
     )
@@ -114,6 +120,21 @@ update msg model =
         Ended ->
             ( { model | playing = False, seekerPosition = 0 }, Cmd.none )
 
+        SeekerDrag position ->
+            let
+                pos =
+                    position
+
+                currentTime =
+                    model.duration / (100 / pos)
+            in
+            ( { model | seekerPosition = pos }
+            , setCurrentTime currentTime
+            )
+
+        VolumeDrag volume ->
+            ( { model | volume = volume / 100 }, Cmd.none )
+
 
 
 -- Ports
@@ -123,6 +144,9 @@ port play : () -> Cmd msg
 
 
 port pause : () -> Cmd msg
+
+
+port setCurrentTime : Float -> Cmd msg
 
 
 
@@ -154,8 +178,13 @@ targetCurrentTime =
     JD.at [ "target", "currentTime" ] JD.float
 
 
+onInputFloat : (Float -> msg) -> Html.Attribute msg
+onInputFloat msg =
+    HE.on "input" (JD.map msg HEE.targetValueFloat)
 
--- Views
+
+
+-- View
 
 
 viewPlayPause : Model -> Html.Html Msg
@@ -177,7 +206,26 @@ viewSeeker model =
         seekerPos =
             String.fromFloat model.seekerPosition
     in
-    Html.input [ HA.type_ "range", HA.value seekerPos ] []
+    Html.input
+        [ HA.type_ "range"
+        , HA.value seekerPos
+        , onInputFloat SeekerDrag
+        ]
+        []
+
+
+viewVolume : Model -> Html.Html Msg
+viewVolume model =
+    let
+        volPos =
+            model.volume * 100 |> String.fromFloat
+    in
+    Html.input
+        [ HA.type_ "range"
+        , HA.value volPos
+        , onInputFloat VolumeDrag
+        ]
+        []
 
 
 viewAudio : Model -> Html.Html Msg
@@ -185,6 +233,7 @@ viewAudio model =
     Html.audio
         [ HA.id "elm-audio-file"
         , HA.src model.audioSrc
+        , HAE.volume model.volume
         , onEnded Ended
         , onDurationChange DurationChanged
         , onTimeUpdate TimeUpdate
@@ -214,4 +263,5 @@ view model =
         , viewAudio model
         , viewDuration model
         , viewChangeSource model
+        , viewVolume model
         ]

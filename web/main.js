@@ -4790,7 +4790,7 @@ var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$AudioPlayer$init = function (flags) {
 	return _Utils_Tuple2(
-		{audioSrc: author$project$AudioPlayer$audios.more, duration: 0.0, playing: false, seekerPosition: 0.0},
+		{audioSrc: author$project$AudioPlayer$audios.more, duration: 0.0, playing: false, seekerPosition: 0.0, volume: 1.0},
 		elm$core$Platform$Cmd$none);
 };
 var author$project$AudioPlayer$NoOp = {$: 'NoOp'};
@@ -5263,6 +5263,8 @@ var author$project$AudioPlayer$play = _Platform_outgoingPort(
 	function ($) {
 		return elm$json$Json$Encode$null;
 	});
+var elm$json$Json$Encode$float = _Json_wrap;
+var author$project$AudioPlayer$setCurrentTime = _Platform_outgoingPort('setCurrentTime', elm$json$Json$Encode$float);
 var elm$core$Basics$not = _Basics_not;
 var author$project$AudioPlayer$update = F2(
 	function (msg, model) {
@@ -5312,11 +5314,27 @@ var author$project$AudioPlayer$update = F2(
 						model,
 						{duration: duration}),
 					elm$core$Platform$Cmd$none);
-			default:
+			case 'Ended':
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{playing: false, seekerPosition: 0}),
+					elm$core$Platform$Cmd$none);
+			case 'SeekerDrag':
+				var position = msg.a;
+				var pos = position;
+				var currentTime = model.duration / (100 / pos);
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{seekerPosition: pos}),
+					author$project$AudioPlayer$setCurrentTime(currentTime));
+			default:
+				var volume = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{volume: volume / 100}),
 					elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5388,6 +5406,22 @@ var elm$html$Html$Attributes$src = function (url) {
 		'src',
 		_VirtualDom_noJavaScriptOrHtmlUri(url));
 };
+var elm$virtual_dom$VirtualDom$property = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_property,
+			_VirtualDom_noInnerHtmlOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var elm$html$Html$Attributes$property = elm$virtual_dom$VirtualDom$property;
+var elm_community$html_extra$Html$Attributes$Extra$floatProperty = F2(
+	function (name, _float) {
+		return A2(
+			elm$html$Html$Attributes$property,
+			name,
+			elm$json$Json$Encode$float(_float));
+	});
+var elm_community$html_extra$Html$Attributes$Extra$volume = elm_community$html_extra$Html$Attributes$Extra$floatProperty('volume');
 var author$project$AudioPlayer$viewAudio = function (model) {
 	return A2(
 		elm$html$Html$audio,
@@ -5395,6 +5429,7 @@ var author$project$AudioPlayer$viewAudio = function (model) {
 			[
 				elm$html$Html$Attributes$id('elm-audio-file'),
 				elm$html$Html$Attributes$src(model.audioSrc),
+				elm_community$html_extra$Html$Attributes$Extra$volume(model.volume),
 				author$project$AudioPlayer$onEnded(author$project$AudioPlayer$Ended),
 				author$project$AudioPlayer$onDurationChange(author$project$AudioPlayer$DurationChanged),
 				author$project$AudioPlayer$onTimeUpdate(author$project$AudioPlayer$TimeUpdate)
@@ -5459,6 +5494,44 @@ var author$project$AudioPlayer$viewPlayPause = function (model) {
 			]));
 	return plB;
 };
+var author$project$AudioPlayer$SeekerDrag = function (a) {
+	return {$: 'SeekerDrag', a: a};
+};
+var elm$core$Basics$isNaN = _Basics_isNaN;
+var elm$json$Json$Decode$andThen = _Json_andThen;
+var elm$json$Json$Decode$fail = _Json_fail;
+var elm_community$html_extra$Html$Events$Extra$customDecoder = F2(
+	function (d, f) {
+		var resultDecoder = function (x) {
+			if (x.$ === 'Ok') {
+				var a = x.a;
+				return elm$json$Json$Decode$succeed(a);
+			} else {
+				var e = x.a;
+				return elm$json$Json$Decode$fail(e);
+			}
+		};
+		return A2(
+			elm$json$Json$Decode$andThen,
+			resultDecoder,
+			A2(elm$json$Json$Decode$map, f, d));
+	});
+var elm_community$html_extra$Html$Events$Extra$targetValueFloat = A2(
+	elm_community$html_extra$Html$Events$Extra$customDecoder,
+	A2(
+		elm$json$Json$Decode$at,
+		_List_fromArray(
+			['target', 'valueAsNumber']),
+		elm$json$Json$Decode$float),
+	function (v) {
+		return elm$core$Basics$isNaN(v) ? elm$core$Result$Err('Not a number') : elm$core$Result$Ok(v);
+	});
+var author$project$AudioPlayer$onSeekerDrag = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'input',
+		A2(elm$json$Json$Decode$map, msg, elm_community$html_extra$Html$Events$Extra$targetValueFloat));
+};
 var elm$html$Html$input = _VirtualDom_node('input');
 var elm$html$Html$Attributes$type_ = elm$html$Html$Attributes$stringProperty('type');
 var elm$html$Html$Attributes$value = elm$html$Html$Attributes$stringProperty('value');
@@ -5469,7 +5542,29 @@ var author$project$AudioPlayer$viewSeeker = function (model) {
 		_List_fromArray(
 			[
 				elm$html$Html$Attributes$type_('range'),
-				elm$html$Html$Attributes$value(seekerPos)
+				elm$html$Html$Attributes$value(seekerPos),
+				author$project$AudioPlayer$onSeekerDrag(author$project$AudioPlayer$SeekerDrag)
+			]),
+		_List_Nil);
+};
+var author$project$AudioPlayer$VolumeDrag = function (a) {
+	return {$: 'VolumeDrag', a: a};
+};
+var author$project$AudioPlayer$onVolumeChange = function (msg) {
+	return A2(
+		elm$html$Html$Events$on,
+		'input',
+		A2(elm$json$Json$Decode$map, msg, elm_community$html_extra$Html$Events$Extra$targetValueFloat));
+};
+var author$project$AudioPlayer$viewVolume = function (model) {
+	var volPos = elm$core$String$fromFloat(model.volume * 100);
+	return A2(
+		elm$html$Html$input,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$type_('range'),
+				elm$html$Html$Attributes$value(volPos),
+				author$project$AudioPlayer$onVolumeChange(author$project$AudioPlayer$VolumeDrag)
 			]),
 		_List_Nil);
 };
@@ -5484,7 +5579,8 @@ var author$project$AudioPlayer$view = function (model) {
 				author$project$AudioPlayer$viewSeeker(model),
 				author$project$AudioPlayer$viewAudio(model),
 				author$project$AudioPlayer$viewDuration(model),
-				author$project$AudioPlayer$viewChangeSource(model)
+				author$project$AudioPlayer$viewChangeSource(model),
+				author$project$AudioPlayer$viewVolume(model)
 			]));
 };
 var elm$browser$Browser$element = _Browser_element;
