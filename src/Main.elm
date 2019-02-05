@@ -5,17 +5,40 @@ import Browser
 import Debug
 import Html
 import Html.Attributes as HA
+import Http
+import Json.Decode as JD
+import Json.Encode as JE
 import Knob exposing (KnobMsg, knob10Svg)
 import Matrix exposing (Matrix, generate, toArray)
 import PinTable exposing (PinMsg, pinTable)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
+import SynthiSchema as SS
 
 
-init : () -> ( Model, Cmd msg )
-init flags =
-    ( { pinModel = PinTable.initModel, circleFill = "#0000ff", hoverKnob = ( -1, -1 ) }, Cmd.none )
+init : () -> ( Model, Cmd Msg )
+init _ =
+    ( initModel
+    , getSchema
+    )
+
+
+initModel : Model
+initModel =
+    { pinModel = PinTable.initModel
+    , circleFill = "#0000ff"
+    , hoverKnob = ( -1, -1 )
+    , synthiSchema = Nothing
+    }
+
+
+getSchema : Cmd Msg
+getSchema =
+    Http.get
+        { url = "http://http://localhost:8081/api/v1/schema"
+        , expect = Http.expectJson GotSchema SS.schemaDecoder
+        }
 
 
 table : ( Int, Int ) -> Matrix (Html.Html KnobMsg)
@@ -40,18 +63,25 @@ subs model =
 
 
 main =
-    Browser.document { init = init, subscriptions = subs, update = update, view = view }
+    Browser.document
+        { init = init
+        , subscriptions = subs
+        , update = update
+        , view = view
+        }
 
 
 type Msg
     = KnobEvent KnobMsg
     | PinEvent PinMsg
+    | GotSchema (Result Http.Error SS.SynthiSchema)
 
 
 type alias Model =
     { circleFill : String
     , hoverKnob : ( Int, Int )
     , pinModel : PinTable.PinModel
+    , synthiSchema : Maybe SS.SynthiSchema
     }
 
 
@@ -63,6 +93,14 @@ update msg model =
 
         PinEvent pinMsg ->
             ( { model | pinModel = PinTable.update pinMsg model.pinModel }, Cmd.none )
+
+        GotSchema schemaResult ->
+            case schemaResult of
+                Err err ->
+                    ( model, Cmd.none )
+
+                Ok schema ->
+                    ( { model | synthiSchema = Just (Debug.log "s" schema) }, Cmd.none )
 
 
 view : Model -> Browser.Document Msg
@@ -79,14 +117,7 @@ page model =
             table model.hoverKnob |> toArray |> Array.toList
     in
     [ Html.div []
-        [ Html.audio
-            [ HA.src
-                "http://freesound.org/data/previews/457/457744_3162775-lq.mp3"
-            , HA.autoplay True
-            , HA.controls True
-            ]
-            []
-        , svg
+        [ svg
             [ width "1400"
             , height "2400"
             , viewBox "0 0 1400 2400"
