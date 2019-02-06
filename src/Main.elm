@@ -17,11 +17,21 @@ import Svg.Events exposing (..)
 import SynthiSchema as SS
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( initModel
-    , getSchema
-    )
+type alias Flags =
+    { synthiSchema : JD.Value
+    }
+
+
+init : Flags -> ( Model, Cmd Msg )
+init { synthiSchema } =
+    case JD.decodeValue SS.schemaDecoder synthiSchema of
+        Ok schema ->
+            ( { initModel | synthiSchema = Just schema }
+            , Cmd.none
+            )
+
+        Err err ->
+            ( { initModel | error = Just (Debug.log "err" (JD.errorToString err)) }, Cmd.none )
 
 
 initModel : Model
@@ -30,6 +40,7 @@ initModel =
     , circleFill = "#0000ff"
     , hoverKnob = ( -1, -1 )
     , synthiSchema = Nothing
+    , error = Nothing
     }
 
 
@@ -82,6 +93,7 @@ type alias Model =
     , hoverKnob : ( Int, Int )
     , pinModel : PinTable.PinModel
     , synthiSchema : Maybe SS.SynthiSchema
+    , error : Maybe String
     }
 
 
@@ -115,9 +127,34 @@ page model =
     let
         knobs =
             table model.hoverKnob |> toArray |> Array.toList
+
+        ss =
+            case model.synthiSchema of
+                Just s ->
+                    s
+
+                Nothing ->
+                    { attributes = [], audioPanel = [], controlPanel = [], modules = [] }
     in
     [ Html.div []
-        [ svg
+        [ Html.div []
+            (ss.modules
+                |> List.map
+                    (\m ->
+                        Html.div []
+                            (List.append
+                                [ Html.text m.name, Html.br [] [] ]
+                                (m.controls
+                                    |> List.map
+                                        (\c ->
+                                            Html.li []
+                                                [ Html.text (c.name ++ " - " ++ c.type_) ]
+                                        )
+                                )
+                            )
+                    )
+            )
+        , svg
             [ width "1400"
             , height "2400"
             , viewBox "0 0 1400 2400"

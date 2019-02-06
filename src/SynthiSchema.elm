@@ -5,7 +5,22 @@ import Json.Decode.Pipeline exposing (optional, required)
 
 
 type alias SynthiSchema =
-    { modules : List Module
+    { attributes : List Attribute
+    , audioPanel : List Connection
+    , controlPanel : List Connection
+    , modules : List Module
+    }
+
+
+type alias Attribute =
+    { name : String
+    , values : List String
+    }
+
+
+type alias Connection =
+    { name : String
+    , module_ : String
     }
 
 
@@ -25,7 +40,24 @@ type alias Control =
 schemaDecoder : Decoder SynthiSchema
 schemaDecoder =
     succeed SynthiSchema
+        |> required "attributes" (list attributeDecoder)
+        |> required "audio_panel" (list connectionDecoder)
+        |> required "control_panel" (list connectionDecoder)
         |> required "modules" (list moduleDecoder)
+
+
+connectionDecoder : Decoder Connection
+connectionDecoder =
+    succeed Connection
+        |> required "name" string
+        |> required "module" string
+
+
+attributeDecoder : Decoder Attribute
+attributeDecoder =
+    succeed Attribute
+        |> required "name" string
+        |> required "values" (list string)
 
 
 moduleDecoder : Decoder Module
@@ -40,4 +72,4 @@ controlDecoder =
     succeed Control
         |> required "name" string
         |> required "type" string
-        |> required "positioins" (nullable (list string))
+        |> optional "positions" (nullable (list string)) Nothing

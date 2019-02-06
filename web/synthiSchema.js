@@ -1,4 +1,4 @@
-{
+const SYNTHI_SCHEMA = {
   "attributes": [
     { "name": "complexity", "values": ["multilayered", "simple"] },
     { "name": "quality", "values": ["pitched", "non-pitched"] },
