@@ -1,7 +1,0 @@
-{
-  "editor.tabSize": 4,
-  "[elm]": {
-    "editor.formatOnSave": true
-  },
-  "elm.formatCommand": "/usr/local/lib/node_modules/elm-format/bin/elm-format"
-}

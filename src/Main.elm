@@ -10,6 +10,7 @@ import Json.Decode as JD
 import Json.Encode as JE
 import Knob exposing (KnobMsg, knob10Svg)
 import Matrix exposing (Matrix, generate, toArray)
+import Patch as P
 import PinTable exposing (PinMsg, pinTable)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -19,16 +20,22 @@ import SynthiSchema as SS
 
 type alias Flags =
     { synthiSchema : JD.Value
+    , patches : JD.Value
     }
 
 
 init : Flags -> ( Model, Cmd Msg )
-init { synthiSchema } =
+init { synthiSchema, patches } =
     case JD.decodeValue SS.schemaDecoder synthiSchema of
         Ok schema ->
-            ( { initModel | synthiSchema = Just schema }
-            , Cmd.none
-            )
+            case JD.decodeValue P.patchesDecoder patches of
+                Ok p ->
+                    ( { initModel | synthiSchema = Just schema, patches = Just p }
+                    , Cmd.none
+                    )
+
+                Err e ->
+                    ( { initModel | error = Just (Debug.log "err" (JD.errorToString e)) }, Cmd.none )
 
         Err err ->
             ( { initModel | error = Just (Debug.log "err" (JD.errorToString err)) }, Cmd.none )
@@ -40,6 +47,7 @@ initModel =
     , circleFill = "#0000ff"
     , hoverKnob = ( -1, -1 )
     , synthiSchema = Nothing
+    , patches = Nothing
     , error = Nothing
     }
 
@@ -93,6 +101,7 @@ type alias Model =
     , hoverKnob : ( Int, Int )
     , pinModel : PinTable.PinModel
     , synthiSchema : Maybe SS.SynthiSchema
+    , patches : Maybe (List P.Patch)
     , error : Maybe String
     }
 
@@ -137,23 +146,7 @@ page model =
                     { attributes = [], audioPanel = [], controlPanel = [], modules = [] }
     in
     [ Html.div []
-        [ Html.div []
-            (ss.modules
-                |> List.map
-                    (\m ->
-                        Html.div []
-                            (List.append
-                                [ Html.text m.name, Html.br [] [] ]
-                                (m.controls
-                                    |> List.map
-                                        (\c ->
-                                            Html.li []
-                                                [ Html.text (c.name ++ " - " ++ c.type_) ]
-                                        )
-                                )
-                            )
-                    )
-            )
+        [ renderSchema model
         , svg
             [ width "1400"
             , height "2400"
@@ -173,3 +166,33 @@ page model =
             ]
         ]
     ]
+
+
+renderSchema : Model -> Html.Html Msg
+renderSchema model =
+    let
+        ss =
+            case model.synthiSchema of
+                Just s ->
+                    s
+
+                Nothing ->
+                    { attributes = [], audioPanel = [], controlPanel = [], modules = [] }
+    in
+    Html.div []
+        (ss.modules
+            |> List.map
+                (\m ->
+                    Html.div []
+                        (List.append
+                            [ Html.text m.name, Html.br [] [] ]
+                            (m.controls
+                                |> List.map
+                                    (\c ->
+                                        Html.li []
+                                            [ Html.text (c.name ++ " - " ++ c.type_) ]
+                                    )
+                            )
+                        )
+                )
+        )

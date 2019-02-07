@@ -4439,6 +4439,7 @@ var author$project$Main$initModel = {
 	circleFill: '#0000ff',
 	error: elm$core$Maybe$Nothing,
 	hoverKnob: _Utils_Tuple2(-1, -1),
+	patches: elm$core$Maybe$Nothing,
 	pinModel: author$project$PinTable$initModel,
 	synthiSchema: elm$core$Maybe$Nothing
 };
@@ -4846,6 +4847,265 @@ var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 			A2(elm$json$Json$Decode$field, key, valDecoder),
 			decoder);
 	});
+var author$project$Patch$Patch = function (soundUrl) {
+	return function (waveformSmall) {
+		return function (waveformBig) {
+			return function (title) {
+				return function (duration) {
+					return function (attributeValues) {
+						return function (score) {
+							return function (audioPins) {
+								return function (controlPins) {
+									return function (moduleSettings) {
+										return {attributeValues: attributeValues, audioPins: audioPins, controlPins: controlPins, duration: duration, moduleSettings: moduleSettings, score: score, soundUrl: soundUrl, title: title, waveformBig: waveformBig, waveformSmall: waveformSmall};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var author$project$Patch$ModuleSettings = F2(
+	function (name, controlValues) {
+		return {controlValues: controlValues, name: name};
+	});
+var author$project$Patch$KnobVal = function (a) {
+	return {$: 'KnobVal', a: a};
+};
+var author$project$Patch$SwitchVal = function (a) {
+	return {$: 'SwitchVal', a: a};
+};
+var elm$json$Json$Decode$float = _Json_decodeFloat;
+var elm$json$Json$Decode$index = _Json_decodeIndex;
+var elm$json$Json$Decode$map = _Json_map1;
+var elm$json$Json$Decode$oneOf = _Json_oneOf;
+var elm$json$Json$Decode$succeed = _Json_succeed;
+var elm$json$Json$Decode$maybe = function (decoder) {
+	return elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, decoder),
+				elm$json$Json$Decode$succeed(elm$core$Maybe$Nothing)
+			]));
+};
+var author$project$Patch$controlType = A2(
+	elm$json$Json$Decode$index,
+	1,
+	elm$json$Json$Decode$maybe(
+		A2(elm$json$Json$Decode$field, 'position', elm$json$Json$Decode$float)));
+var author$project$Patch$exist = function (x) {
+	if (x.$ === 'Just') {
+		var a = x.a;
+		return true;
+	} else {
+		return false;
+	}
+};
+var elm$core$List$foldrHelper = F4(
+	function (fn, acc, ctr, ls) {
+		if (!ls.b) {
+			return acc;
+		} else {
+			var a = ls.a;
+			var r1 = ls.b;
+			if (!r1.b) {
+				return A2(fn, a, acc);
+			} else {
+				var b = r1.a;
+				var r2 = r1.b;
+				if (!r2.b) {
+					return A2(
+						fn,
+						a,
+						A2(fn, b, acc));
+				} else {
+					var c = r2.a;
+					var r3 = r2.b;
+					if (!r3.b) {
+						return A2(
+							fn,
+							a,
+							A2(
+								fn,
+								b,
+								A2(fn, c, acc)));
+					} else {
+						var d = r3.a;
+						var r4 = r3.b;
+						var res = (ctr > 500) ? A3(
+							elm$core$List$foldl,
+							fn,
+							acc,
+							elm$core$List$reverse(r4)) : A4(elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
+						return A2(
+							fn,
+							a,
+							A2(
+								fn,
+								b,
+								A2(
+									fn,
+									c,
+									A2(fn, d, res))));
+					}
+				}
+			}
+		}
+	});
+var elm$core$List$foldr = F3(
+	function (fn, acc, ls) {
+		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
+	});
+var elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
+	});
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
+	function (path, valDecoder, decoder) {
+		return A2(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A2(elm$json$Json$Decode$at, path, valDecoder),
+			decoder);
+	});
+var author$project$Patch$Knob = F2(
+	function (name, position) {
+		return {name: name, position: position};
+	});
+var author$project$Patch$knobValDecoder = A2(elm$json$Json$Decode$field, 'position', elm$json$Json$Decode$float);
+var elm$json$Json$Decode$string = _Json_decodeString;
+var author$project$Patch$knobDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['1']),
+	author$project$Patch$knobValDecoder,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['0']),
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Patch$Knob)));
+var author$project$Patch$Switch = F2(
+	function (name, case_) {
+		return {case_: case_, name: name};
+	});
+var author$project$Patch$switchValDecoder = A2(elm$json$Json$Decode$field, 'case', elm$json$Json$Decode$string);
+var author$project$Patch$switchDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+	_List_fromArray(
+		['1']),
+	author$project$Patch$switchValDecoder,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+		_List_fromArray(
+			['0']),
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Patch$Switch)));
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var elm$core$Basics$not = _Basics_not;
+var elm$json$Json$Decode$andThen = _Json_andThen;
+var elm$json$Json$Decode$fail = _Json_fail;
+var elm_community$json_extra$Json$Decode$Extra$when = F3(
+	function (checkDecoder, check, passDecoder) {
+		return A2(
+			elm$json$Json$Decode$andThen,
+			function (checkVal) {
+				return check(checkVal) ? passDecoder : elm$json$Json$Decode$fail('Check failed with input');
+			},
+			checkDecoder);
+	});
+var author$project$Patch$controlDecoder = elm$json$Json$Decode$oneOf(
+	_List_fromArray(
+		[
+			A2(
+			elm$json$Json$Decode$map,
+			author$project$Patch$KnobVal,
+			A3(elm_community$json_extra$Json$Decode$Extra$when, author$project$Patch$controlType, author$project$Patch$exist, author$project$Patch$knobDecoder)),
+			A2(
+			elm$json$Json$Decode$map,
+			author$project$Patch$SwitchVal,
+			A3(
+				elm_community$json_extra$Json$Decode$Extra$when,
+				author$project$Patch$controlType,
+				A2(elm$core$Basics$composeR, author$project$Patch$exist, elm$core$Basics$not),
+				author$project$Patch$switchDecoder))
+		]));
+var elm$json$Json$Decode$list = _Json_decodeList;
+var author$project$Patch$moduleSettingsDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'control_values',
+	elm$json$Json$Decode$list(author$project$Patch$controlDecoder),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'name',
+		elm$json$Json$Decode$string,
+		elm$json$Json$Decode$succeed(author$project$Patch$ModuleSettings)));
+var author$project$Patch$Pin = F3(
+	function (in_, out, color) {
+		return {color: color, in_: in_, out: out};
+	});
+var elm$json$Json$Decode$int = _Json_decodeInt;
+var author$project$Patch$pinDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'color',
+	elm$json$Json$Decode$string,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'out',
+		elm$json$Json$Decode$int,
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'in',
+			elm$json$Json$Decode$int,
+			elm$json$Json$Decode$succeed(author$project$Patch$Pin))));
+var author$project$Patch$patchDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'module_settings',
+	elm$json$Json$Decode$list(author$project$Patch$moduleSettingsDecoder),
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'control_pins',
+		elm$json$Json$Decode$list(author$project$Patch$pinDecoder),
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'audio_pins',
+			elm$json$Json$Decode$list(author$project$Patch$pinDecoder),
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'score',
+				elm$json$Json$Decode$string,
+				A3(
+					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'attribute_values',
+					elm$json$Json$Decode$list(elm$json$Json$Decode$string),
+					A3(
+						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'duration',
+						elm$json$Json$Decode$float,
+						A3(
+							NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+							'title',
+							elm$json$Json$Decode$string,
+							A3(
+								NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+								'waveform_big',
+								elm$json$Json$Decode$string,
+								A3(
+									NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+									'waveform_small',
+									elm$json$Json$Decode$string,
+									A3(
+										NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+										'sound_url',
+										elm$json$Json$Decode$string,
+										elm$json$Json$Decode$succeed(author$project$Patch$Patch)))))))))));
+var author$project$Patch$patchesDecoder = elm$json$Json$Decode$list(author$project$Patch$patchDecoder);
 var author$project$SynthiSchema$SynthiSchema = F4(
 	function (attributes, audioPanel, controlPanel, modules) {
 		return {attributes: attributes, audioPanel: audioPanel, controlPanel: controlPanel, modules: modules};
@@ -4854,9 +5114,6 @@ var author$project$SynthiSchema$Attribute = F2(
 	function (name, values) {
 		return {name: name, values: values};
 	});
-var elm$json$Json$Decode$list = _Json_decodeList;
-var elm$json$Json$Decode$string = _Json_decodeString;
-var elm$json$Json$Decode$succeed = _Json_succeed;
 var author$project$SynthiSchema$attributeDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'values',
@@ -4883,11 +5140,8 @@ var author$project$SynthiSchema$Module = F2(
 	function (name, controls) {
 		return {controls: controls, name: name};
 	});
-var elm$json$Json$Decode$andThen = _Json_andThen;
 var elm$json$Json$Decode$decodeValue = _Json_run;
-var elm$json$Json$Decode$fail = _Json_fail;
 var elm$json$Json$Decode$null = _Json_decodeNull;
-var elm$json$Json$Decode$oneOf = _Json_oneOf;
 var elm$json$Json$Decode$value = _Json_decodeValue;
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3(
 	function (pathDecoder, valDecoder, fallback) {
@@ -4936,7 +5190,6 @@ var author$project$SynthiSchema$Control = F3(
 	function (name, type_, positions) {
 		return {name: name, positions: positions, type_: type_};
 	});
-var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$nullable = function (decoder) {
 	return elm$json$Json$Decode$oneOf(
 		_List_fromArray(
@@ -4991,16 +5244,35 @@ var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$init = function (_n0) {
 	var synthiSchema = _n0.synthiSchema;
+	var patches = _n0.patches;
 	var _n1 = A2(elm$json$Json$Decode$decodeValue, author$project$SynthiSchema$schemaDecoder, synthiSchema);
 	if (_n1.$ === 'Ok') {
 		var schema = _n1.a;
-		return _Utils_Tuple2(
-			_Utils_update(
-				author$project$Main$initModel,
-				{
-					synthiSchema: elm$core$Maybe$Just(schema)
-				}),
-			elm$core$Platform$Cmd$none);
+		var _n2 = A2(elm$json$Json$Decode$decodeValue, author$project$Patch$patchesDecoder, patches);
+		if (_n2.$ === 'Ok') {
+			var p = _n2.a;
+			return _Utils_Tuple2(
+				_Utils_update(
+					author$project$Main$initModel,
+					{
+						patches: elm$core$Maybe$Just(p),
+						synthiSchema: elm$core$Maybe$Just(schema)
+					}),
+				elm$core$Platform$Cmd$none);
+		} else {
+			var e = _n2.a;
+			return _Utils_Tuple2(
+				_Utils_update(
+					author$project$Main$initModel,
+					{
+						error: elm$core$Maybe$Just(
+							A2(
+								elm$core$Debug$log,
+								'err',
+								elm$json$Json$Decode$errorToString(e)))
+					}),
+				elm$core$Platform$Cmd$none);
+		}
 	} else {
 		var err = _n1.a;
 		return _Utils_Tuple2(
@@ -5274,6 +5546,89 @@ var author$project$Main$KnobEvent = function (a) {
 var author$project$Main$PinEvent = function (a) {
 	return {$: 'PinEvent', a: a};
 };
+var elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
+		}
+	});
+var elm$core$List$map = F2(
+	function (f, xs) {
+		return A3(
+			elm$core$List$foldr,
+			F2(
+				function (x, acc) {
+					return A2(
+						elm$core$List$cons,
+						f(x),
+						acc);
+				}),
+			_List_Nil,
+			xs);
+	});
+var elm$core$Basics$identity = function (x) {
+	return x;
+};
+var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
+	switch (handler.$) {
+		case 'Normal':
+			return 0;
+		case 'MayStopPropagation':
+			return 1;
+		case 'MayPreventDefault':
+			return 2;
+		default:
+			return 3;
+	}
+};
+var elm$html$Html$br = _VirtualDom_node('br');
+var elm$html$Html$div = _VirtualDom_node('div');
+var elm$html$Html$li = _VirtualDom_node('li');
+var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var author$project$Main$renderSchema = function (model) {
+	var ss = function () {
+		var _n0 = model.synthiSchema;
+		if (_n0.$ === 'Just') {
+			var s = _n0.a;
+			return s;
+		} else {
+			return {attributes: _List_Nil, audioPanel: _List_Nil, controlPanel: _List_Nil, modules: _List_Nil};
+		}
+	}();
+	return A2(
+		elm$html$Html$div,
+		_List_Nil,
+		A2(
+			elm$core$List$map,
+			function (m) {
+				return A2(
+					elm$html$Html$div,
+					_List_Nil,
+					A2(
+						elm$core$List$append,
+						_List_fromArray(
+							[
+								elm$html$Html$text(m.name),
+								A2(elm$html$Html$br, _List_Nil, _List_Nil)
+							]),
+						A2(
+							elm$core$List$map,
+							function (c) {
+								return A2(
+									elm$html$Html$li,
+									_List_Nil,
+									_List_fromArray(
+										[
+											elm$html$Html$text(c.name + (' - ' + c.type_))
+										]));
+							},
+							m.controls)));
+			},
+			ss.modules));
+};
 var Kraxorax$elm_matrix_a$Matrix$Matrix = F2(
 	function (a, b) {
 		return {$: 'Matrix', a: a, b: b};
@@ -5304,25 +5659,9 @@ var author$project$Knob$knobValueToAngle = function (x) {
 	return 30 + (x * 30);
 };
 var elm$core$String$fromFloat = _String_fromNumber;
-var elm$core$Basics$identity = function (x) {
-	return x;
-};
-var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
-	switch (handler.$) {
-		case 'Normal':
-			return 0;
-		case 'MayStopPropagation':
-			return 1;
-		case 'MayPreventDefault':
-			return 2;
-		default:
-			return 3;
-	}
-};
 var elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var elm$svg$Svg$circle = elm$svg$Svg$trustedNode('circle');
 var elm$svg$Svg$svg = elm$svg$Svg$trustedNode('svg');
-var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$svg$Svg$text = elm$virtual_dom$VirtualDom$text;
 var elm$svg$Svg$text_ = elm$svg$Svg$trustedNode('text');
 var elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
@@ -5492,7 +5831,6 @@ var author$project$PinTable$isEven = function (x) {
 		return false;
 	}
 };
-var elm$core$Basics$not = _Basics_not;
 var author$project$PinTable$shouldDarkenPin = F2(
 	function (x, y) {
 		return author$project$PinTable$isEven((x / 4) | 0) && ((y < 30) ? author$project$PinTable$isEven((y / 3) | 0) : (!author$project$PinTable$isEven((y / 3) | 0)));
@@ -5557,89 +5895,8 @@ var author$project$PinTable$pinTable = function (model) {
 					model);
 			}));
 };
-var elm$core$List$foldrHelper = F4(
-	function (fn, acc, ctr, ls) {
-		if (!ls.b) {
-			return acc;
-		} else {
-			var a = ls.a;
-			var r1 = ls.b;
-			if (!r1.b) {
-				return A2(fn, a, acc);
-			} else {
-				var b = r1.a;
-				var r2 = r1.b;
-				if (!r2.b) {
-					return A2(
-						fn,
-						a,
-						A2(fn, b, acc));
-				} else {
-					var c = r2.a;
-					var r3 = r2.b;
-					if (!r3.b) {
-						return A2(
-							fn,
-							a,
-							A2(
-								fn,
-								b,
-								A2(fn, c, acc)));
-					} else {
-						var d = r3.a;
-						var r4 = r3.b;
-						var res = (ctr > 500) ? A3(
-							elm$core$List$foldl,
-							fn,
-							acc,
-							elm$core$List$reverse(r4)) : A4(elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
-						return A2(
-							fn,
-							a,
-							A2(
-								fn,
-								b,
-								A2(
-									fn,
-									c,
-									A2(fn, d, res))));
-					}
-				}
-			}
-		}
-	});
-var elm$core$List$foldr = F3(
-	function (fn, acc, ls) {
-		return A4(elm$core$List$foldrHelper, fn, acc, 0, ls);
-	});
-var elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3(elm$core$List$foldr, elm$core$List$cons, ys, xs);
-		}
-	});
-var elm$core$List$map = F2(
-	function (f, xs) {
-		return A3(
-			elm$core$List$foldr,
-			F2(
-				function (x, acc) {
-					return A2(
-						elm$core$List$cons,
-						f(x),
-						acc);
-				}),
-			_List_Nil,
-			xs);
-	});
-var elm$html$Html$br = _VirtualDom_node('br');
-var elm$html$Html$div = _VirtualDom_node('div');
-var elm$html$Html$li = _VirtualDom_node('li');
 var elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
 var elm$html$Html$map = elm$virtual_dom$VirtualDom$map;
-var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
 var author$project$Main$page = function (model) {
 	var ss = function () {
 		var _n0 = model.synthiSchema;
@@ -5660,36 +5917,7 @@ var author$project$Main$page = function (model) {
 			_List_Nil,
 			_List_fromArray(
 				[
-					A2(
-					elm$html$Html$div,
-					_List_Nil,
-					A2(
-						elm$core$List$map,
-						function (m) {
-							return A2(
-								elm$html$Html$div,
-								_List_Nil,
-								A2(
-									elm$core$List$append,
-									_List_fromArray(
-										[
-											elm$html$Html$text(m.name),
-											A2(elm$html$Html$br, _List_Nil, _List_Nil)
-										]),
-									A2(
-										elm$core$List$map,
-										function (c) {
-											return A2(
-												elm$html$Html$li,
-												_List_Nil,
-												_List_fromArray(
-													[
-														elm$html$Html$text(c.name + (' - ' + c.type_))
-													]));
-										},
-										m.controls)));
-						},
-						ss.modules)),
+					author$project$Main$renderSchema(model),
 					A2(
 					elm$svg$Svg$svg,
 					_List_fromArray(
@@ -5971,7 +6199,12 @@ _Platform_export({'Main':{'init':author$project$Main$main(
 	A2(
 		elm$json$Json$Decode$andThen,
 		function (synthiSchema) {
-			return elm$json$Json$Decode$succeed(
-				{synthiSchema: synthiSchema});
+			return A2(
+				elm$json$Json$Decode$andThen,
+				function (patches) {
+					return elm$json$Json$Decode$succeed(
+						{patches: patches, synthiSchema: synthiSchema});
+				},
+				A2(elm$json$Json$Decode$field, 'patches', elm$json$Json$Decode$value));
 		},
 		A2(elm$json$Json$Decode$field, 'synthiSchema', elm$json$Json$Decode$value)))(0)}});}(this));

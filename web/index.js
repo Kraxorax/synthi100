@@ -7,7 +7,8 @@ const root = document.getElementById('elm-audioplayer-w');
 const app = Elm.Main.init({
   node: root,
   flags: {
-    synthiSchema: SYNTHI_SCHEMA
+    synthiSchema: SYNTHI_SCHEMA,
+    patches: PATCH
   }
 });
 
