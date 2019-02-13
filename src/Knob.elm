@@ -1,6 +1,7 @@
-module Knob exposing (KnobMsg, knob10Svg, knobSvg)
+module Knob exposing (KnobMsg, knob10Svg, knobSvg, simpleKnobSvg, simpleSwitchSvg)
 
 import Html
+import Maybe.Extra exposing (isJust)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
@@ -20,8 +21,24 @@ knobValueToAngle x =
     30 + x * 30
 
 
-simpleKnobSvg : Float -> Html.Html KnobMsg
+simpleKnobSvg : Maybe Float -> Html.Html KnobMsg
 simpleKnobSvg val =
+    let
+        value =
+            case val of
+                Just v ->
+                    String.fromFloat v
+
+                Nothing ->
+                    ""
+
+        knobColor =
+            if val |> isJust then
+                "#cccccc"
+
+            else
+                "#333333"
+    in
     svg
         [ width "40"
         , height "40"
@@ -31,7 +48,7 @@ simpleKnobSvg val =
             [ cx "20"
             , cy "20"
             , r "20"
-            , fill "#333333"
+            , fill knobColor
             ]
             []
         , text_
@@ -40,7 +57,48 @@ simpleKnobSvg val =
             , textAnchor "middle"
             , fill "#FFFFFF"
             ]
-            [ text (String.fromFloat val) ]
+            [ text value ]
+        ]
+
+
+simpleSwitchSvg : Maybe String -> Html.Html KnobMsg
+simpleSwitchSvg val =
+    let
+        value =
+            case val of
+                Just v ->
+                    v
+
+                Nothing ->
+                    ""
+
+        knobColor =
+            if val |> isJust then
+                "#cccccc"
+
+            else
+                "#333333"
+    in
+    svg
+        [ width "40"
+        , height "40"
+        , viewBox "0 0 40 40"
+        ]
+        [ rect
+            [ cx "20"
+            , cy "20"
+            , width "20"
+            , height "20"
+            , fill knobColor
+            ]
+            []
+        , text_
+            [ dx "20"
+            , dy "25"
+            , textAnchor "middle"
+            , fill "#FFFFFF"
+            ]
+            [ text value ]
         ]
 
 
@@ -80,7 +138,7 @@ knob10Svg ( kx, ky ) active val =
             [ text (String.fromFloat val)
             ]
         , svg [ y "30" ]
-            [ simpleKnobSvg val
+            [ simpleKnobSvg (Just val)
             ]
         ]
 

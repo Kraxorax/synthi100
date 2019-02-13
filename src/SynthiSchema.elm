@@ -1,4 +1,4 @@
-module SynthiSchema exposing (Module, SynthiSchema, schemaDecoder)
+module SynthiSchema exposing (Control, Module, SynthiSchema, noModule, schemaDecoder)
 
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (optional, required)
@@ -73,3 +73,9 @@ controlDecoder =
         |> required "name" string
         |> required "type" string
         |> optional "positions" (nullable (list string)) Nothing
+
+
+noModule =
+    { name = "!-module not found"
+    , controls = []
+    }

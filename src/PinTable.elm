@@ -1,21 +1,27 @@
-module PinTable exposing (PinModel, PinMsg, initModel, pinTable, update)
+module PinTable exposing (PinModel, PinMsg(..), audioPanel, initModel, pinTable, setActivePin, setHoverPin, update)
 
+import Array
 import Html
+import Html.Attributes exposing (style)
+import List.Extra exposing (find)
 import Matrix exposing (Matrix, generate)
+import Patch as P
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
+import SynthiSchema as SS
+import Tuple exposing (first, second)
 
 
 color =
     { offL =
-        "#999999"
+        "#dddddd"
     , offD =
-        "#333333"
+        "#aaaaaa"
     , hover =
         "#66AAFF"
     , active =
-        "#FF0000"
+        "#FF9999"
     }
 
 
@@ -51,12 +57,19 @@ update msg model =
             { model | activePin = ( x, y ) }
 
 
-pinSvg : ( Int, Int ) -> PinModel -> Svg PinMsg
-pinSvg ( xp, yp ) model =
-    let
-        pinColor =
-            getPinColor ( xp, yp ) model
+setActivePin : ( Int, Int ) -> PinModel -> PinModel
+setActivePin xy model =
+    { model | activePin = xy }
 
+
+setHoverPin : ( Int, Int ) -> PinModel -> PinModel
+setHoverPin xy model =
+    { model | hoverPin = xy }
+
+
+pinSvg : ( Int, Int ) -> String -> PinModel -> Svg PinMsg
+pinSvg ( xp, yp ) pinColor model =
+    let
         yPos =
             (if yp >= 30 then
                 yp * 8 + 15
@@ -82,12 +95,67 @@ pinSvg ( xp, yp ) model =
         []
 
 
-pinTable : PinModel -> Matrix (Html.Html PinMsg)
+coordsToPinPos : ( Int, Int ) -> ( Int, Int )
+coordsToPinPos ( x, y ) =
+    ( x + 1, y + 61 )
+
+
+pinPosToCoords : ( Int, Int ) -> ( Int, Int )
+pinPosToCoords ( into, out ) =
+    ( into - 1, out - 61 )
+
+
+audioPanel : SS.SynthiSchema -> List P.Pin -> PinModel -> Html.Html PinMsg
+audioPanel ss pins model =
+    let
+        table =
+            generate 60
+                60
+                (\x y ->
+                    let
+                        pin =
+                            pins
+                                |> find
+                                    (\p ->
+                                        let
+                                            ( into, out ) =
+                                                coordsToPinPos ( x, y )
+                                        in
+                                        p.into == into && p.out == out
+                                    )
+
+                        pinColor =
+                            case pin of
+                                Just p ->
+                                    p.color
+
+                                Nothing ->
+                                    getPinColor ( x, y ) model
+                    in
+                    pinSvg ( x, y ) pinColor model
+                )
+    in
+    svg [ width "480", height "495" ]
+        (table
+            |> Matrix.toArray
+            |> Array.toList
+        )
+
+
+pinTable : PinModel -> Html.Html PinMsg
 pinTable model =
-    generate 60
-        60
-        (\x y ->
-            pinSvg ( x, y ) model
+    let
+        table =
+            generate 60
+                60
+                (\x y ->
+                    pinSvg ( x, y ) "" model
+                )
+    in
+    svg [ width "480", height "495" ]
+        (table
+            |> Matrix.toArray
+            |> Array.toList
         )
 
 

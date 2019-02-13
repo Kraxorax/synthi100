@@ -1,8 +1,9 @@
-module Patch exposing (Patch, patchesDecoder)
+module Patch exposing (Control(..), ModuleSettings, Patch, Pin, noPatch, patchesDecoder)
 
 import Json.Decode exposing (..)
 import Json.Decode.Extra exposing (optionalField, when, withDefault)
 import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt)
+import Maybe.Extra exposing (isJust)
 
 
 type alias Patch =
@@ -20,7 +21,7 @@ type alias Patch =
 
 
 type alias Pin =
-    { in_ : Int
+    { into : Int
     , out : Int
     , color : String
     }
@@ -84,21 +85,11 @@ moduleSettingsDecoder =
         |> required "control_values" (list controlDecoder)
 
 
-exist : Maybe a -> Bool
-exist x =
-    case x of
-        Just a ->
-            True
-
-        Nothing ->
-            False
-
-
 controlDecoder : Decoder Control
 controlDecoder =
     oneOf
-        [ map KnobVal <| when controlType exist knobDecoder
-        , map SwitchVal <| when controlType (exist >> not) switchDecoder
+        [ map KnobVal <| when controlType isJust knobDecoder
+        , map SwitchVal <| when controlType (isJust >> not) switchDecoder
         ]
 
 
@@ -131,5 +122,22 @@ controlType =
     index 1 (maybe (field "position" float))
 
 
+noPatch =
+    { soundUrl = ""
+    , waveformSmall = ""
+    , waveformBig = ""
+    , title = ""
+    , duration = -0.1
+    , attributeValues = []
+    , score = ""
+    , audioPins = []
+    , controlPins = []
+    , moduleSettings = []
+    }
 
--- at [ "1", "position" ] (nullable float)
+
+noPin =
+    { into = -1
+    , out = -1
+    , color = ""
+    }
