@@ -1,4 +1,4 @@
-module Main exposing (Model, Msg(..), init, main, subs, update, view)
+module Main exposing (init, main, subs, update, view)
 
 import Array
 import Browser
@@ -12,12 +12,15 @@ import Knob exposing (KnobMsg, simpleKnobSvg, simpleSwitchSvg)
 import List.Extra exposing (find, getAt)
 import Matrix exposing (Matrix, generate, toArray)
 import Maybe.Extra exposing (isJust)
+import Model exposing (..)
+import Msg exposing (Msg(..))
 import Patch as P
 import PinTable exposing (PinMsg(..), audioPanel, pinTable, setActivePin, setHoverPin)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 import SynthiSchema as SS
+import TestPage exposing (testPage)
 
 
 type alias Flags =
@@ -85,55 +88,14 @@ main =
         }
 
 
-type Msg
-    = KnobEvent KnobMsg
-    | PinEvent PinMsg
-    | GotSchema (Result Http.Error SS.SynthiSchema)
-    | GotPatches (Result Http.Error (List P.Patch))
-    | AudioPinClick ( Int, Int )
-    | AudioPinHover ( Int, Int )
 
-
-type alias PinConnection =
-    { out : String
-    , into : String
-    }
-
-
-type alias Module =
-    { name : String
-    , controls : List Control
-    }
-
-
-type Control
-    = KnobCtrl Knob
-    | SwitchCtrl Switch
-
-
-type alias Knob =
-    { name : String
-    , value : Maybe Float
-    }
-
-
-type alias Switch =
-    { name : String
-    , case_ : Maybe String
-    }
-
-
-type alias Model =
-    { circleFill : String
-    , hoverKnob : ( Int, Int )
-    , pinModel : PinTable.PinModel
-    , synthiSchema : Maybe SS.SynthiSchema
-    , patches : Maybe (List P.Patch)
-    , error : Maybe String
-    , activeAudioPin : Maybe PinConnection
-    , activeModules : Maybe ( Module, Module )
-    , hoverAudioPin : Maybe PinConnection
-    }
+-- type Msg
+--     = KnobEvent KnobMsg
+--     | PinEvent PinMsg
+--     | GotSchema (Result Http.Error SS.SynthiSchema)
+--     | GotPatches (Result Http.Error (List P.Patch))
+--     | AudioPinClick ( Int, Int )
+--     | AudioPinHover ( Int, Int )
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -282,22 +244,6 @@ pinToModules schema patch ( x, y ) =
     ( outModuleSettings, inModuleSettings )
 
 
-controlsToSvg : List Control -> Html.Html KnobMsg
-controlsToSvg cs =
-    Html.div []
-        (cs
-            |> List.map
-                (\ctrl ->
-                    case ctrl of
-                        KnobCtrl { name, value } ->
-                            simpleKnobSvg value
-
-                        SwitchCtrl { name, case_ } ->
-                            simpleSwitchSvg case_
-                )
-        )
-
-
 patchToControls : List SS.Control -> List P.Control -> List Control
 patchToControls scs pcs =
     scs
@@ -351,79 +297,5 @@ emptyControls scs =
 view : Model -> Browser.Document Msg
 view model =
     { title = "Synthi100"
-    , body = page model
+    , body = testPage model
     }
-
-
-page : Model -> List (Html.Html Msg)
-page model =
-    let
-        ss =
-            case model.synthiSchema of
-                Just s ->
-                    s
-
-                Nothing ->
-                    { attributes = [], audioPanel = [], controlPanel = [], modules = [] }
-
-        audioPins =
-            case model.patches of
-                Just patches ->
-                    (patches |> List.head |> Maybe.withDefault P.noPatch).audioPins
-
-                Nothing ->
-                    []
-
-        activeAudioPinText =
-            activePinToString model.activeAudioPin
-
-        hoverAudioPinText =
-            activePinToString model.hoverAudioPin
-
-        ( om, im ) =
-            case model.activeModules of
-                Just mdls ->
-                    mdls
-
-                nothing ->
-                    ( { name = "no module", controls = [] }, { name = "no module", controls = [] } )
-
-        activeModulesText =
-            om.name ++ " >> " ++ im.name
-    in
-    [ Html.div []
-        [ Html.div []
-            [ Html.div [] [ Html.text activeAudioPinText ]
-            , Html.div [] [ Html.text hoverAudioPinText ]
-            , Html.div [] [ Html.text activeModulesText ]
-            , Html.map reactToAudioPinEvent (audioPanel ss audioPins model.pinModel)
-            , Html.map (\kmsg -> KnobEvent kmsg) (controlsToSvg om.controls)
-            , Html.map (\kmsg -> KnobEvent kmsg) (controlsToSvg im.controls)
-
-            -- , Html.map (\knobMsg -> KnobEvent knobMsg) knobs
-            ]
-        ]
-    ]
-
-
-activePinToString : Maybe PinConnection -> String
-activePinToString pinMods =
-    case pinMods of
-        Just pm ->
-            pm.out ++ " --> " ++ pm.into
-
-        Nothing ->
-            ""
-
-
-reactToAudioPinEvent : PinTable.PinMsg -> Msg
-reactToAudioPinEvent pinMsg =
-    case pinMsg of
-        PinClick ( x, y ) ->
-            AudioPinClick ( x, y )
-
-        PinIn ( x, y ) ->
-            AudioPinHover ( x, y )
-
-        _ ->
-            PinEvent pinMsg

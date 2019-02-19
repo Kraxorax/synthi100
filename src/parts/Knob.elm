@@ -12,6 +12,16 @@ type KnobMsg
     | KnobOut
 
 
+colors =
+    { enabled = "#333333"
+    , disabled = "#cccccc"
+    }
+
+
+noValue =
+    "-"
+
+
 hoverColor =
     "#FF8800"
 
@@ -30,14 +40,14 @@ simpleKnobSvg val =
                     String.fromFloat v
 
                 Nothing ->
-                    ""
+                    noValue
 
         knobColor =
             if val |> isJust then
-                "#cccccc"
+                colors.enabled
 
             else
-                "#333333"
+                colors.disabled
     in
     svg
         [ width "40"
@@ -70,14 +80,14 @@ simpleSwitchSvg val =
                     v
 
                 Nothing ->
-                    ""
+                    noValue
 
         knobColor =
             if val |> isJust then
-                "#cccccc"
+                colors.enabled
 
             else
-                "#333333"
+                colors.disabled
     in
     svg
         [ width "40"
@@ -85,10 +95,8 @@ simpleSwitchSvg val =
         , viewBox "0 0 40 40"
         ]
         [ rect
-            [ cx "20"
-            , cy "20"
-            , width "20"
-            , height "20"
+            [ width "40"
+            , height "40"
             , fill knobColor
             ]
             []
