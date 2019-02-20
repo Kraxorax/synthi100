@@ -1,13 +1,19 @@
 module Main exposing (init, main, subs, update, view)
 
+import AboutPage
 import Array
 import Browser
+import Browser.Navigation exposing (Key, load, pushUrl)
+import CreditsPage
+import Css exposing (..)
+import Css.Global exposing (body, global)
 import Debug
-import Html
+import Header exposing (header)
+import HomePage
 import Html.Attributes as HA
+import Html.Styled exposing (Html)
 import Http
 import Json.Decode as JD
-import Json.Encode as JE
 import Knob exposing (KnobMsg, simpleKnobSvg, simpleSwitchSvg)
 import List.Extra exposing (find, getAt)
 import Matrix exposing (Matrix, generate, toArray)
@@ -16,11 +22,10 @@ import Model exposing (..)
 import Msg exposing (Msg(..))
 import Patch as P
 import PinTable exposing (PinMsg(..), audioPanel, pinTable, setActivePin, setHoverPin)
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Svg.Events exposing (..)
+import Routing exposing (Route(..), urlToRoute)
 import SynthiSchema as SS
 import TestPage exposing (testPage)
+import Url exposing (Url)
 
 
 type alias Flags =
@@ -29,11 +34,11 @@ type alias Flags =
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
+init : () -> Url -> Key -> ( Model, Cmd Msg )
+init _ url key =
     let
         mdl =
-            initModel
+            initModel key
 
         cmd =
             Cmd.batch
@@ -44,9 +49,11 @@ init _ =
     ( mdl, cmd )
 
 
-initModel : Model
-initModel =
-    { pinModel = PinTable.initModel
+initModel : Key -> Model
+initModel key =
+    { navKey = key
+    , currentRoute = Database
+    , pinModel = PinTable.initModel
     , circleFill = "#0000ff"
     , hoverKnob = ( -1, -1 )
     , synthiSchema = Nothing
@@ -80,27 +87,30 @@ subs model =
 
 
 main =
-    Browser.document
+    Browser.application
         { init = init
         , subscriptions = subs
         , update = update
         , view = view
+        , onUrlRequest = \urlReq -> RequestedUrl urlReq
+        , onUrlChange = \url -> UpdateUrl url
         }
-
-
-
--- type Msg
---     = KnobEvent KnobMsg
---     | PinEvent PinMsg
---     | GotSchema (Result Http.Error SS.SynthiSchema)
---     | GotPatches (Result Http.Error (List P.Patch))
---     | AudioPinClick ( Int, Int )
---     | AudioPinHover ( Int, Int )
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
+        UpdateUrl url ->
+            ( { model | currentRoute = urlToRoute url }, Cmd.none )
+
+        RequestedUrl urlReq ->
+            case urlReq of
+                Browser.Internal url ->
+                    ( model, pushUrl model.navKey (Url.toString url) )
+
+                Browser.External href ->
+                    ( model, load href )
+
         KnobEvent knobMsg ->
             ( model, Cmd.none )
 
@@ -296,6 +306,33 @@ emptyControls scs =
 
 view : Model -> Browser.Document Msg
 view model =
+    let
+        page =
+            case model.currentRoute of
+                Database ->
+                    HomePage.page model
+
+                Credits ->
+                    CreditsPage.page model
+
+                About ->
+                    AboutPage.page model
+    in
     { title = "Synthi100"
-    , body = testPage model
+    , body =
+        [ globalCSS
+        , header
+        , page
+        ]
+            |> List.map Html.Styled.toUnstyled
     }
+
+
+globalCSS : Html Msg
+globalCSS =
+    global
+        [ body
+            [ backgroundColor (hex "000000")
+            , color (hex "4A90E2")
+            ]
+        ]

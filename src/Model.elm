@@ -1,12 +1,16 @@
 module Model exposing (Control(..), Knob, Model, Module, PinConnection, Switch)
 
+import Browser.Navigation exposing (Key)
 import Patch as P
 import PinTable
+import Routing exposing (Route)
 import SynthiSchema as SS
 
 
 type alias Model =
-    { circleFill : String
+    { navKey : Key
+    , currentRoute : Route
+    , circleFill : String
     , hoverKnob : ( Int, Int )
     , pinModel : PinTable.PinModel
     , synthiSchema : Maybe SS.SynthiSchema
