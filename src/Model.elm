@@ -1,5 +1,6 @@
 module Model exposing (Control(..), Knob, Model, Module, PinConnection, Switch)
 
+import AudioPlayer exposing (AudioModel)
 import Browser.Navigation exposing (Key)
 import Patch as P
 import PinTable
@@ -19,6 +20,8 @@ type alias Model =
     , activeAudioPin : Maybe PinConnection
     , activeModules : Maybe ( Module, Module )
     , hoverAudioPin : Maybe PinConnection
+    , audio : AudioModel
+    , nowPlaying : Maybe ( P.Patch, AudioModel )
     }
 
 

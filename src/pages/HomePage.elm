@@ -1,11 +1,15 @@
 module HomePage exposing (page)
 
-import Css exposing (..)
+import AudioPlayer exposing (AudioModel)
+import Css as Css exposing (..)
 import Css.Global exposing (body, global)
+import Events exposing (..)
+import Html.Attributes.Extra as HAE
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css, src)
+import Html.Styled.Attributes as HSA exposing (..)
+import Html.Styled.Events exposing (onClick)
 import Model exposing (Model)
-import Msg exposing (Msg)
+import Msg exposing (Msg(..))
 import Patch as P
 
 
@@ -15,32 +19,52 @@ page model =
         [ h1 []
             [ text "Home page"
             ]
-        , patchesList (model.patches |> Maybe.withDefault [])
+        , patchesList model.audio (model.patches |> Maybe.withDefault [])
         ]
 
 
-patchesList : List P.Patch -> Html Msg
-patchesList ps =
+patchesList : AudioModel -> List P.Patch -> Html Msg
+patchesList am ps =
     let
         patchItems =
             ps
                 |> List.map
-                    (\p -> patchItem p)
+                    (\p -> patchItem am p)
     in
-    div [ css [ width (pct 66) ] ] patchItems
+    div [ css [ Css.width (pct 66) ] ] patchItems
 
 
-patchItem : P.Patch -> Html Msg
-patchItem p =
+patchItem : AudioModel -> P.Patch -> Html Msg
+patchItem am p =
     div []
         [ patchMeta p
-        , patchMedia p
+        , patchMedia am p
         ]
 
 
-patchMedia : P.Patch -> Html Msg
-patchMedia p =
-    img [ src p.waveformSmall ] []
+patchMedia : AudioModel -> P.Patch -> Html Msg
+patchMedia am p =
+    div []
+        [ button [ onClick (Play p) ] [ text "play" ]
+        , img [ src p.waveformSmall ] []
+        , audioNode am p
+        ]
+
+
+audioNode : AudioModel -> P.Patch -> Html Msg
+audioNode model patch =
+    audio
+        [ id patch.title
+        , src patch.soundUrl
+        , HAE.volume model.volume |> HSA.fromUnstyled
+        , onEnded (Ended patch) |> HSA.fromUnstyled
+        , onTimeUpdate (TimeUpdate patch) |> HSA.fromUnstyled
+        ]
+        []
+
+
+
+-- |> map (\amsg -> Msg.AudioPlayer amsg)
 
 
 patchMeta : P.Patch -> Html Msg
@@ -52,10 +76,10 @@ patchMeta p =
         attribs =
             p.attributeValues |> String.join " / "
     in
-    div [ css [ width (pct 50) ] ]
-        [ div [ css [ width (pct 33), float left ] ]
+    div [ css [ Css.width (pct 50) ] ]
+        [ div [ css [ Css.width (pct 33), float left ] ]
             [ text p.title ]
-        , div [ css [ width (pct 66), float left ] ]
+        , div [ css [ Css.width (pct 66), float left ] ]
             [ text durationText
             , br [] []
             , text attribs

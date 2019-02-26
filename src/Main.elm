@@ -2,6 +2,7 @@ module Main exposing (init, main, subs, update, view)
 
 import AboutPage
 import Array
+import AudioPlayer exposing (AudioModel, AudioMsg, audioUpdate, emptyAudioModel)
 import Browser
 import Browser.Navigation exposing (Key, load, pushUrl)
 import CreditsPage
@@ -10,8 +11,10 @@ import Css.Global exposing (body, global)
 import Debug
 import Header exposing (header)
 import HomePage
+import Html as H
 import Html.Attributes as HA
-import Html.Styled exposing (Html)
+import Html.Styled exposing (Html, audio)
+import Html.Styled.Attributes exposing (controls, id)
 import Http
 import Json.Decode as JD
 import Knob exposing (KnobMsg, simpleKnobSvg, simpleSwitchSvg)
@@ -22,6 +25,7 @@ import Model exposing (..)
 import Msg exposing (Msg(..))
 import Patch as P
 import PinTable exposing (PinMsg(..), audioPanel, pinTable, setActivePin, setHoverPin)
+import Ports exposing (..)
 import Routing exposing (Route(..), urlToRoute)
 import SynthiSchema as SS
 import TestPage exposing (testPage)
@@ -62,6 +66,8 @@ initModel key =
     , activeAudioPin = Nothing
     , activeModules = Nothing
     , hoverAudioPin = Nothing
+    , audio = emptyAudioModel
+    , nowPlaying = Nothing
     }
 
 
@@ -97,7 +103,7 @@ main =
         }
 
 
-update : Msg -> Model -> ( Model, Cmd msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateUrl url ->
@@ -204,6 +210,31 @@ update msg model =
                             model
             in
             ( mdl, Cmd.none )
+
+        AudioPlayer audioMsg ->
+            let
+                ( audioModel, audioCommand ) =
+                    audioUpdate audioMsg model.audio
+            in
+            ( { model | audio = audioModel }, Cmd.map (\ac -> AudioPlayer ac) audioCommand )
+
+        Play patch ->
+            ( { model | nowPlaying = Just ( patch, emptyAudioModel ) }, play patch.title )
+
+        Ended patch ->
+            ( { model | nowPlaying = Nothing }, Cmd.none )
+
+        TimeUpdate patch seekerPosition ->
+            let
+                audioModel =
+                    case model.nowPlaying of
+                        Just ( p, am ) ->
+                            { am | seekerPosition = seekerPosition }
+
+                        Nothing ->
+                            emptyAudioModel
+            in
+            ( { model | nowPlaying = Just ( patch, audioModel ) }, Cmd.none )
 
 
 pinToModules : SS.SynthiSchema -> P.Patch -> ( Int, Int ) -> ( Module, Module )

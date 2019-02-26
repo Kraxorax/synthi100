@@ -1,5 +1,6 @@
 module Msg exposing (Msg(..))
 
+import AudioPlayer exposing (AudioMsg)
 import Browser exposing (UrlRequest)
 import Http
 import Knob exposing (KnobMsg)
@@ -18,3 +19,7 @@ type Msg
     | GotPatches (Result Http.Error (List P.Patch))
     | AudioPinClick ( Int, Int )
     | AudioPinHover ( Int, Int )
+    | AudioPlayer AudioMsg
+    | Play P.Patch
+    | Ended P.Patch
+    | TimeUpdate P.Patch Float
