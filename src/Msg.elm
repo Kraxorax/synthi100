@@ -21,5 +21,6 @@ type Msg
     | AudioPinHover ( Int, Int )
     | AudioPlayer AudioMsg
     | Play P.Patch
+    | Pause P.Patch
     | Ended P.Patch
     | TimeUpdate P.Patch Float

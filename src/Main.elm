@@ -219,7 +219,50 @@ update msg model =
             ( { model | audio = audioModel }, Cmd.map (\ac -> AudioPlayer ac) audioCommand )
 
         Play patch ->
-            ( { model | nowPlaying = Just ( patch, emptyAudioModel ) }, play patch.title )
+            let
+                wasPlaying =
+                    case model.nowPlaying of
+                        Just ( ptch, auMo ) ->
+                            ptch.title
+
+                        Nothing ->
+                            ""
+
+                audioModel =
+                    case model.nowPlaying of
+                        Just ( ptch, auMo ) ->
+                            { auMo | playing = True }
+
+                        Nothing ->
+                            emptyAudioModel
+
+                somethingWasPlaying =
+                    model.nowPlaying |> isJust
+
+                cmds =
+                    if somethingWasPlaying && not (wasPlaying == patch.title) then
+                        Cmd.batch
+                            [ play patch.title
+                            , pause wasPlaying
+                            , setCurrentTime ( wasPlaying, 0.0 )
+                            ]
+
+                    else
+                        play patch.title
+            in
+            ( { model | nowPlaying = Just ( patch, audioModel ) }, cmds )
+
+        Pause patch ->
+            let
+                nowPlaying =
+                    case model.nowPlaying of
+                        Just ( ptch, auMo ) ->
+                            Just ( ptch, { auMo | playing = False } )
+
+                        Nothing ->
+                            Nothing
+            in
+            ( { model | nowPlaying = nowPlaying }, pause patch.title )
 
         Ended patch ->
             ( { model | nowPlaying = Nothing }, Cmd.none )

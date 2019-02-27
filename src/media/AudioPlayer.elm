@@ -1,4 +1,4 @@
-port module AudioPlayer exposing (AudioModel, AudioMsg(..), audioUpdate, emptyAudioModel)
+port module AudioPlayer exposing (AudioModel, AudioMsg(..), audioUpdate, emptyAudioModel, noPlayingAudioModel)
 
 import Browser
 import Browser.Events exposing (onAnimationFrameDelta)
@@ -20,6 +20,7 @@ type alias AudioModel =
     { playing : Bool
     , seekerPosition : Float
     , volume : Float
+    , position : ( Float, Float )
     }
 
 
@@ -38,6 +39,16 @@ emptyAudioModel =
     { playing = True
     , seekerPosition = 0.0
     , volume = 0.5
+    , position = ( 0, 0 )
+    }
+
+
+noPlayingAudioModel : AudioModel
+noPlayingAudioModel =
+    { playing = False
+    , seekerPosition = 0.0
+    , volume = 0.0
+    , position = ( 0, 0 )
     }
 
 
@@ -51,7 +62,7 @@ audioUpdate msg model =
             ( { model | playing = True }, play patch.title )
 
         Pause ->
-            ( { model | playing = False }, pause () )
+            ( { model | playing = False }, pause "" )
 
         -- TimeUpdate time ->
         --     ( { model | seekerPosition = 100 / (model.duration / time) }, Cmd.none )

@@ -1,6 +1,6 @@
 module HomePage exposing (page)
 
-import AudioPlayer exposing (AudioModel)
+import AudioPlayer exposing (AudioModel, noPlayingAudioModel)
 import Css as Css exposing (..)
 import Css.Global exposing (body, global)
 import Events exposing (..)
@@ -8,6 +8,7 @@ import Html.Attributes.Extra as HAE
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as HSA exposing (..)
 import Html.Styled.Events exposing (onClick)
+import Maybe.Extra exposing (isJust)
 import Model exposing (Model)
 import Msg exposing (Msg(..))
 import Patch as P
@@ -19,22 +20,40 @@ page model =
         [ h1 []
             [ text "Home page"
             ]
-        , patchesList model.audio (model.patches |> Maybe.withDefault [])
+        , patchesList model.nowPlaying (model.patches |> Maybe.withDefault [])
         ]
 
 
-patchesList : AudioModel -> List P.Patch -> Html Msg
-patchesList am ps =
+patchesList : Maybe ( P.Patch, AudioModel ) -> List P.Patch -> Html Msg
+patchesList nowPlaying ps =
     let
         patchItems =
             ps
                 |> List.map
-                    (\p -> patchItem am p)
+                    (\p ->
+                        case nowPlaying of
+                            Just ( ap, am ) ->
+                                let
+                                    isPlaying =
+                                        p.title == ap.title
+
+                                    audioModel =
+                                        if isPlaying then
+                                            Just am
+
+                                        else
+                                            Nothing
+                                in
+                                patchItem audioModel p
+
+                            Nothing ->
+                                patchItem Nothing p
+                    )
     in
     div [ css [ Css.width (pct 66) ] ] patchItems
 
 
-patchItem : AudioModel -> P.Patch -> Html Msg
+patchItem : Maybe AudioModel -> P.Patch -> Html Msg
 patchItem am p =
     div []
         [ patchMeta p
@@ -42,29 +61,55 @@ patchItem am p =
         ]
 
 
-patchMedia : AudioModel -> P.Patch -> Html Msg
+patchMedia : Maybe AudioModel -> P.Patch -> Html Msg
 patchMedia am p =
-    div []
-        [ button [ onClick (Play p) ] [ text "play" ]
-        , img [ src p.waveformSmall ] []
-        , audioNode am p
-        ]
+    let
+        audioModel =
+            case am of
+                Just audioM ->
+                    audioM
+
+                Nothing ->
+                    noPlayingAudioModel
+
+        playing =
+            (am |> isJust) && audioModel.playing
+    in
+    if playing then
+        div []
+            [ button [ onClick (Pause p) ] [ text "pause" ]
+            , span [] [ text (audioModel.seekerPosition |> String.fromFloat) ]
+            , img [ src p.waveformSmall ] []
+            , audioNode audioModel p
+            ]
+
+    else
+        div []
+            [ button [ onClick (Play p) ] [ text "play" ]
+            , span [] [ text (audioModel.seekerPosition |> String.fromFloat) ]
+            , img [ src p.waveformSmall ] []
+            , audioNode audioModel p
+            ]
 
 
 audioNode : AudioModel -> P.Patch -> Html Msg
 audioNode model patch =
-    audio
-        [ id patch.title
-        , src patch.soundUrl
-        , HAE.volume model.volume |> HSA.fromUnstyled
-        , onEnded (Ended patch) |> HSA.fromUnstyled
-        , onTimeUpdate (TimeUpdate patch) |> HSA.fromUnstyled
-        ]
-        []
+    if model.playing then
+        audio
+            [ id patch.title
+            , src patch.soundUrl
+            , HAE.volume model.volume |> HSA.fromUnstyled
+            , onEnded (Ended patch) |> HSA.fromUnstyled
+            , onTimeUpdate (TimeUpdate patch) |> HSA.fromUnstyled
+            ]
+            []
 
-
-
--- |> map (\amsg -> Msg.AudioPlayer amsg)
+    else
+        audio
+            [ id patch.title
+            , src patch.soundUrl
+            ]
+            []
 
 
 patchMeta : P.Patch -> Html Msg
