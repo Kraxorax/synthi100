@@ -1,15 +1,17 @@
 module HomePage exposing (page)
 
-import AudioPlayer exposing (AudioModel, noPlayingAudioModel)
+import AudioModel exposing (AudioModel, noPlayingAudioModel)
 import Css as Css exposing (..)
 import Css.Global exposing (body, global)
 import Events exposing (..)
 import Html.Attributes.Extra as HAE
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as HSA exposing (..)
-import Html.Styled.Events exposing (onClick)
+import Html.Styled.Events exposing (on, onClick, onMouseDown, onMouseUp)
+import Json.Decode as JD exposing (map)
 import Maybe.Extra exposing (isJust)
 import Model exposing (Model)
+import Mouse exposing (..)
 import Msg exposing (Msg(..))
 import Patch as P
 
@@ -20,76 +22,68 @@ page model =
         [ h1 []
             [ text "Home page"
             ]
-        , patchesList model.nowPlaying (model.patches |> Maybe.withDefault [])
+        , patchesList (model.patches |> Maybe.withDefault [])
         ]
 
 
-patchesList : Maybe ( P.Patch, AudioModel ) -> List P.Patch -> Html Msg
-patchesList nowPlaying ps =
+patchesList : List P.Patch -> Html Msg
+patchesList ps =
     let
         patchItems =
             ps
                 |> List.map
-                    (\p ->
-                        case nowPlaying of
-                            Just ( ap, am ) ->
-                                let
-                                    isPlaying =
-                                        p.title == ap.title
-
-                                    audioModel =
-                                        if isPlaying then
-                                            Just am
-
-                                        else
-                                            Nothing
-                                in
-                                patchItem audioModel p
-
-                            Nothing ->
-                                patchItem Nothing p
-                    )
+                    (\p -> patchItem p)
     in
     div [ css [ Css.width (pct 66) ] ] patchItems
 
 
-patchItem : Maybe AudioModel -> P.Patch -> Html Msg
-patchItem am p =
-    div []
-        [ patchMeta p
-        , patchMedia am p
+patchItem : P.Patch -> Html Msg
+patchItem patch =
+    div [ css [ display block, Css.height (px 90) ] ]
+        [ patchMeta patch
+        , patchMedia patch
         ]
 
 
-patchMedia : Maybe AudioModel -> P.Patch -> Html Msg
-patchMedia am p =
+patchMedia : P.Patch -> Html Msg
+patchMedia patch =
     let
         audioModel =
-            case am of
+            case patch.audioModel of
                 Just audioM ->
                     audioM
 
                 Nothing ->
                     noPlayingAudioModel
 
-        playing =
-            (am |> isJust) && audioModel.playing
-    in
-    if playing then
-        div []
-            [ button [ onClick (Pause p) ] [ text "pause" ]
-            , span [] [ text (audioModel.seekerPosition |> String.fromFloat) ]
-            , img [ src p.waveformSmall ] []
-            , audioNode audioModel p
-            ]
+        seekerPosition =
+            case patch.audioModel of
+                Just am ->
+                    Just <| 100 / (patch.duration / audioModel.seekerPosition)
 
-    else
-        div []
-            [ button [ onClick (Play p) ] [ text "play" ]
-            , span [] [ text (audioModel.seekerPosition |> String.fromFloat) ]
-            , img [ src p.waveformSmall ] []
-            , audioNode audioModel p
+                Nothing ->
+                    Nothing
+
+        ( hndlClck, bttnText ) =
+            if audioModel.playing then
+                ( Pause patch, "pause" )
+
+            else
+                ( Play patch, "play" )
+    in
+    div [ patchMediaCss ]
+        [ button
+            [ onClick hndlClck
+            , css [ Css.width (px 60), Css.height (px 60), float left ]
             ]
+            [ text bttnText ]
+        , waveformSeeker patch seekerPosition
+        , audioNode audioModel patch
+        ]
+
+
+patchMediaCss =
+    css [ display block, Css.height (pct 100), float left ]
 
 
 audioNode : AudioModel -> P.Patch -> Html Msg
@@ -112,6 +106,41 @@ audioNode model patch =
             []
 
 
+waveformSeeker : P.Patch -> Maybe Float -> Html Msg
+waveformSeeker patch seekPos =
+    let
+        seeker =
+            if seekPos |> isJust then
+                div
+                    [ css
+                        [ Css.height (pct 100)
+                        , Css.width (px 1)
+                        , backgroundColor (hex "ffffff")
+                        , Css.position absolute
+                        , top (px 0)
+                        , left (pct (seekPos |> Maybe.withDefault 0))
+                        , Css.cursor colResize
+                        ]
+                    ]
+                    []
+
+            else
+                div [] []
+    in
+    div
+        [ on "click" (JD.map (Seek patch) mouseDecoder)
+        , css
+            [ Css.width (px 320)
+            , Css.height (px 60)
+            , Css.position relative
+            , float left
+            ]
+        ]
+        [ img [ src patch.waveformSmall ] []
+        , seeker
+        ]
+
+
 patchMeta : P.Patch -> Html Msg
 patchMeta p =
     let
@@ -121,7 +150,7 @@ patchMeta p =
         attribs =
             p.attributeValues |> String.join " / "
     in
-    div [ css [ Css.width (pct 50) ] ]
+    div [ css [ Css.width (pct 50), Css.height (pct 100), display block, float left ] ]
         [ div [ css [ Css.width (pct 33), float left ] ]
             [ text p.title ]
         , div [ css [ Css.width (pct 66), float left ] ]

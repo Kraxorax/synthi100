@@ -15,9 +15,12 @@ console.log(app)
 /**
  *  Audio Player
  */
-// const app = Elm.AudioPlayer.init({
-//     node: root,
-// });
+function stopAll() {
+  const allAudio = document.getElementsByTagName("audio")
+  for (let audio of allAudio) {
+    audio.pause()
+  }
+}
 
 // Subscribe to change in playhead
 if (!!app.ports.setCurrentTime) {
@@ -32,6 +35,7 @@ if (!!app.ports.setCurrentTime) {
 
 // Subscribe to play messages
 app.ports.play.subscribe((id) => {
+  stopAll();
   const audio = document.getElementById(id);
   audio.play();
   console.log("JS play:", id)

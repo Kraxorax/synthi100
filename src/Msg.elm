@@ -1,9 +1,10 @@
 module Msg exposing (Msg(..))
 
-import AudioPlayer exposing (AudioMsg)
+import AudioMsg exposing (AudioMsg)
 import Browser exposing (UrlRequest)
 import Http
 import Knob exposing (KnobMsg)
+import Mouse exposing (MouseData)
 import Patch as P
 import PinTable exposing (PinMsg)
 import SynthiSchema as SS
@@ -19,8 +20,8 @@ type Msg
     | GotPatches (Result Http.Error (List P.Patch))
     | AudioPinClick ( Int, Int )
     | AudioPinHover ( Int, Int )
-    | AudioPlayer AudioMsg
     | Play P.Patch
     | Pause P.Patch
     | Ended P.Patch
     | TimeUpdate P.Patch Float
+    | Seek P.Patch MouseData

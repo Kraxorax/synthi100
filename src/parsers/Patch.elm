@@ -1,8 +1,9 @@
 module Patch exposing (Control(..), ModuleSettings, Patch, Pin, noPatch, patchesDecoder)
 
+import AudioModel exposing (AudioModel)
 import Json.Decode exposing (..)
 import Json.Decode.Extra exposing (optionalField, when, withDefault)
-import Json.Decode.Pipeline exposing (optional, optionalAt, required, requiredAt)
+import Json.Decode.Pipeline exposing (hardcoded, optional, optionalAt, required, requiredAt)
 import Maybe.Extra exposing (isJust)
 
 
@@ -17,6 +18,7 @@ type alias Patch =
     , audioPins : List Pin
     , controlPins : List Pin
     , moduleSettings : List ModuleSettings
+    , audioModel : Maybe AudioModel
     }
 
 
@@ -68,6 +70,7 @@ patchDecoder =
         |> required "audio_pins" (list pinDecoder)
         |> required "control_pins" (list pinDecoder)
         |> required "module_settings" (list moduleSettingsDecoder)
+        |> hardcoded Nothing
 
 
 pinDecoder : Decoder Pin
@@ -133,6 +136,7 @@ noPatch =
     , audioPins = []
     , controlPins = []
     , moduleSettings = []
+    , audioModel = Nothing
     }
 
 

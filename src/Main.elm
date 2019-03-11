@@ -2,7 +2,7 @@ module Main exposing (init, main, subs, update, view)
 
 import AboutPage
 import Array
-import AudioPlayer exposing (AudioModel, AudioMsg, audioUpdate, emptyAudioModel)
+import AudioModel exposing (emptyAudioModel)
 import Browser
 import Browser.Navigation exposing (Key, load, pushUrl)
 import CreditsPage
@@ -66,8 +66,6 @@ initModel key =
     , activeAudioPin = Nothing
     , activeModules = Nothing
     , hoverAudioPin = Nothing
-    , audio = emptyAudioModel
-    , nowPlaying = Nothing
     }
 
 
@@ -211,73 +209,112 @@ update msg model =
             in
             ( mdl, Cmd.none )
 
-        AudioPlayer audioMsg ->
-            let
-                ( audioModel, audioCommand ) =
-                    audioUpdate audioMsg model.audio
-            in
-            ( { model | audio = audioModel }, Cmd.map (\ac -> AudioPlayer ac) audioCommand )
-
         Play patch ->
             let
-                wasPlaying =
-                    case model.nowPlaying of
-                        Just ( ptch, auMo ) ->
-                            ptch.title
+                ps =
+                    model.patches
+                        |> Maybe.withDefault []
+                        |> List.map
+                            (\p ->
+                                let
+                                    am =
+                                        if p.title == patch.title then
+                                            case p.audioModel of
+                                                Just auMod ->
+                                                    Just { auMod | playing = True }
 
-                        Nothing ->
-                            ""
+                                                Nothing ->
+                                                    Just emptyAudioModel
 
-                audioModel =
-                    case model.nowPlaying of
-                        Just ( ptch, auMo ) ->
-                            { auMo | playing = True }
-
-                        Nothing ->
-                            emptyAudioModel
-
-                somethingWasPlaying =
-                    model.nowPlaying |> isJust
+                                        else
+                                            Nothing
+                                in
+                                { p | audioModel = am }
+                            )
 
                 cmds =
-                    if somethingWasPlaying && not (wasPlaying == patch.title) then
-                        Cmd.batch
-                            [ play patch.title
-                            , pause wasPlaying
-                            , setCurrentTime ( wasPlaying, 0.0 )
-                            ]
-
-                    else
-                        play patch.title
+                    play patch.title
             in
-            ( { model | nowPlaying = Just ( patch, audioModel ) }, cmds )
+            ( { model | patches = Just ps }, cmds )
 
         Pause patch ->
             let
-                nowPlaying =
-                    case model.nowPlaying of
-                        Just ( ptch, auMo ) ->
-                            Just ( ptch, { auMo | playing = False } )
+                ps =
+                    model.patches
+                        |> Maybe.withDefault []
+                        |> List.map
+                            (\p ->
+                                case p.audioModel of
+                                    Just am ->
+                                        let
+                                            audioModel =
+                                                Just { am | playing = False }
+                                        in
+                                        { p | audioModel = audioModel }
 
-                        Nothing ->
-                            Nothing
+                                    Nothing ->
+                                        { p | audioModel = Nothing }
+                            )
             in
-            ( { model | nowPlaying = nowPlaying }, pause patch.title )
+            ( { model | patches = Just ps }, pause patch.title )
 
         Ended patch ->
-            ( { model | nowPlaying = Nothing }, Cmd.none )
+            let
+                ps =
+                    model.patches
+                        |> Maybe.withDefault []
+                        |> List.map
+                            (\p -> { p | audioModel = Nothing })
+            in
+            ( { model | patches = Just ps }, Cmd.none )
 
         TimeUpdate patch seekerPosition ->
             let
+                ps =
+                    model.patches
+                        |> Maybe.withDefault []
+                        |> List.map
+                            (\p ->
+                                case p.audioModel of
+                                    Just am ->
+                                        let
+                                            audioModel =
+                                                { am | seekerPosition = seekerPosition }
+                                        in
+                                        { p | audioModel = Just audioModel }
+
+                                    Nothing ->
+                                        p
+                            )
+            in
+            ( { model | patches = Just ps }, Cmd.none )
+
+        Seek patch mouseData ->
+            let
+                newTime =
+                    patch.duration / (mouseData.offsetWidth / (mouseData.offsetX |> toFloat))
+
                 audioModel =
-                    case model.nowPlaying of
-                        Just ( p, am ) ->
-                            { am | seekerPosition = seekerPosition }
+                    case patch.audioModel of
+                        Just am ->
+                            Just { am | seekerPosition = newTime }
 
                         Nothing ->
-                            emptyAudioModel
+                            Nothing
+
+                ps =
+                    model.patches
+                        |> Maybe.withDefault []
+                        |> List.map
+                            (\p ->
+                                if p.title == patch.title then
+                                    { p | audioModel = audioModel }
+
+                                else
+                                    p
+                            )
             in
-            ( { model | nowPlaying = Just ( patch, audioModel ) }, Cmd.none )
+            ( { model | patches = Just ps }, setCurrentTime ( patch.title, newTime ) )
 
 
 pinToModules : SS.SynthiSchema -> P.Patch -> ( Int, Int ) -> ( Module, Module )
