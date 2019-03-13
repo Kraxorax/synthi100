@@ -18,7 +18,7 @@ import Html.Styled.Attributes exposing (controls, id)
 import Http
 import Json.Decode as JD
 import Knob exposing (KnobMsg, simpleKnobSvg, simpleSwitchSvg)
-import List.Extra exposing (find, getAt)
+import List.Extra exposing (find, findIndex, getAt)
 import Matrix exposing (Matrix, generate, toArray)
 import Maybe.Extra exposing (isJust)
 import Model exposing (..)
@@ -66,6 +66,7 @@ initModel key =
     , activeAudioPin = Nothing
     , activeModules = Nothing
     , hoverAudioPin = Nothing
+    , attributeFilters = []
     }
 
 
@@ -127,7 +128,13 @@ update msg model =
                     ( model, Cmd.none )
 
                 Ok schema ->
-                    ( { model | synthiSchema = Just schema }, Cmd.none )
+                    let
+                        filters =
+                            schema.attributes
+                                |> List.map
+                                    (\attr -> AttrFilter attr.name attr.values)
+                    in
+                    ( { model | synthiSchema = Just schema, attributeFilters = filters }, Cmd.none )
 
         GotPatches patches ->
             case patches of
@@ -315,6 +322,25 @@ update msg model =
                             )
             in
             ( { model | patches = Just ps }, setCurrentTime ( patch.title, newTime ) )
+
+        Filter group value ->
+            let
+                attrFilters =
+                    model.attributeFilters
+                        |> List.map
+                            (\af ->
+                                if group == af.attrName then
+                                    if af.selected |> findIndex (\s -> s == value) |> isJust then
+                                        { af | selected = af.selected |> List.filter (\s -> not (s == value)) }
+
+                                    else
+                                        { af | selected = value :: af.selected }
+
+                                else
+                                    af
+                            )
+            in
+            ( { model | attributeFilters = attrFilters }, Cmd.none )
 
 
 pinToModules : SS.SynthiSchema -> P.Patch -> ( Int, Int ) -> ( Module, Module )

@@ -1,4 +1,4 @@
-module Model exposing (Control(..), Knob, Model, Module, PinConnection, Switch)
+module Model exposing (AttrFilter, Control(..), Knob, Model, Module, PinConnection, Switch)
 
 import AudioModel exposing (AudioModel)
 import Browser.Navigation exposing (Key)
@@ -20,6 +20,13 @@ type alias Model =
     , activeAudioPin : Maybe PinConnection
     , activeModules : Maybe ( Module, Module )
     , hoverAudioPin : Maybe PinConnection
+    , attributeFilters : List AttrFilter
+    }
+
+
+type alias AttrFilter =
+    { attrName : String
+    , selected : List String
     }
 
 

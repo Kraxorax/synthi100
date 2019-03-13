@@ -25,3 +25,4 @@ type Msg
     | Ended P.Patch
     | TimeUpdate P.Patch Float
     | Seek P.Patch MouseData
+    | Filter String String

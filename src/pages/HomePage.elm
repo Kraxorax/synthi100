@@ -7,13 +7,15 @@ import Events exposing (..)
 import Html.Attributes.Extra as HAE
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as HSA exposing (..)
-import Html.Styled.Events exposing (on, onClick, onMouseDown, onMouseUp)
+import Html.Styled.Events exposing (on, onClick, onInput, onMouseDown, onMouseUp)
 import Json.Decode as JD exposing (map)
+import List.Extra exposing (find, findIndex)
 import Maybe.Extra exposing (isJust)
-import Model exposing (Model)
+import Model exposing (AttrFilter, Model)
 import Mouse exposing (..)
 import Msg exposing (Msg(..))
 import Patch as P
+import SynthiSchema exposing (Attribute)
 
 
 page : Model -> Html Msg
@@ -22,19 +24,87 @@ page model =
         [ h1 []
             [ text "Home page"
             ]
-        , patchesList (model.patches |> Maybe.withDefault [])
+        , filterList model
+        , patchesList model.attributeFilters (model.patches |> Maybe.withDefault [])
         ]
 
 
-patchesList : List P.Patch -> Html Msg
-patchesList ps =
+filterList : Model -> Html Msg
+filterList model =
     let
+        attrs =
+            case model.synthiSchema of
+                Just ss ->
+                    ss.attributes
+
+                Nothing ->
+                    []
+    in
+    div [ css [ Css.width (pct 33), float left ] ]
+        [ h4 []
+            [ text "filters" ]
+        , div []
+            (attrs
+                |> List.map
+                    (\a ->
+                        filterGroup
+                            ((model.attributeFilters |> find (\f -> a.name == f.attrName))
+                                |> Maybe.withDefault (AttrFilter "" [])
+                            )
+                            a
+                    )
+            )
+        ]
+
+
+filterGroup : AttrFilter -> Attribute -> Html Msg
+filterGroup filter attr =
+    div []
+        [ h5 []
+            [ text attr.name ]
+        , ul [ css [ Css.listStyle none ] ]
+            [ div []
+                (attr.values
+                    |> List.map
+                        (\v ->
+                            li []
+                                [ radio v attr.name (filter.selected |> findIndex (\s -> s == v) |> isJust) ]
+                        )
+                )
+            ]
+        ]
+
+
+radio : String -> String -> Bool -> Html Msg
+radio val group isChecked =
+    label []
+        [ input [ type_ "checkbox", id val, onInput (Filter group), HSA.checked isChecked, value val ] []
+        , text val
+        ]
+
+
+patchesList : List AttrFilter -> List P.Patch -> Html Msg
+patchesList filters ps =
+    let
+        fltrs =
+            filters |> List.concatMap (\f -> f.selected)
+
         patchItems =
             ps
+                |> List.filter
+                    (\p ->
+                        p.attributeValues
+                            |> List.all
+                                (\av ->
+                                    Debug.log "fltrs" fltrs
+                                        |> findIndex (\f -> f == av)
+                                        |> isJust
+                                )
+                    )
                 |> List.map
                     (\p -> patchItem p)
     in
-    div [ css [ Css.width (pct 66) ] ] patchItems
+    div [ css [ Css.width (pct 66), float left ] ] patchItems
 
 
 patchItem : P.Patch -> Html Msg

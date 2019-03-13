@@ -1,4 +1,4 @@
-module SynthiSchema exposing (Control, Module, SynthiSchema, noModule, schemaDecoder)
+module SynthiSchema exposing (Attribute, Control, Module, SynthiSchema, noModule, schemaDecoder)
 
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (optional, required)
