@@ -21,6 +21,7 @@ type alias Model =
     , activeModules : Maybe ( Module, Module )
     , hoverAudioPin : Maybe PinConnection
     , attributeFilters : List AttrFilter
+    , volume : Float
     }
 
 

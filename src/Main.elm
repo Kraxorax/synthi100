@@ -67,6 +67,7 @@ initModel key =
     , activeModules = Nothing
     , hoverAudioPin = Nothing
     , attributeFilters = []
+    , volume = 0.5
     }
 
 
@@ -341,6 +342,9 @@ update msg model =
                             )
             in
             ( { model | attributeFilters = attrFilters }, Cmd.none )
+
+        VolumeChange vol ->
+            ( { model | volume = vol / 100 }, Cmd.none )
 
 
 pinToModules : SS.SynthiSchema -> P.Patch -> ( Int, Int ) -> ( Module, Module )

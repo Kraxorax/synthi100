@@ -25,7 +25,7 @@ page model =
             [ text "Home page"
             ]
         , filterList model
-        , patchesList model.attributeFilters (model.patches |> Maybe.withDefault [])
+        , patchesList model
         ]
 
 
@@ -83,11 +83,14 @@ radio val group isChecked =
         ]
 
 
-patchesList : List AttrFilter -> List P.Patch -> Html Msg
-patchesList filters ps =
+patchesList : Model -> Html Msg
+patchesList model =
     let
+        ps =
+            model.patches |> Maybe.withDefault []
+
         fltrs =
-            filters |> List.concatMap (\f -> f.selected)
+            model.attributeFilters |> List.concatMap (\f -> f.selected)
 
         patchItems =
             ps
@@ -96,27 +99,30 @@ patchesList filters ps =
                         p.attributeValues
                             |> List.all
                                 (\av ->
-                                    Debug.log "fltrs" fltrs
+                                    fltrs
                                         |> findIndex (\f -> f == av)
                                         |> isJust
                                 )
                     )
                 |> List.map
-                    (\p -> patchItem p)
+                    (\p -> patchItem model p)
     in
-    div [ css [ Css.width (pct 66), float left ] ] patchItems
+    div [ css [ Css.width (pct 66), float left ] ]
+        (input [ type_ "range", onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange) ] []
+            :: patchItems
+        )
 
 
-patchItem : P.Patch -> Html Msg
-patchItem patch =
+patchItem : Model -> P.Patch -> Html Msg
+patchItem model patch =
     div [ css [ display block, Css.height (px 90) ] ]
         [ patchMeta patch
-        , patchMedia patch
+        , patchMedia model patch
         ]
 
 
-patchMedia : P.Patch -> Html Msg
-patchMedia patch =
+patchMedia : Model -> P.Patch -> Html Msg
+patchMedia model patch =
     let
         audioModel =
             case patch.audioModel of
@@ -148,7 +154,7 @@ patchMedia patch =
             ]
             [ text bttnText ]
         , waveformSeeker patch seekerPosition
-        , audioNode audioModel patch
+        , audioNode model patch
         ]
 
 
@@ -156,9 +162,18 @@ patchMediaCss =
     css [ display block, Css.height (pct 100), float left ]
 
 
-audioNode : AudioModel -> P.Patch -> Html Msg
+audioNode : Model -> P.Patch -> Html Msg
 audioNode model patch =
-    if model.playing then
+    let
+        playing =
+            case patch.audioModel of
+                Just am ->
+                    am.playing
+
+                Nothing ->
+                    False
+    in
+    if playing then
         audio
             [ id patch.title
             , src patch.soundUrl
