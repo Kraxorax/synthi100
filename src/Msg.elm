@@ -4,6 +4,7 @@ import AudioMsg exposing (AudioMsg)
 import Browser exposing (UrlRequest)
 import Http
 import Knob exposing (KnobMsg)
+import Model exposing (SortDirection)
 import Mouse exposing (MouseData)
 import Patch as P
 import PinTable exposing (PinMsg)
@@ -27,3 +28,5 @@ type Msg
     | Seek P.Patch MouseData
     | VolumeChange Float
     | Filter String String
+    | SortBy String
+    | Sort SortDirection

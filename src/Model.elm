@@ -1,4 +1,4 @@
-module Model exposing (AttrFilter, Control(..), Knob, Model, Module, PinConnection, Switch)
+module Model exposing (AttrFilter, Control(..), Knob, Model, Module, PinConnection, SortDirection(..), Switch)
 
 import AudioModel exposing (AudioModel)
 import Browser.Navigation exposing (Key)
@@ -22,7 +22,14 @@ type alias Model =
     , hoverAudioPin : Maybe PinConnection
     , attributeFilters : List AttrFilter
     , volume : Float
+    , sortOrder : SortDirection
+    , sortBy : String
     }
+
+
+type SortDirection
+    = Ascending
+    | Descending
 
 
 type alias AttrFilter =

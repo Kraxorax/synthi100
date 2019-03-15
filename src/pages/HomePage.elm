@@ -11,7 +11,7 @@ import Html.Styled.Events exposing (on, onClick, onInput, onMouseDown, onMouseUp
 import Json.Decode as JD exposing (map)
 import List.Extra exposing (find, findIndex)
 import Maybe.Extra exposing (isJust)
-import Model exposing (AttrFilter, Model)
+import Model exposing (..)
 import Mouse exposing (..)
 import Msg exposing (Msg(..))
 import Patch as P
@@ -108,9 +108,32 @@ patchesList model =
                     (\p -> patchItem model p)
     in
     div [ css [ Css.width (pct 66), float left ] ]
-        (input [ type_ "range", onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange) ] []
+        (sortInput
+            :: volumeInput
             :: patchItems
         )
+
+
+sortInput : Html Msg
+sortInput =
+    div []
+        [ span [] [ text "sort by" ]
+        , select [ onInput SortBy ]
+            [ option [ value "duration" ] [ text "duration" ]
+            , option [ value "title" ] [ text "title" ]
+            ]
+        , button [ onClick (Sort Ascending) ] [ text "asc" ]
+        , button [ onClick (Sort Descending) ] [ text "desc" ]
+        ]
+
+
+volumeInput : Html Msg
+volumeInput =
+    div []
+        [ span [] [ text "volume" ]
+        , input [ type_ "range", onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange) ] []
+        , button [] [ text "mute" ]
+        ]
 
 
 patchItem : Model -> P.Patch -> Html Msg

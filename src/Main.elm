@@ -68,6 +68,8 @@ initModel key =
     , hoverAudioPin = Nothing
     , attributeFilters = []
     , volume = 0.5
+    , sortOrder = Ascending
+    , sortBy = "title"
     }
 
 
@@ -345,6 +347,52 @@ update msg model =
 
         VolumeChange vol ->
             ( { model | volume = vol / 100 }, Cmd.none )
+
+        SortBy sortBy ->
+            let
+                sortedPatches =
+                    model.patches
+                        |> Maybe.map
+                            (\patches ->
+                                case model.sortOrder of
+                                    Ascending ->
+                                        patches |> sortAscendingBy sortBy
+
+                                    Descending ->
+                                        patches |> sortDescendingBy sortBy
+                            )
+            in
+            ( { model | patches = sortedPatches, sortBy = sortBy }, Cmd.none )
+
+        Sort direction ->
+            let
+                sortedPatches =
+                    model.patches
+                        |> Maybe.map
+                            (\patches ->
+                                case direction of
+                                    Ascending ->
+                                        patches |> sortAscendingBy model.sortBy
+
+                                    Descending ->
+                                        patches |> sortDescendingBy model.sortBy
+                            )
+            in
+            ( { model | patches = sortedPatches, sortOrder = direction }, Cmd.none )
+
+
+sortDescendingBy : String -> List P.Patch -> List P.Patch
+sortDescendingBy s =
+    sortAscendingBy s >> List.reverse
+
+
+sortAscendingBy : String -> List P.Patch -> List P.Patch
+sortAscendingBy prop ps =
+    if prop == "title" then
+        ps |> List.sortBy .title
+
+    else
+        ps |> List.sortBy .duration
 
 
 pinToModules : SS.SynthiSchema -> P.Patch -> ( Int, Int ) -> ( Module, Module )
