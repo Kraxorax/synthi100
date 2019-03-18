@@ -65,17 +65,17 @@ navigation : List (Html Msg)
 navigation =
     [ a
         [ css [ flex2 (num 0) (num 0) ]
-        , href "database"
+        , href "/database"
         ]
         [ text "database" ]
     , a
         [ css [ flex2 (num 0) (num 0) ]
-        , href "credits"
+        , href "/credits"
         ]
         [ text "credits" ]
     , a
         [ css [ flex2 (num 0) (num 0) ]
-        , href "about"
+        , href "/about"
         ]
         [ text "about" ]
     ]

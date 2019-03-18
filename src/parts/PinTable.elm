@@ -1,28 +1,53 @@
-module PinTable exposing (PinModel, PinMsg(..), audioPanel, initModel, pinTable, setActivePin, setHoverPin, update)
+module PinTable exposing (Pin(..), PinModel, PinMsg(..), audioPanel, initModel, pinTable, setActivePin, setHoverPin, update)
 
 import Array
-import Html
 import Html.Attributes exposing (style)
+import Html.Styled exposing (..)
 import List.Extra exposing (find)
 import Matrix exposing (Matrix, generate)
 import Patch as P
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Svg.Events exposing (..)
+import Svg.Styled as Svg exposing (..)
+import Svg.Styled.Attributes as Svg exposing (..)
+import Svg.Styled.Events as Svg exposing (..)
 import SynthiSchema as SS
 import Tuple exposing (first, second)
 
 
 color =
     { offL =
-        "#dddddd"
+        "#c8c8c8"
     , offD =
-        "#aaaaaa"
+        "#000000"
     , hover =
         "#66AAFF"
     , active =
         "#FF9999"
     }
+
+
+pinDistanceX =
+    12
+
+
+pinDistanceY =
+    12
+
+
+gap =
+    15
+
+
+pinRadius =
+    3
+
+
+margin =
+    24
+
+
+type Pin
+    = Audio
+    | Control
 
 
 type PinMsg
@@ -72,19 +97,20 @@ pinSvg ( xp, yp ) pinColor model =
     let
         yPos =
             (if yp >= 30 then
-                yp * 8 + 15
+                yp * pinDistanceY + gap
 
              else
-                yp * 8
+                yp * pinDistanceY
             )
-                + 3
+                + pinRadius
+                + margin
                 |> String.fromInt
 
         xPos =
-            (xp * 8) + 3 |> String.fromInt
+            (xp * pinDistanceX) + pinRadius + margin |> String.fromInt
     in
     circle
-        [ r "3"
+        [ r (pinRadius |> String.fromInt)
         , cx xPos
         , cy yPos
         , fill pinColor
@@ -105,8 +131,8 @@ pinPosToCoords ( into, out ) =
     ( into - 1, out - 61 )
 
 
-audioPanel : SS.SynthiSchema -> List P.Pin -> PinModel -> Html.Html PinMsg
-audioPanel ss pins model =
+audioPanel : List P.Pin -> PinModel -> Html PinMsg
+audioPanel pins model =
     let
         table =
             generate 60
@@ -134,15 +160,70 @@ audioPanel ss pins model =
                     in
                     pinSvg ( x, y ) pinColor model
                 )
+
+        w =
+            60 * pinDistanceX + 40 |> String.fromFloat
+
+        h =
+            60 * pinDistanceY + 40 |> String.fromFloat
     in
-    svg [ width "480", height "495" ]
-        (table
-            |> Matrix.toArray
-            |> Array.toList
+    svg [ width w, height h ]
+        ([ pinNumberY model.hoverPin
+         , pinNumberX model.hoverPin
+         ]
+            |> List.append
+                (table
+                    |> Matrix.toArray
+                    |> Array.toList
+                )
         )
 
 
-pinTable : PinModel -> Html.Html PinMsg
+pinNumberY : ( Int, Int ) -> Html PinMsg
+pinNumberY ( i, o ) =
+    let
+        y =
+            (if o < 30 then
+                o * pinDistanceX + margin
+
+             else
+                o * pinDistanceX + margin + gap
+            )
+                + 6
+                |> String.fromInt
+
+        ( ri, ro ) =
+            coordsToPinPos ( i, o )
+    in
+    Svg.text_
+        [ dx "14"
+        , dy y
+        , textAnchor "middle"
+        , fill "#FFFFFF"
+        ]
+        [ Svg.text (ro |> String.fromInt) ]
+
+
+pinNumberX : ( Int, Int ) -> Html PinMsg
+pinNumberX ( i, o ) =
+    let
+        x =
+            (i * pinDistanceX + margin)
+                |> String.fromInt
+
+        ( ri, ro ) =
+            coordsToPinPos ( i, o )
+    in
+    Svg.text_
+        [ dx x
+        , dy "14"
+        , textAnchor "middle"
+        , fill "#FFFFFF"
+        ]
+        [ Svg.text (ri |> String.fromInt) ]
+
+
+pinTable : PinModel -> Html PinMsg
 pinTable model =
     let
         table =

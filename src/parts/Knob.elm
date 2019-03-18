@@ -1,10 +1,11 @@
-module Knob exposing (KnobMsg, knob10Svg, knobSvg, simpleKnobSvg, simpleSwitchSvg)
+module Knob exposing (KnobMsg, controlsToKnobSvg, knob10Svg, knobSvg, simpleKnobSvg, simpleSwitchSvg)
 
-import Html
+import Html.Styled as Html exposing (..)
 import Maybe.Extra exposing (isJust)
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Svg.Events exposing (..)
+import Model exposing (Control(..))
+import Svg.Styled as Svg exposing (..)
+import Svg.Styled.Attributes exposing (..)
+import Svg.Styled.Events exposing (..)
 
 
 type KnobMsg
@@ -35,12 +36,12 @@ simpleKnobSvg : Maybe Float -> Html.Html KnobMsg
 simpleKnobSvg val =
     let
         value =
-            case val of
-                Just v ->
-                    String.fromFloat v
-
-                Nothing ->
-                    noValue
+            val
+                |> Maybe.map
+                    (\v ->
+                        String.fromFloat v
+                    )
+                |> Maybe.withDefault noValue
 
         knobColor =
             if val |> isJust then
@@ -67,7 +68,7 @@ simpleKnobSvg val =
             , textAnchor "middle"
             , fill "#FFFFFF"
             ]
-            [ text value ]
+            [ Svg.text value ]
         ]
 
 
@@ -106,7 +107,7 @@ simpleSwitchSvg val =
             , textAnchor "middle"
             , fill "#FFFFFF"
             ]
-            [ text value ]
+            [ Svg.text value ]
         ]
 
 
@@ -143,12 +144,28 @@ knob10Svg ( kx, ky ) active val =
             , textAnchor "middle"
             , color textColor
             ]
-            [ text (String.fromFloat val)
+            [ Svg.text (String.fromFloat val)
             ]
         , svg [ y "30" ]
             [ simpleKnobSvg (Just val)
             ]
         ]
+
+
+controlsToKnobSvg : List Control -> Html.Html KnobMsg
+controlsToKnobSvg cs =
+    Html.div []
+        (cs
+            |> List.map
+                (\ctrl ->
+                    case ctrl of
+                        KnobCtrl { name, value } ->
+                            simpleKnobSvg value
+
+                        SwitchCtrl { name, case_ } ->
+                            simpleSwitchSvg case_
+                )
+        )
 
 
 knobSvg : Bool -> String -> Svg msg

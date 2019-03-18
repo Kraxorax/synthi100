@@ -1,6 +1,7 @@
 module HomePage exposing (page)
 
 import AudioModel exposing (AudioModel, noPlayingAudioModel)
+import Components exposing (..)
 import Css as Css exposing (..)
 import Css.Global exposing (body, global)
 import Events exposing (..)
@@ -127,15 +128,6 @@ sortInput =
         ]
 
 
-volumeInput : Html Msg
-volumeInput =
-    div []
-        [ span [] [ text "volume" ]
-        , input [ type_ "range", onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange) ] []
-        , button [] [ text "mute" ]
-        ]
-
-
 patchItem : Model -> P.Patch -> Html Msg
 patchItem model patch =
     div [ css [ display block, Css.height (px 90) ] ]
@@ -146,107 +138,16 @@ patchItem model patch =
 
 patchMedia : Model -> P.Patch -> Html Msg
 patchMedia model patch =
-    let
-        audioModel =
-            case patch.audioModel of
-                Just audioM ->
-                    audioM
-
-                Nothing ->
-                    noPlayingAudioModel
-
-        seekerPosition =
-            case patch.audioModel of
-                Just am ->
-                    Just <| 100 / (patch.duration / audioModel.seekerPosition)
-
-                Nothing ->
-                    Nothing
-
-        ( hndlClck, bttnText ) =
-            if audioModel.playing then
-                ( Pause patch, "pause" )
-
-            else
-                ( Play patch, "play" )
-    in
     div [ patchMediaCss ]
-        [ button
-            [ onClick hndlClck
-            , css [ Css.width (px 60), Css.height (px 60), float left ]
-            ]
-            [ text bttnText ]
-        , waveformSeeker patch seekerPosition
+        [ playButton patch
+        , div [ css [ Css.width (px 320), Css.height (px 90) ] ]
+            [ waveformSeeker patch ]
         , audioNode model patch
         ]
 
 
 patchMediaCss =
     css [ display block, Css.height (pct 100), float left ]
-
-
-audioNode : Model -> P.Patch -> Html Msg
-audioNode model patch =
-    let
-        playing =
-            case patch.audioModel of
-                Just am ->
-                    am.playing
-
-                Nothing ->
-                    False
-    in
-    if playing then
-        audio
-            [ id patch.title
-            , src patch.soundUrl
-            , HAE.volume model.volume |> HSA.fromUnstyled
-            , onEnded (Ended patch) |> HSA.fromUnstyled
-            , onTimeUpdate (TimeUpdate patch) |> HSA.fromUnstyled
-            ]
-            []
-
-    else
-        audio
-            [ id patch.title
-            , src patch.soundUrl
-            ]
-            []
-
-
-waveformSeeker : P.Patch -> Maybe Float -> Html Msg
-waveformSeeker patch seekPos =
-    let
-        seeker =
-            if seekPos |> isJust then
-                div
-                    [ css
-                        [ Css.height (pct 100)
-                        , Css.width (px 1)
-                        , backgroundColor (hex "ffffff")
-                        , Css.position absolute
-                        , top (px 0)
-                        , left (pct (seekPos |> Maybe.withDefault 0))
-                        , Css.cursor colResize
-                        ]
-                    ]
-                    []
-
-            else
-                div [] []
-    in
-    div
-        [ on "click" (JD.map (Seek patch) mouseDecoder)
-        , css
-            [ Css.width (px 320)
-            , Css.height (px 60)
-            , Css.position relative
-            , float left
-            ]
-        ]
-        [ img [ src patch.waveformSmall ] []
-        , seeker
-        ]
 
 
 patchMeta : P.Patch -> Html Msg
@@ -257,8 +158,11 @@ patchMeta p =
 
         attribs =
             p.attributeValues |> String.join " / "
+
+        patchUrl =
+            "patch/" ++ p.title
     in
-    div [ css [ Css.width (pct 50), Css.height (pct 100), display block, float left ] ]
+    a [ href patchUrl, css [ Css.width (pct 50), Css.height (pct 100), display block, float left ] ]
         [ div [ css [ Css.width (pct 33), float left ] ]
             [ text p.title ]
         , div [ css [ Css.width (pct 66), float left ] ]

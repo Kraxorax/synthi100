@@ -1,6 +1,6 @@
 module TestPage exposing (testPage)
 
-import Html
+import Html.Styled as Html exposing (..)
 import Knob exposing (KnobMsg, simpleKnobSvg, simpleSwitchSvg)
 import Model exposing (Control(..), Model, PinConnection)
 import Msg exposing (..)
@@ -49,7 +49,7 @@ testPage model =
             [ Html.div [] [ Html.text activeAudioPinText ]
             , Html.div [] [ Html.text hoverAudioPinText ]
             , Html.div [] [ Html.text activeModulesText ]
-            , Html.map reactToAudioPinEvent (PinTable.audioPanel ss audioPins model.pinModel)
+            , Html.map reactToAudioPinEvent (PinTable.audioPanel audioPins model.audioPinModel)
             , Html.div []
                 [ Html.div [] [ Html.text "out module:" ]
                 , Html.map (\kmsg -> KnobEvent kmsg) (controlsToSvg om.controls)
@@ -77,10 +77,10 @@ reactToAudioPinEvent : PinTable.PinMsg -> Msg
 reactToAudioPinEvent pinMsg =
     case pinMsg of
         PinTable.PinClick ( x, y ) ->
-            AudioPinClick ( x, y )
+            PinClick PinTable.Audio ( x, y )
 
         PinTable.PinIn ( x, y ) ->
-            AudioPinHover ( x, y )
+            PinHover PinTable.Audio ( x, y )
 
         _ ->
             PinEvent pinMsg

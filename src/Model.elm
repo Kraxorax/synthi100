@@ -13,7 +13,8 @@ type alias Model =
     , currentRoute : Route
     , circleFill : String
     , hoverKnob : ( Int, Int )
-    , pinModel : PinTable.PinModel
+    , audioPinModel : PinTable.PinModel
+    , controlPinModel : PinTable.PinModel
     , synthiSchema : Maybe SS.SynthiSchema
     , patches : Maybe (List P.Patch)
     , error : Maybe String

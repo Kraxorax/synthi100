@@ -24,6 +24,7 @@ import Maybe.Extra exposing (isJust)
 import Model exposing (..)
 import Msg exposing (Msg(..))
 import Patch as P
+import PatchPage
 import PinTable exposing (PinMsg(..), audioPanel, pinTable, setActivePin, setHoverPin)
 import Ports exposing (..)
 import Routing exposing (Route(..), urlToRoute)
@@ -56,8 +57,9 @@ init _ url key =
 initModel : Key -> Model
 initModel key =
     { navKey = key
-    , currentRoute = Database
-    , pinModel = PinTable.initModel
+    , currentRoute = PatchGraphical "20190206-001"
+    , audioPinModel = PinTable.initModel
+    , controlPinModel = PinTable.initModel
     , circleFill = "#0000ff"
     , hoverKnob = ( -1, -1 )
     , synthiSchema = Nothing
@@ -119,11 +121,44 @@ update msg model =
                 Browser.External href ->
                     ( model, load href )
 
+        MovePatch patch step ->
+            let
+                currPatch =
+                    model.patches
+                        |> Maybe.map
+                            (\patches ->
+                                let
+                                    currIndex =
+                                        patches |> List.Extra.findIndex (\p -> p.title == patch.title) |> Maybe.withDefault 0
+
+                                    nextPos =
+                                        currIndex + step
+
+                                    nextIndex =
+                                        if nextPos < 0 then
+                                            0
+
+                                        else if nextPos >= List.length patches then
+                                            currIndex
+
+                                        else
+                                            nextPos
+                                in
+                                patches |> List.Extra.getAt (currIndex + step) |> Maybe.withDefault patch
+                            )
+                        |> Maybe.withDefault P.noPatch
+
+                url =
+                    "/patch/" ++ currPatch.title
+            in
+            ( model, pushUrl model.navKey url )
+
         KnobEvent knobMsg ->
             ( model, Cmd.none )
 
         PinEvent pinMsg ->
-            ( { model | pinModel = PinTable.update pinMsg model.pinModel }, Cmd.none )
+            -- may be useful :p
+            ( model, Cmd.none )
 
         GotSchema schemaResult ->
             case schemaResult of
@@ -147,75 +182,92 @@ update msg model =
                 Ok ptcs ->
                     ( { model | patches = Just ptcs }, Cmd.none )
 
-        AudioPinClick ( x, y ) ->
+        Msg.PinClick pin ( x, y ) ->
             let
                 mdl =
-                    case model.synthiSchema of
-                        Just schema ->
-                            let
-                                patch =
-                                    model.patches |> Maybe.withDefault [] |> List.head |> Maybe.withDefault P.noPatch
+                    model.synthiSchema
+                        |> Maybe.map
+                            (\schema ->
+                                let
+                                    patch =
+                                        model.patches |> Maybe.withDefault [] |> List.head |> Maybe.withDefault P.noPatch
 
-                                arrModules =
-                                    schema.audioPanel |> Array.fromList
+                                    arrModules =
+                                        schema.audioPanel |> Array.fromList
 
-                                intoPos =
-                                    y + 60
+                                    intoPos =
+                                        y + 60
 
-                                outPos =
-                                    x + 0
+                                    outPos =
+                                        x + 0
 
-                                ( om, im ) =
-                                    pinToModules schema patch ( outPos, intoPos )
+                                    ( om, im ) =
+                                        pinToModules schema patch ( outPos, intoPos )
 
-                                activeModulesText =
-                                    om.name ++ " >> " ++ im.name
+                                    activeModulesText =
+                                        om.name ++ " >> " ++ im.name
 
-                                actAudMods =
-                                    Just
-                                        { out = (Array.get outPos arrModules |> Maybe.withDefault { name = "No module found at : " ++ (outPos |> String.fromInt), module_ = "none" }).name
-                                        , into = (Array.get intoPos arrModules |> Maybe.withDefault { name = "No module found at : " ++ (intoPos |> String.fromInt), module_ = "none" }).name
+                                    actAudMods =
+                                        Just
+                                            { out = (Array.get outPos arrModules |> Maybe.withDefault { name = "No module found at : " ++ (outPos |> String.fromInt), module_ = "none" }).name
+                                            , into = (Array.get intoPos arrModules |> Maybe.withDefault { name = "No module found at : " ++ (intoPos |> String.fromInt), module_ = "none" }).name
+                                            }
+                                in
+                                case pin of
+                                    PinTable.Audio ->
+                                        { model
+                                            | activeAudioPin = actAudMods
+                                            , activeModules = Just ( om, im )
+                                            , audioPinModel = setActivePin ( x, y ) model.audioPinModel
                                         }
-                            in
-                            { model
-                                | activeAudioPin = actAudMods
-                                , activeModules = Just ( om, im )
-                                , pinModel = setActivePin ( x, y ) model.pinModel
-                            }
 
-                        Nothing ->
-                            model
+                                    PinTable.Control ->
+                                        { model
+                                            | activeAudioPin = actAudMods
+                                            , activeModules = Just ( om, im )
+                                            , controlPinModel = setActivePin ( x, y ) model.controlPinModel
+                                        }
+                            )
+                        |> Maybe.withDefault model
             in
             ( mdl, Cmd.none )
 
-        AudioPinHover ( x, y ) ->
+        Msg.PinHover pin ( x, y ) ->
             let
                 mdl =
-                    case model.synthiSchema of
-                        Just schema ->
-                            let
-                                arrModules =
-                                    schema.audioPanel |> Array.fromList
+                    model.synthiSchema
+                        |> Maybe.map
+                            (\schema ->
+                                let
+                                    arrModules =
+                                        schema.audioPanel |> Array.fromList
 
-                                intoPos =
-                                    y + 60
+                                    intoPos =
+                                        y + 60
 
-                                outPos =
-                                    x + 0
+                                    outPos =
+                                        x + 0
 
-                                actAudMods =
-                                    Just
-                                        { out = (Array.get outPos arrModules |> Maybe.withDefault { name = "No module found at : " ++ (outPos |> String.fromInt), module_ = "none" }).name
-                                        , into = (Array.get intoPos arrModules |> Maybe.withDefault { name = "No module found at : " ++ (intoPos |> String.fromInt), module_ = "none" }).name
+                                    actAudMods =
+                                        Just
+                                            { out = (Array.get outPos arrModules |> Maybe.withDefault { name = "No module found at : " ++ (outPos |> String.fromInt), module_ = "none" }).name
+                                            , into = (Array.get intoPos arrModules |> Maybe.withDefault { name = "No module found at : " ++ (intoPos |> String.fromInt), module_ = "none" }).name
+                                            }
+                                in
+                                case pin of
+                                    PinTable.Audio ->
+                                        { model
+                                            | hoverAudioPin = actAudMods
+                                            , audioPinModel = setHoverPin ( x, y ) model.audioPinModel
                                         }
-                            in
-                            { model
-                                | hoverAudioPin = actAudMods
-                                , pinModel = setHoverPin ( x, y ) model.pinModel
-                            }
 
-                        Nothing ->
-                            model
+                                    PinTable.Control ->
+                                        { model
+                                            | hoverAudioPin = actAudMods
+                                            , controlPinModel = setHoverPin ( x, y ) model.controlPinModel
+                                        }
+                            )
+                        |> Maybe.withDefault model
             in
             ( mdl, Cmd.none )
 
@@ -302,7 +354,10 @@ update msg model =
         Seek patch mouseData ->
             let
                 newTime =
-                    patch.duration / (mouseData.offsetWidth / (mouseData.offsetX |> toFloat))
+                    patch.duration
+                        / (Debug.log "ow" mouseData.offsetWidth
+                            / (Debug.log "oX" mouseData.offsetX |> toFloat)
+                          )
 
                 audioModel =
                     case patch.audioModel of
@@ -500,6 +555,12 @@ view model =
             case model.currentRoute of
                 Database ->
                     HomePage.page model
+
+                Patch patchTitle ->
+                    PatchPage.page False patchTitle model
+
+                PatchGraphical patchTitle ->
+                    PatchPage.page True patchTitle model
 
                 Credits ->
                     CreditsPage.page model
