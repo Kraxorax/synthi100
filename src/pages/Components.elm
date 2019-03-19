@@ -7,6 +7,7 @@ import Html.Attributes.Extra as HAE
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as HSA exposing (..)
 import Html.Styled.Events exposing (..)
+import Json.Encode as JE
 import Json.Decode as JD exposing (..)
 import Maybe.Extra exposing (isJust)
 import Model exposing (..)
@@ -91,6 +92,7 @@ audioNode model patch =
         audio
             [ id patch.title
             , src patch.soundUrl
+            , HSA.property "preload" (JE.string "none")
             ]
             []
 
