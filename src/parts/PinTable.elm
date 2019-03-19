@@ -1,4 +1,4 @@
-module PinTable exposing (Pin(..), PinModel, PinMsg(..), audioPanel, initModel, pinTable, setActivePin, setHoverPin, update)
+module PinTable exposing (Pin(..), PinModel, PinMsg(..), audioPanel, coordsToPinPos, initModel, pinTable, setActivePin, setHoverPin, update)
 
 import Array
 import Html.Attributes exposing (style)
@@ -166,11 +166,18 @@ audioPanel pins model =
 
         h =
             60 * pinDistanceY + 40 |> String.fromFloat
+
+        pinNumbers =
+            if first model.hoverPin < 0 || (second model.hoverPin < 0) then
+                []
+
+            else
+                [ pinNumberY model.hoverPin
+                , pinNumberX model.hoverPin
+                ]
     in
     svg [ width w, height h ]
-        ([ pinNumberY model.hoverPin
-         , pinNumberX model.hoverPin
-         ]
+        (pinNumbers
             |> List.append
                 (table
                     |> Matrix.toArray

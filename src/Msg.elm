@@ -21,6 +21,7 @@ type Msg
     | GotPatches (Result Http.Error (List P.Patch))
     | PinClick Pin ( Int, Int )
     | PinHover Pin ( Int, Int )
+    | PinOut
     | Play P.Patch
     | Pause P.Patch
     | Ended P.Patch

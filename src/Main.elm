@@ -271,6 +271,14 @@ update msg model =
             in
             ( mdl, Cmd.none )
 
+        Msg.PinOut ->
+            ( { model
+                | controlPinModel = setHoverPin ( -1, -1 ) model.controlPinModel
+                , audioPinModel = setHoverPin ( -1, -1 ) model.audioPinModel
+              }
+            , Cmd.none
+            )
+
         Play patch ->
             let
                 ps =

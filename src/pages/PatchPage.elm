@@ -13,6 +13,7 @@ import Msg exposing (..)
 import Patch exposing (..)
 import PinTable exposing (..)
 import Routing as R
+import SynthiSchema as SS
 import Url as Url
 import Url.Builder as Url exposing (absolute, relative)
 
@@ -33,7 +34,7 @@ page showGraphical patchTitle model =
                 controls model patch
                     :: [ waveAndText model patch ]
     in
-    div []
+    div [ css [ Css.color (hex "ffffff") ] ]
         view
 
 
@@ -131,11 +132,22 @@ knob model patch =
 pin : Model -> Patch -> HS.Html Msg
 pin model patch =
     let
-        a =
-            1
+        ( audioOutModuleText, audioInModuleText ) =
+            getModulesText model.synthiSchema model.audioPinModel
+
+        ( controlOutModuleText, controlInModuleText ) =
+            getModulesText model.synthiSchema model.controlPinModel
     in
     div []
-        [ HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins model.audioPinModel)
+        [ div [ css [ Css.height (px 100) ] ]
+            [ div [] [ text audioOutModuleText ]
+            , div [] [ text audioInModuleText ]
+            ]
+        , HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins model.audioPinModel)
+        , div [ css [ Css.height (px 100) ] ]
+            [ div [] [ text controlOutModuleText ]
+            , div [] [ text controlInModuleText ]
+            ]
         , HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins model.controlPinModel)
         ]
 
@@ -149,5 +161,51 @@ reactToAudioPinEvent p pinMsg =
         PinTable.PinIn ( x, y ) ->
             Msg.PinHover p ( x, y )
 
-        _ ->
-            PinEvent pinMsg
+        PinTable.PinOut ->
+            Msg.PinOut
+
+
+getModulesText : Maybe SS.SynthiSchema -> PinModel -> ( String, String )
+getModulesText mss pm =
+    let
+        ( inModuleIndex, outModuleIndex ) =
+            pm.hoverPin
+
+        ( inModulePosition, outModulePosition ) =
+            coordsToPinPos pm.hoverPin
+
+        outModule =
+            mss
+                |> Maybe.map
+                    (\ss ->
+                        ss.audioPanel |> List.Extra.getAt outModuleIndex |> Maybe.withDefault { name = "--", module_ = "--" }
+                    )
+
+        outModuleText =
+            if outModuleIndex >= 0 then
+                outModule
+                    |> Maybe.map
+                        (\om -> (outModulePosition |> String.fromInt) ++ om.name ++ " " ++ om.module_)
+                    |> Maybe.withDefault "-"
+
+            else
+                ""
+
+        inModule =
+            mss
+                |> Maybe.map
+                    (\ss ->
+                        ss.audioPanel |> List.Extra.getAt (inModuleIndex + 60) |> Maybe.withDefault { name = "--", module_ = "--" }
+                    )
+
+        inModuleText =
+            if inModuleIndex >= 0 then
+                inModule
+                    |> Maybe.map
+                        (\aom -> (inModulePosition |> String.fromInt) ++ aom.name ++ " " ++ aom.module_)
+                    |> Maybe.withDefault "-"
+
+            else
+                ""
+    in
+    ( inModuleText, outModuleText )
