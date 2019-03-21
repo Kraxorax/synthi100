@@ -15,7 +15,8 @@ import Url exposing (Url)
 type Msg
     = UpdateUrl Url
     | RequestedUrl UrlRequest
-    | KnobEvent KnobMsg
+    | InputKnobEvent KnobMsg
+    | OutputKnobEvent KnobMsg
     | PinEvent PinMsg
     | GotSchema (Result Http.Error SS.SynthiSchema)
     | GotPatches (Result Http.Error (List P.Patch))

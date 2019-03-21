@@ -17,7 +17,7 @@ import Html.Styled exposing (Html, audio)
 import Html.Styled.Attributes exposing (controls, id)
 import Http
 import Json.Decode as JD
-import Knob exposing (KnobMsg, simpleKnobSvg, simpleSwitchSvg)
+import Knob exposing (KnobMsg(..), simpleKnobSvg, simpleSwitchSvg)
 import List.Extra exposing (find, findIndex, getAt)
 import Matrix exposing (Matrix, generate, toArray)
 import Maybe.Extra exposing (isJust)
@@ -30,6 +30,7 @@ import Ports exposing (..)
 import Routing exposing (Route(..), urlToRoute)
 import SynthiSchema as SS
 import Url exposing (Url)
+import ViewModel as VM
 
 
 type alias Flags =
@@ -131,8 +132,27 @@ update msg model =
             in
             ( model, pushUrl model.navKey url )
 
-        KnobEvent knobMsg ->
-            ( model, Cmd.none )
+        InputKnobEvent knobMsg ->
+            case knobMsg of
+                KnobHover s ->
+                    ( { model | activeControl = ( Just s, Nothing ) }, Cmd.none )
+
+                KnobOut ->
+                    ( { model | activeControl = ( Nothing, Nothing ) }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        OutputKnobEvent knobMsg ->
+            case knobMsg of
+                KnobHover s ->
+                    ( { model | activeControl = ( Nothing, Just s ) }, Cmd.none )
+
+                KnobOut ->
+                    ( { model | activeControl = ( Nothing, Nothing ) }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         PinEvent pinMsg ->
             -- may be useful :p
@@ -396,6 +416,9 @@ getPatchTitle route =
         Patch title ->
             title
 
+        PatchGraphical title ->
+            title
+
         _ ->
             ""
 
@@ -419,7 +442,7 @@ noModuleFound x =
     { module_ = "no in", name = "no conn at " ++ (x |> String.fromInt) }
 
 
-pinToModules : PinTable.Panel -> SS.SynthiSchema -> P.Patch -> ( Int, Int ) -> ( Module, Module )
+pinToModules : PinTable.Panel -> SS.SynthiSchema -> P.Patch -> ( Int, Int ) -> ( VM.Module, VM.Module )
 pinToModules pin schema patch ( x, y ) =
     let
         panel =
@@ -445,10 +468,10 @@ pinToModules pin schema patch ( x, y ) =
         outModuleName =
             outConnection.module_
 
-        inModule =
+        inModuleSchema =
             schema.modules |> find (\m -> m.name == inModuleName) |> Maybe.withDefault SS.noModule
 
-        outModule =
+        outModuleSchema =
             schema.modules |> find (\m -> m.name == outModuleName) |> Maybe.withDefault SS.noModule
 
         ims =
@@ -458,27 +481,27 @@ pinToModules pin schema patch ( x, y ) =
         inModuleSettings =
             case ims of
                 Just mdl ->
-                    Module inModuleName (patchToControls inModule.controls mdl.controlValues)
+                    VM.Module inModuleName (patchToControls inModuleSchema.controls mdl.controlValues)
 
                 Nothing ->
-                    Module inModuleName (emptyControls inModule.controls)
+                    VM.Module inModuleName (emptyControls inModuleSchema.controls)
 
         oms =
             patch.moduleSettings
-                |> find (\m -> m.name == inModuleName)
+                |> find (\m -> m.name == outModuleName)
 
         outModuleSettings =
             case oms of
                 Just mdl ->
-                    Module outModuleName (patchToControls outModule.controls mdl.controlValues)
+                    VM.Module outModuleName (patchToControls outModuleSchema.controls mdl.controlValues)
 
                 Nothing ->
-                    Module outModuleName (emptyControls outModule.controls)
+                    VM.Module outModuleName (emptyControls outModuleSchema.controls)
     in
     ( inModuleSettings, outModuleSettings )
 
 
-patchToControls : List SS.Control -> List P.Control -> List Control
+patchToControls : List SS.Control -> List P.Control -> List VM.Control
 patchToControls scs pcs =
     scs
         |> List.map
@@ -499,32 +522,32 @@ patchToControls scs pcs =
                     ctrl =
                         case pctrl of
                             Just (P.KnobVal { name, position }) ->
-                                KnobCtrl (Knob name (Just position))
+                                VM.KnobCtrl (VM.Knob name (Just position))
 
                             Just (P.SwitchVal { name, case_ }) ->
-                                SwitchCtrl (Switch name (Just case_))
+                                VM.SwitchCtrl (VM.Switch name (Just case_))
 
                             Nothing ->
                                 if sc.type_ == "knob" then
-                                    KnobCtrl (Knob sc.name Nothing)
+                                    VM.KnobCtrl (VM.Knob sc.name Nothing)
 
                                 else
-                                    SwitchCtrl (Switch sc.name Nothing)
+                                    VM.SwitchCtrl (VM.Switch sc.name Nothing)
                 in
                 ctrl
             )
 
 
-emptyControls : List SS.Control -> List Control
+emptyControls : List SS.Control -> List VM.Control
 emptyControls scs =
     scs
         |> List.map
             (\sc ->
                 if sc.type_ == "knob" then
-                    KnobCtrl (Knob sc.name Nothing)
+                    VM.KnobCtrl (VM.Knob sc.name Nothing)
 
                 else
-                    SwitchCtrl (Switch sc.name Nothing)
+                    VM.SwitchCtrl (VM.Switch sc.name Nothing)
             )
 
 

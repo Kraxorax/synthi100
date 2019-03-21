@@ -1,11 +1,11 @@
-module Knob exposing (KnobMsg, controlsToKnobSvg, knob10Svg, knobSvg, simpleKnobSvg, simpleSwitchSvg)
+module Knob exposing (KnobMsg(..), controlsToKnobSvg, knobSvg, simpleKnobSvg, simpleSwitchSvg)
 
 import Html.Styled as Html exposing (..)
 import Maybe.Extra exposing (isJust)
-import Model exposing (Control(..))
 import Svg.Styled as Svg exposing (..)
 import Svg.Styled.Attributes exposing (..)
 import Svg.Styled.Events exposing (..)
+import ViewModel exposing (Control(..), Knob, Switch)
 
 
 type KnobMsg
@@ -33,9 +33,12 @@ knobValueToAngle x =
     30 + x * 30
 
 
-simpleKnobSvg : Maybe Float -> Html.Html KnobMsg
-simpleKnobSvg val =
+simpleKnobSvg : Knob -> Html.Html KnobMsg
+simpleKnobSvg knob =
     let
+        val =
+            knob.value
+
         value =
             val
                 |> Maybe.map
@@ -55,6 +58,8 @@ simpleKnobSvg val =
         [ width "40"
         , height "40"
         , viewBox "0 0 40 40"
+        , onMouseOver (KnobHover knob.name)
+        , onMouseOut KnobOut
         ]
         [ circle
             [ cx "20"
@@ -73,9 +78,12 @@ simpleKnobSvg val =
         ]
 
 
-simpleSwitchSvg : Maybe String -> Html.Html KnobMsg
-simpleSwitchSvg val =
+simpleSwitchSvg : Switch -> Html.Html KnobMsg
+simpleSwitchSvg switch =
     let
+        val =
+            switch.case_
+
         value =
             case val of
                 Just v ->
@@ -95,6 +103,8 @@ simpleSwitchSvg val =
         [ width "40"
         , height "40"
         , viewBox "0 0 40 40"
+        , onMouseOver (KnobHover switch.name)
+        , onMouseOut KnobOut
         ]
         [ rect
             [ width "40"
@@ -112,45 +122,42 @@ simpleSwitchSvg val =
         ]
 
 
-knob10Svg : ( Int, Int ) -> Bool -> Float -> Html.Html KnobMsg
-knob10Svg ( kx, ky ) active val =
-    let
-        xPos =
-            kx * 50
 
-        yPos =
-            ky * 80
-
-        rotation =
-            "rotate(" ++ String.fromFloat (knobValueToAngle val) ++ " 20 20)"
-
-        textColor =
-            if active then
-                hoverColor
-
-            else
-                "#333333"
-    in
-    svg
-        [ x (String.fromInt xPos)
-        , y (String.fromInt yPos)
-        , width "40"
-        , height "70"
-        , onMouseOver (KnobIn ( kx, ky ))
-        , onMouseOut KnobOut
-        ]
-        [ text_
-            [ dx "20"
-            , dy "20"
-            , textAnchor "middle"
-            , color textColor
-            ]
-            [ Svg.text (String.fromFloat val)
-            ]
-        , svg [ y "30" ]
-            [ simpleKnobSvg (Just val)
-            ]
-        ]
+-- knob10Svg : ( Int, Int ) -> Bool -> Float -> Html.Html KnobMsg
+-- knob10Svg ( kx, ky ) active val =
+--     let
+--         xPos =
+--             kx * 50
+--         yPos =
+--             ky * 80
+--         rotation =
+--             "rotate(" ++ String.fromFloat (knobValueToAngle val) ++ " 20 20)"
+--         textColor =
+--             if active then
+--                 hoverColor
+--             else
+--                 "#333333"
+--     in
+--     svg
+--         [ x (String.fromInt xPos)
+--         , y (String.fromInt yPos)
+--         , width "40"
+--         , height "70"
+--         , onMouseOver (KnobIn ( kx, ky ))
+--         , onMouseOut KnobOut
+--         ]
+--         [ text_
+--             [ dx "20"
+--             , dy "20"
+--             , textAnchor "middle"
+--             , color textColor
+--             ]
+--             [ Svg.text (String.fromFloat val)
+--             ]
+--         , svg [ y "30" ]
+--             [ simpleKnobSvg (Just val)
+--             ]
+--         ]
 
 
 controlsToKnobSvg : List Control -> Html.Html KnobMsg
@@ -160,11 +167,11 @@ controlsToKnobSvg cs =
             |> List.map
                 (\ctrl ->
                     case ctrl of
-                        KnobCtrl { name, value } ->
-                            simpleKnobSvg value
+                        KnobCtrl knob ->
+                            simpleKnobSvg knob
 
-                        SwitchCtrl { name, case_ } ->
-                            simpleSwitchSvg case_
+                        SwitchCtrl sw ->
+                            simpleSwitchSvg sw
                 )
         )
 

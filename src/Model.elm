@@ -1,4 +1,4 @@
-module Model exposing (AttrFilter, Control(..), Knob, Model, Module, PinConnection, SortDirection(..), Switch, initModel)
+module Model exposing (AttrFilter, Model, PinConnection, SortDirection(..), initModel)
 
 import AudioModel exposing (AudioModel)
 import Browser.Navigation exposing (Key)
@@ -6,6 +6,7 @@ import Patch as P
 import PinTable
 import Routing exposing (Route(..))
 import SynthiSchema as SS
+import ViewModel exposing (..)
 
 
 type alias Model =
@@ -20,6 +21,7 @@ type alias Model =
     , error : Maybe String
     , activeModules : Maybe ( Module, Module )
     , attributeFilters : List AttrFilter
+    , activeControl : ( Maybe String, Maybe String )
     , volume : Float
     , sortOrder : SortDirection
     , sortBy : String
@@ -39,6 +41,7 @@ initModel key =
     , error = Nothing
     , activeModules = Nothing
     , attributeFilters = []
+    , activeControl = ( Nothing, Nothing )
     , volume = 0.5
     , sortOrder = Ascending
     , sortBy = "title"
@@ -59,27 +62,4 @@ type alias AttrFilter =
 type alias PinConnection =
     { out : String
     , into : String
-    }
-
-
-type alias Module =
-    { name : String
-    , controls : List Control
-    }
-
-
-type Control
-    = KnobCtrl Knob
-    | SwitchCtrl Switch
-
-
-type alias Knob =
-    { name : String
-    , value : Maybe Float
-    }
-
-
-type alias Switch =
-    { name : String
-    , case_ : Maybe String
     }

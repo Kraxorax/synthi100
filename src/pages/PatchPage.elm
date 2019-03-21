@@ -8,7 +8,7 @@ import Html.Styled.Attributes exposing (css, href, src)
 import Html.Styled.Events exposing (..)
 import Knob exposing (..)
 import List.Extra exposing (find)
-import Model exposing (Model, Module)
+import Model exposing (Model)
 import Msg exposing (..)
 import Patch exposing (..)
 import PinTable exposing (..)
@@ -16,6 +16,7 @@ import Routing as R
 import SynthiSchema as SS
 import Url as Url
 import Url.Builder as Url exposing (absolute, relative)
+import ViewModel exposing (Module)
 
 
 page : Bool -> String -> Model -> Html Msg
@@ -122,12 +123,17 @@ knob model patch =
     let
         ( im, om ) =
             model.activeModules |> Maybe.withDefault ( Module "" [], Module "" [] )
+
+        ( iac, oac ) =
+            model.activeControl
     in
     div []
         [ p [] [ text im.name ]
-        , HS.map (\kmsg -> KnobEvent kmsg) (controlsToKnobSvg im.controls)
+        , p [] [ text (iac |> Maybe.withDefault ".") ]
+        , HS.map (\kmsg -> InputKnobEvent kmsg) (controlsToKnobSvg im.controls)
         , p [] [ text om.name ]
-        , HS.map (\kmsg -> KnobEvent kmsg) (controlsToKnobSvg om.controls)
+        , p [] [ text (oac |> Maybe.withDefault ".") ]
+        , HS.map (\kmsg -> OutputKnobEvent kmsg) (controlsToKnobSvg om.controls)
         ]
 
 
