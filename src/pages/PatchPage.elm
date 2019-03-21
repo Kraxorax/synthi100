@@ -16,7 +16,7 @@ import Routing as R
 import SynthiSchema as SS
 import Url as Url
 import Url.Builder as Url exposing (absolute, relative)
-import ViewModel exposing (Module)
+import ViewModel exposing (Knob, Module)
 
 
 page : Bool -> String -> Model -> Html Msg
@@ -94,6 +94,7 @@ graphical model patch =
         [ graphicControls model patch
         , div [ css [ Css.width (pct 66), float right ] ]
             [ pin model patch
+            , outputChannels model patch
             ]
         ]
 
@@ -164,6 +165,93 @@ pin model patch =
             ]
         , HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins model.controlPinModel)
         ]
+
+
+outputChannels : Model -> Patch -> HS.Html Msg
+outputChannels model patch =
+    let
+        channels =
+            model.synthiSchema
+                |> Maybe.map
+                    (\schema ->
+                        getOutputChannels schema patch.moduleSettings
+                    )
+                |> Maybe.withDefault []
+    in
+    div []
+        (channels
+            |> List.map outputChan
+        )
+
+
+outputChan : Knob -> HS.Html Msg
+outputChan chan =
+    div []
+        [ text (chan.value |> Maybe.withDefault 0 |> String.fromFloat)
+        ]
+
+
+channelTag : String
+channelTag =
+    "output-ch-"
+
+
+getOutputChannels : SS.SynthiSchema -> List ModuleSettings -> List Knob
+getOutputChannels ss lms =
+    let
+        outChans =
+            ss.modules
+                |> List.filterMap
+                    (\mod ->
+                        if mod.name |> String.startsWith channelTag then
+                            Just (Knob mod.name Nothing)
+
+                        else
+                            Nothing
+                    )
+
+        chansWithValues =
+            outChans
+                |> List.map
+                    (\chan ->
+                        let
+                            k =
+                                lms |> List.Extra.find (\pm -> pm.name == chan.name)
+
+                            level =
+                                k
+                                    |> Maybe.map
+                                        (\kk ->
+                                            let
+                                                lvl =
+                                                    kk.controlValues
+                                                        |> List.Extra.find
+                                                            (\ctrl ->
+                                                                case ctrl of
+                                                                    KnobVal kkk ->
+                                                                        kkk.name == "level"
+
+                                                                    _ ->
+                                                                        False
+                                                            )
+                                            in
+                                            lvl
+                                                |> Maybe.map
+                                                    (\l ->
+                                                        case l of
+                                                            KnobVal lk ->
+                                                                lk.position
+
+                                                            _ ->
+                                                                0
+                                                    )
+                                                |> Maybe.withDefault 0
+                                        )
+                        in
+                        Knob chan.name level
+                    )
+    in
+    chansWithValues |> List.sortBy .name
 
 
 reactToAudioPinEvent : PinTable.Panel -> PinTable.PinMsg -> Msg

@@ -1,12 +1,6 @@
 module ViewModel exposing (Control(..), Knob, Module, Switch)
 
 
-type alias Knob =
-    { name : String
-    , value : Maybe Float
-    }
-
-
 type alias Module =
     { name : String
     , controls : List Control
@@ -16,6 +10,12 @@ type alias Module =
 type Control
     = KnobCtrl Knob
     | SwitchCtrl Switch
+
+
+type alias Knob =
+    { name : String
+    , value : Maybe Float
+    }
 
 
 type alias Switch =
