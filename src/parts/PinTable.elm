@@ -1,4 +1,4 @@
-module PinTable exposing (Pin(..), PinModel, PinMsg(..), audioPanel, coordsToPinPos, initModel, pinTable, setActivePin, setHoverPin, update)
+module PinTable exposing (Panel(..), PinModel, PinMsg(..), audioPanel, coordsToPinPos, initModel, pinTable, setActivePin, setHoverPin, update)
 
 import Array
 import Html.Attributes exposing (style)
@@ -45,7 +45,7 @@ margin =
     24
 
 
-type Pin
+type Panel
     = Audio
     | Control
 

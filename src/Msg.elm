@@ -7,7 +7,7 @@ import Knob exposing (KnobMsg)
 import Model exposing (SortDirection)
 import Mouse exposing (MouseData)
 import Patch as P
-import PinTable exposing (Pin, PinMsg)
+import PinTable exposing (Panel, PinMsg)
 import SynthiSchema as SS
 import Url exposing (Url)
 
@@ -19,8 +19,8 @@ type Msg
     | PinEvent PinMsg
     | GotSchema (Result Http.Error SS.SynthiSchema)
     | GotPatches (Result Http.Error (List P.Patch))
-    | PinClick Pin ( Int, Int )
-    | PinHover Pin ( Int, Int )
+    | PinClick Panel ( Int, Int )
+    | PinHover Panel ( Int, Int )
     | PinOut
     | Play P.Patch
     | Pause P.Patch

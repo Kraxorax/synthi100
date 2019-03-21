@@ -91,7 +91,7 @@ graphical : Model -> Patch -> Html Msg
 graphical model patch =
     div [ css [ Css.backgroundColor (hex "9b9b9b"), float left, Css.width (pct 100) ] ]
         [ graphicControls model patch
-        , div [ css [ Css.width (pct 66), float left ] ]
+        , div [ css [ Css.width (pct 66), float right ] ]
             [ pin model patch
             ]
         ]
@@ -99,7 +99,7 @@ graphical model patch =
 
 graphicControls : Model -> Patch -> Html Msg
 graphicControls model patch =
-    div [ css [ Css.width (pct 33), float left ] ]
+    div [ css [ Css.width (pct 33), float left, position Css.fixed, top (px 108) ] ]
         [ waveOrGraph model patch.title
         , patchMeta patch
         , parameters model patch
@@ -124,35 +124,43 @@ knob model patch =
             model.activeModules |> Maybe.withDefault ( Module "" [], Module "" [] )
     in
     div []
-        [ HS.map (\kmsg -> KnobEvent kmsg) (controlsToKnobSvg om.controls)
+        [ p [] [ text im.name ]
         , HS.map (\kmsg -> KnobEvent kmsg) (controlsToKnobSvg im.controls)
+        , p [] [ text om.name ]
+        , HS.map (\kmsg -> KnobEvent kmsg) (controlsToKnobSvg om.controls)
         ]
 
 
 pin : Model -> Patch -> HS.Html Msg
 pin model patch =
     let
-        ( audioOutModuleText, audioInModuleText ) =
-            getModulesText model.synthiSchema model.audioPinModel
+        ( audioInModuleText, audioOutModuleText ) =
+            model.synthiSchema
+                |> Maybe.map
+                    (getModulesText Audio model.audioPinModel)
+                |> Maybe.withDefault ( "", "" )
 
-        ( controlOutModuleText, controlInModuleText ) =
-            getModulesText model.synthiSchema model.controlPinModel
+        ( controlInModuleText, controlOutModuleText ) =
+            model.synthiSchema
+                |> Maybe.map
+                    (getModulesText Control model.controlPinModel)
+                |> Maybe.withDefault ( "", "" )
     in
     div []
         [ div [ css [ Css.height (px 100) ] ]
-            [ div [] [ text audioOutModuleText ]
-            , div [] [ text audioInModuleText ]
+            [ div [] [ text audioInModuleText ]
+            , div [] [ text audioOutModuleText ]
             ]
         , HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins model.audioPinModel)
         , div [ css [ Css.height (px 100) ] ]
-            [ div [] [ text controlOutModuleText ]
-            , div [] [ text controlInModuleText ]
+            [ div [] [ text controlInModuleText ]
+            , div [] [ text controlOutModuleText ]
             ]
         , HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins model.controlPinModel)
         ]
 
 
-reactToAudioPinEvent : PinTable.Pin -> PinTable.PinMsg -> Msg
+reactToAudioPinEvent : PinTable.Panel -> PinTable.PinMsg -> Msg
 reactToAudioPinEvent p pinMsg =
     case pinMsg of
         PinTable.PinClick ( x, y ) ->
@@ -165,8 +173,8 @@ reactToAudioPinEvent p pinMsg =
             Msg.PinOut
 
 
-getModulesText : Maybe SS.SynthiSchema -> PinModel -> ( String, String )
-getModulesText mss pm =
+getModulesText : Panel -> PinModel -> SS.SynthiSchema -> ( String, String )
+getModulesText panel pm ss =
     let
         ( inModuleIndex, outModuleIndex ) =
             pm.hoverPin
@@ -174,38 +182,38 @@ getModulesText mss pm =
         ( inModulePosition, outModulePosition ) =
             coordsToPinPos pm.hoverPin
 
-        outModule =
-            mss
-                |> Maybe.map
-                    (\ss ->
-                        ss.audioPanel |> List.Extra.getAt outModuleIndex |> Maybe.withDefault { name = "--", module_ = "--" }
-                    )
+        p =
+            case panel of
+                Audio ->
+                    ss.audioPanel
 
-        outModuleText =
-            if outModuleIndex >= 0 then
-                outModule
-                    |> Maybe.map
-                        (\om -> (outModulePosition |> String.fromInt) ++ om.name ++ " " ++ om.module_)
-                    |> Maybe.withDefault "-"
-
-            else
-                ""
+                control ->
+                    ss.controlPanel
 
         inModule =
-            mss
-                |> Maybe.map
-                    (\ss ->
-                        ss.audioPanel |> List.Extra.getAt (inModuleIndex + 60) |> Maybe.withDefault { name = "--", module_ = "--" }
-                    )
+            p
+                |> List.Extra.getAt inModuleIndex
 
-        inModuleText =
-            if inModuleIndex >= 0 then
+        outModule =
+            p
+                |> List.Extra.getAt (outModuleIndex + 60)
+
+        ( inModuleText, outModuleText ) =
+            Maybe.map2
+                (\im om ->
+                    ( moduleAndPosToText inModulePosition im, moduleAndPosToText outModulePosition om )
+                )
                 inModule
-                    |> Maybe.map
-                        (\aom -> (inModulePosition |> String.fromInt) ++ aom.name ++ " " ++ aom.module_)
-                    |> Maybe.withDefault "-"
-
-            else
-                ""
+                outModule
+                |> Maybe.withDefault ( "", "" )
     in
     ( inModuleText, outModuleText )
+
+
+moduleAndPosToText : Int -> SS.Connection -> String
+moduleAndPosToText pos mod =
+    if pos >= 0 then
+        (pos |> String.fromInt) ++ " - " ++ mod.name ++ " : " ++ mod.module_
+
+    else
+        ""

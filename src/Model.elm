@@ -1,10 +1,10 @@
-module Model exposing (AttrFilter, Control(..), Knob, Model, Module, PinConnection, SortDirection(..), Switch)
+module Model exposing (AttrFilter, Control(..), Knob, Model, Module, PinConnection, SortDirection(..), Switch, initModel)
 
 import AudioModel exposing (AudioModel)
 import Browser.Navigation exposing (Key)
 import Patch as P
 import PinTable
-import Routing exposing (Route)
+import Routing exposing (Route(..))
 import SynthiSchema as SS
 
 
@@ -18,13 +18,30 @@ type alias Model =
     , synthiSchema : Maybe SS.SynthiSchema
     , patches : Maybe (List P.Patch)
     , error : Maybe String
-    , activeAudioPin : Maybe PinConnection
     , activeModules : Maybe ( Module, Module )
-    , hoverAudioPin : Maybe PinConnection
     , attributeFilters : List AttrFilter
     , volume : Float
     , sortOrder : SortDirection
     , sortBy : String
+    }
+
+
+initModel : Key -> Model
+initModel key =
+    { navKey = key
+    , currentRoute = PatchGraphical "20190206-001"
+    , audioPinModel = PinTable.initModel
+    , controlPinModel = PinTable.initModel
+    , circleFill = "#0000ff"
+    , hoverKnob = ( -1, -1 )
+    , synthiSchema = Nothing
+    , patches = Nothing
+    , error = Nothing
+    , activeModules = Nothing
+    , attributeFilters = []
+    , volume = 0.5
+    , sortOrder = Ascending
+    , sortBy = "title"
     }
 
 

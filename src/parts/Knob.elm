@@ -11,6 +11,7 @@ import Svg.Styled.Events exposing (..)
 type KnobMsg
     = KnobIn ( Int, Int )
     | KnobOut
+    | KnobHover String
 
 
 colors =
