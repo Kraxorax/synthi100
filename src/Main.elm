@@ -13,8 +13,8 @@ import Header exposing (header)
 import HomePage
 import Html as H
 import Html.Attributes as HA
-import Html.Styled exposing (Html, audio)
-import Html.Styled.Attributes exposing (controls, id)
+import Html.Styled exposing (Html, audio, text, node)
+import Html.Styled.Attributes exposing (controls, id, type_)
 import Http
 import Json.Decode as JD
 import Knob exposing (KnobMsg(..), simpleKnobSvg, simpleSwitchSvg)
@@ -574,6 +574,7 @@ view model =
     { title = "Synthi100"
     , body =
         [ globalCSS
+        , fontImport
         , header
         , page
         ]
@@ -587,5 +588,21 @@ globalCSS =
         [ body
             [ backgroundColor (hex "000000")
             , color (hex "4A90E2")
+            , fontFamilies ["Metropolis"]
             ]
         ]
+
+fontImport : Html Msg
+fontImport =
+    node "style" [type_ "text/css"] [text """
+        @font-face {
+            font-family: "Metropolis";
+            src: url(/Metropolis-Medium.woff);
+        }
+        @font-face {
+            font-family: "Metropolis";
+            src: url(/Metropolis-Bold.woff);
+            font-weight: bold;
+        }
+    """]
+
