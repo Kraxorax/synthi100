@@ -590,6 +590,8 @@ globalCSS =
             , color (hex "4A90E2")
             , margin (px 0)
             , fontFamilies ["Metropolis"]
+            , maxWidth (px 1440)
+            , margin auto
             ]
         ]
 

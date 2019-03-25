@@ -16,17 +16,26 @@ import Model exposing (..)
 import Mouse exposing (..)
 import Msg exposing (Msg(..))
 import Patch as P
+import Styles exposing (..)
 import SynthiSchema exposing (Attribute)
 
 
 page : Model -> Html Msg
 page model =
-    div []
-        [ h1 []
-            [ text "Home page"
-            ]
-        , filterList model
+    div [ css [ Css.paddingLeft (px 31) ] ]
+        [ filterList model
         , patchesList model
+        ]
+
+
+filterHeaderStyle : Style
+filterHeaderStyle =
+    batch
+        [ borderTop2 (px 1) solid
+        , padding2 (px 10) (px 0)
+        , fontSize (px 20)
+        , fontWeight bold
+        , letterSpacing (px 0.5)
         ]
 
 
@@ -41,8 +50,8 @@ filterList model =
                 Nothing ->
                     []
     in
-    div [ css [ Css.width (pct 33), float left ] ]
-        [ h4 []
+    div [ css [ Css.width (pct 33), float left, maxWidth (px 390) ] ]
+        [ div [ css [ filterHeaderStyle ] ]
             [ text "filters" ]
         , div []
             (attrs
@@ -58,17 +67,29 @@ filterList model =
         ]
 
 
+filterSubheaderStyle : Style
+filterSubheaderStyle =
+    batch
+        [ borderTop3 (px 1) solid theBlue
+        , borderBottom3 (px 1) solid theBlue
+        , padding2 (px 10) (px 20)
+        , color (hex "fff")
+        , fontSize (px 20)
+        , fontWeight (int 500)
+        ]
+
+
 filterGroup : AttrFilter -> Attribute -> Html Msg
 filterGroup filter attr =
     div []
-        [ h5 []
+        [ div [ css [ filterSubheaderStyle ] ]
             [ text attr.name ]
-        , ul [ css [ Css.listStyle none ] ]
+        , ul [ css [ Css.listStyle none, paddingLeft (px 10) ] ]
             [ div []
                 (attr.values
                     |> List.map
                         (\v ->
-                            li []
+                            li [ css [ Css.margin (px 10) ] ]
                                 [ radio v attr.name (filter.selected |> findIndex (\s -> s == v) |> isJust) ]
                         )
                 )
@@ -79,8 +100,9 @@ filterGroup filter attr =
 radio : String -> String -> Bool -> Html Msg
 radio val group isChecked =
     label []
-        [ input [ type_ "checkbox", id val, onInput (Filter group), HSA.checked isChecked, value val ] []
-        , text val
+        [ xBox isChecked
+        , input [ type_ "checkbox", id val, onInput (Filter group), HSA.checked isChecked, value val, css [ Css.display none ] ] []
+        , span [ css [ color (hex "fff"), fontSize (px 14), paddingLeft (px 12) ] ] [ text val ]
         ]
 
 
