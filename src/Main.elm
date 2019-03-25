@@ -588,6 +588,7 @@ globalCSS =
         [ body
             [ backgroundColor (hex "000000")
             , color (hex "4A90E2")
+            , margin (px 0)
             , fontFamilies ["Metropolis"]
             ]
         ]
