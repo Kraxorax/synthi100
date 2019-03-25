@@ -5,41 +5,20 @@ import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, href, src)
 import Msg exposing (Msg)
 
-headerTitleStyle : Style
-headerTitleStyle =
+headerTitleCss : Style
+headerTitleCss =
     batch
-      [ marginLeft (px 10)
-      , letterSpacing (px 0.5)
-      , lineHeight (num 1.15)
+      [ letterSpacing (px 0.5)
+      , lineHeight (num 1.2)
       , fontSize (px 24)
       , fontWeight bold
      ]
 
-headerNavigationStyle : Style
-headerNavigationStyle =
-    batch
-        [ justifyContent spaceAround
-        , borderLeftStyle solid
-        , height (px 73)
-        , flex (num 8)
-        , color (hex "4a90e2")
-        , displayFlex
-        , flexDirection row
-        , paddingBottom (px 2)
-        , alignItems flexEnd
-        , fontSize (px 14)
-        , fontWeight bold
-        , maxWidth (px 449)
-        , letterSpacing (px 1.4)
-        ]
 
-headerFlexStyle : Style
-headerFlexStyle =
+headerFlexCss : Style
+headerFlexCss =
     batch
-        [ height (px 150)
-        , paddingLeft (px 31)
-        , paddingRight (px 31)
-        , paddingBottom (px 40)
+        [ height (px 111)
         , maxWidth (px 1440)
         , displayFlex
         , alignItems flexEnd
@@ -47,53 +26,96 @@ headerFlexStyle =
         , justifyContent spaceBetween
         ]
 
-navigationLinkStyle : Style
-navigationLinkStyle =
+navigationLinkCss : Style
+navigationLinkCss =
     batch
-        [ textAlign center
+        [ flex (num 1)
         , textDecoration none
-        , color (hex "FFFFFF")
         , visited [(color (hex "FFFFFF"))]
+        ]
+
+headerNavigationCss : Style
+headerNavigationCss =
+    batch
+        [ justifyContent spaceAround
+        , borderLeftStyle solid
+        , height (px 73)
+        , color (hex "4a90e2")
+        , displayFlex
+        , flex (num 1)
+        , flexDirection row
+        , paddingBottom (px 2)
+        , alignItems flexEnd
+        , fontSize (px 14)
+        , fontWeight bold
+        , letterSpacing (px 1.4)
+        ]
+
+
+synthiTitleFlexCss : Style
+synthiTitleFlexCss =
+    batch
+        [ displayFlex
+        , flexDirection column
+        , paddingLeft (px 31)
+        , minHeight (px 78)
+        , headerTitleCss
+        , flex (num 2)
+        , justifyContent spaceBetween
+        ]
+
+headerLineCss : Style
+headerLineCss =
+    batch
+        [ width (px 100)
+        , height (px 3)
+        , backgroundColor (hex "4a90e2")
         ]
 
 
 header : Html Msg
 header =
     div
-        [ css [ headerFlexStyle ] ]
+        [ css [ headerFlexCss ] ]
         [ div
-            [ css [flex (num 0)]
+            [ css
+                [ flex (num 1)
+                , displayFlex
+                , alignItems (flexEnd)
+                ]
             ]
-            [ img [src "synthi-logo.svg"] []
+            [ div
+                [ css [ flex (num 1), paddingLeft (px 31), marginBottom (px 1) ] ]
+                [ img [src "synthi-logo.svg"] [] ]
+            , div
+                [ css [ synthiTitleFlexCss ] ]
+                [ div [css [ headerLineCss ]] []
+                , div
+                    [ css [ maxWidth (px 230) ] ]
+                    [ text "EMS SYNTHI 100 on the Web" ]
+                ]
             ]
         , div
-            [ css [maxWidth (px 225), flex (num 4), headerTitleStyle]
-            ]
-            [ text "EMS SYNTHI 100 on the Web"
-            ]
-        , div
-            [ css [maxWidth (px 439), flex (num 8), headerTitleStyle]
-            ]
+            [ css [headerTitleCss, flex (num 1), marginLeft (px -1)] ]
             [ text "Elektronski studio Radio Beograda"
             , br [] []
             , text "Radio Belgrade — Electronic Studio"
             ]
         , div
-            [ css [ headerNavigationStyle ]
-            ]
+            [ css [ headerNavigationCss ] ]
             navigation
         ]
 
-navLink : String -> String -> Html Msg
-navLink href_ text_ =
+navLink : List Style -> String -> String -> Html Msg
+navLink css_ href_ text_ =
     a
-        [ css [ flex (num 1), navigationLinkStyle ]
+        [ css ([ navigationLinkCss ] ++ css_)
         , href href_
         ]
         [ text text_ ]
 
 navigation : List (Html Msg)
 navigation =
-    [ navLink "/database" "database"
-    , navLink "/about" "about / credits"
+    [ navLink [textAlign center] "/database" "database"
+    , navLink [textAlign left] "/about" "about / credits"
     ]
