@@ -4,7 +4,7 @@ import Components exposing (..)
 import Css exposing (..)
 import Css.Global exposing (body, global)
 import Html.Styled as HS exposing (..)
-import Html.Styled.Attributes exposing (css, href, src)
+import Html.Styled.Attributes exposing (css, href, src, type_)
 import Html.Styled.Events exposing (..)
 import Knob exposing (..)
 import List.Extra exposing (find)
@@ -13,6 +13,7 @@ import Msg exposing (..)
 import Patch exposing (..)
 import PinTable exposing (..)
 import Routing as R
+import Styles exposing (..)
 import SynthiSchema as SS
 import Url as Url
 import Url.Builder as Url exposing (absolute, relative)
@@ -35,8 +36,18 @@ page showGraphical patchTitle model =
                 controls model patch
                     :: [ waveAndText model patch ]
     in
-    div [ css [ Css.color (hex "ffffff") ] ]
+    div [ css [ Css.color (hex "ffffff"), Css.paddingLeft (px 31) ] ]
         view
+
+
+waveOrGraphCss : Style
+waveOrGraphCss =
+    batch
+        [ borderTop2 (px 1) solid
+        , borderBottom2 (px 1) solid
+        , padding2 (px 12) (px 0)
+        , height (px 56)
+        ]
 
 
 waveOrGraph : Model -> String -> Html Msg
@@ -48,23 +59,121 @@ waveOrGraph model patchTitle =
         graphicalUrl =
             absolute [ "patch", patchTitle, "graphical" ] []
     in
-    div []
-        [ a [ href waveTextUrl ] [ text "wave / textual" ]
-        , br [] []
-        , a [ href graphicalUrl ] [ text "graphical" ]
+    div [ css [ waveOrGraphCss ] ]
+        [ a [ href waveTextUrl, css [ Css.float left, linkUnstyle ] ]
+            [ img [ src "/wave-textual.svg", css [ marginBottom (px 10) ] ] []
+            , br [] []
+            , span [] [ text "wave / textual" ]
+            ]
+        , a [ href graphicalUrl, css [ Css.float right, linkUnstyle ] ]
+            [ span [] [ text "graphical" ]
+            , img [ src "/graphical.svg", css [ marginLeft (px 18) ] ] []
+            ]
         ]
+
+
+controlsCss : Style
+controlsCss =
+    batch
+        [ fontSize (px 14)
+        , fontWeight bold
+        , letterSpacing (px 0.5)
+        , color (hex "fff")
+        , Css.width (pct 33)
+        , float left
+        , maxWidth (px 390)
+        , marginRight (px 55)
+        ]
+
+
+linkUnstyle : Style
+linkUnstyle =
+    batch
+        [ color (hex "fff")
+        , textDecoration none
+        , display block
+        , textAlign center
+        ]
+
+
+audioControlsCss : Style
+audioControlsCss =
+    batch
+        [ height (px 312)
+        , padding2 (px 25) (px 0)
+        ]
+
+
+ppVICss : Style
+ppVICss =
+    batch
+        [ Css.property "-webkit-appearance" "none"
+        , width (px 256)
+        , height (px 4)
+        , margin2 (px 22) (px 0)
+        ]
+
+
+ppVIThumbCss : Style
+ppVIThumbCss =
+    batch
+        [ pseudoElement "-moz-range-thumb"
+            [ width (px 10)
+            , height (px 40)
+            , border3 (px 1) solid (hex "000")
+            , borderRadius (px 0)
+            , backgroundColor theBlue
+            ]
+        ]
+
+
+ppVolumeInput : Model -> Html Msg
+ppVolumeInput model =
+    let
+        isMute =
+            model.volume == 0
+    in
+    div [ css [ Css.maxWidth (px 258), float right ] ]
+        [ input
+            [ type_ "range"
+            , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
+            , css [ ppVICss, ppVIThumbCss ]
+            ]
+            []
+        , span [] [ text "volume" ]
+        , muteBttn isMute
+        ]
+
+
+muteBttn : Bool -> Html Msg
+muteBttn isMute =
+    let
+        url =
+            if isMute then
+                "/unmute.svg"
+
+            else
+                "/mute.svg"
+    in
+    img
+        [ src url
+        , css [ Css.float right, marginTop (px -10) ]
+        , onClick (VolumeChange 0)
+        ]
+        []
 
 
 controls : Model -> Patch -> Html Msg
 controls model patch =
-    div [ css [ Css.width (pct 33), float left ] ]
+    div
+        [ css [ controlsCss ] ]
         [ waveOrGraph model patch.title
-        , div []
+        , div [ css [ audioControlsCss ] ]
             [ playButton patch
-            , volumeInput
+            , ppVolumeInput model
+            , audioNode model patch
+            , patchMeta patch
             ]
-        , audioNode model patch
-        , patchMeta patch
         , button [ onClick (MovePatch patch -1) ] [ text "previous" ]
         , button [ onClick (MovePatch patch 1) ] [ text "next" ]
         ]
@@ -73,9 +182,9 @@ controls model patch =
 patchMeta : Patch -> Html Msg
 patchMeta patch =
     div []
-        [ h1 [] [ text patch.title ]
-        , p [] [ text ("duration: " ++ (patch.duration |> String.fromFloat)) ]
-        , p [] [ text (patch.attributeValues |> String.join " / ") ]
+        [ h1 [ css [ Css.fontSize (px 48) ] ] [ text patch.title ]
+        , p [ css [ marginBottom (px 20) ] ] [ text ("duration: " ++ (patch.duration |> String.fromFloat)) ]
+        , p [ css [ marginBottom (px 20) ] ] [ text (patch.attributeValues |> String.join " / ") ]
         , hr [] []
         ]
 
@@ -83,8 +192,20 @@ patchMeta patch =
 waveAndText : Model -> Patch -> Html Msg
 waveAndText model patch =
     div [ css [ Css.width (pct 66), float left ] ]
-        [ waveformSeeker patch
-        , HS.pre [ css [ Css.float left ] ] [ text patch.score ]
+        [ div [ css [ Css.width (pct 100), Css.height (px 386), marginBottom (px 15) ] ]
+            [ waveformSeeker patch ]
+        , div [ css [ backgroundColor (hex "c8c8c8"), padding2 (px 35) (px 42) ] ]
+            [ HS.pre
+                [ css
+                    [ Css.fontSize (px 14)
+                    , fontWeight (int 500)
+                    , color (hex "000")
+                    , lineHeight (Css.em 1.29)
+                    , letterSpacing (px 0.5)
+                    ]
+                ]
+                [ text patch.score ]
+            ]
         ]
 
 

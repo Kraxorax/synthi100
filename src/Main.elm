@@ -13,7 +13,7 @@ import Header exposing (header)
 import HomePage
 import Html as H
 import Html.Attributes as HA
-import Html.Styled exposing (Html, audio, text, node)
+import Html.Styled exposing (Html, audio, node, text)
 import Html.Styled.Attributes exposing (controls, id, type_)
 import Http
 import Json.Decode as JD
@@ -589,15 +589,16 @@ globalCSS =
             [ backgroundColor (hex "000000")
             , color (hex "4A90E2")
             , margin (px 0)
-            , fontFamilies ["Metropolis"]
+            , fontFamilies [ "Metropolis" ]
             , maxWidth (px 1440)
             , margin auto
             ]
         ]
 
+
 fontImport : Html Msg
 fontImport =
-    node "style" [type_ "text/css"] [text """
+    node "style" [ type_ "text/css" ] [ text """
         @font-face {
             font-family: "Metropolis";
             src: url(/Metropolis-Medium.woff);
@@ -607,5 +608,4 @@ fontImport =
             src: url(/Metropolis-Bold.woff);
             font-weight: bold;
         }
-    """]
-
+    """ ]

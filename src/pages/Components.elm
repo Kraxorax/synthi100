@@ -7,8 +7,8 @@ import Html.Attributes.Extra as HAE
 import Html.Styled exposing (..)
 import Html.Styled.Attributes as HSA exposing (..)
 import Html.Styled.Events exposing (..)
-import Json.Encode as JE
 import Json.Decode as JD exposing (..)
+import Json.Encode as JE
 import Maybe.Extra exposing (isJust)
 import Model exposing (..)
 import Mouse exposing (..)
@@ -103,15 +103,11 @@ playButton patch =
         audioModel =
             patch.audioModel |> Maybe.withDefault noPlayingAudioModel
 
-        ( hndlClck, bttnText ) =
+        ( hndlClck, bttnUrl ) =
             if audioModel.playing then
-                ( Pause patch, "pause" )
+                ( Pause patch, "/pause.svg" )
 
             else
-                ( Play patch, "play" )
+                ( Play patch, "/play.svg" )
     in
-    button
-        [ onClick hndlClck
-        , css [ Css.width (px 60), Css.height (px 60), Css.float left ]
-        ]
-        [ text bttnText ]
+    img [ src bttnUrl, onClick hndlClck ] []
