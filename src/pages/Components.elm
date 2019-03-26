@@ -1,4 +1,4 @@
-module Components exposing (audioNode, playButton, volumeInput, waveformSeeker)
+module Components exposing (audioNode, cssHaxor, playButton, volumeInput, waveformSeeker)
 
 import AudioModel exposing (..)
 import Css as Css exposing (..)
@@ -118,3 +118,8 @@ playButton patch =
                 ( Play patch, "/play.svg" )
     in
     img [ src bttnUrl, onClick hndlClck ] []
+
+
+cssHaxor : Html msg
+cssHaxor =
+    div [ css [ Css.property "clear" "both" ] ] []

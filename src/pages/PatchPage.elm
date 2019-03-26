@@ -28,15 +28,25 @@ page showGraphical patchTitle model =
                 |> Maybe.map (find (\p -> p.title == patchTitle) >> Maybe.withDefault noPatch)
                 |> Maybe.withDefault noPatch
 
-        view =
+        ( view, bgColor ) =
             if showGraphical then
-                [ graphical model patch ]
+                ( [ graphical model patch, cssHaxor ], "9b9b9b" )
 
             else
-                controls model patch
-                    :: [ waveAndText model patch ]
+                ( controls model patch
+                    :: [ waveAndText model patch, cssHaxor ]
+                , "000"
+                )
     in
-    div [ css [ Css.color (hex "ffffff"), Css.paddingLeft (px 31) ] ]
+    div
+        [ css
+            [ Css.color (hex "ffffff")
+            , Css.paddingLeft (px 31)
+            , Css.paddingTop (px 18)
+            , backgroundColor (hex bgColor)
+            , backgroundClip paddingBox
+            ]
+        ]
         view
 
 
@@ -50,6 +60,16 @@ waveOrGraphCss =
         ]
 
 
+waveOrGraphBlackCss : Style
+waveOrGraphBlackCss =
+    batch
+        [ borderTop3 (px 2) solid (hex "000")
+        , borderBottom3 (px 2) solid (hex "000")
+        , padding2 (px 12) (px 0)
+        , height (px 56)
+        ]
+
+
 waveOrGraph : Model -> String -> Html Msg
 waveOrGraph model patchTitle =
     let
@@ -58,8 +78,16 @@ waveOrGraph model patchTitle =
 
         graphicalUrl =
             absolute [ "patch", patchTitle, "graphical" ] []
+
+        wogCss =
+            case model.currentRoute of
+                R.PatchGraphical _ ->
+                    waveOrGraphBlackCss
+
+                _ ->
+                    waveOrGraphCss
     in
-    div [ css [ waveOrGraphCss ] ]
+    div [ css [ wogCss ] ]
         [ a [ href waveTextUrl, css [ Css.float left, linkUnstyle ] ]
             [ img [ src "/wave-textual.svg", css [ marginBottom (px 10) ] ] []
             , br [] []
@@ -163,6 +191,15 @@ muteBttn isMute =
         []
 
 
+headerCss : Style
+headerCss =
+    batch
+        [ fontSize (px 24)
+        , fontWeight bold
+        , letterSpacing (px 0.5)
+        ]
+
+
 controls : Model -> Patch -> Html Msg
 controls model patch =
     div
@@ -178,9 +215,7 @@ controls model patch =
             [ css
                 [ padding2 (px 18) (px 0)
                 , margin (px 0)
-                , fontSize (px 24)
-                , fontWeight bold
-                , letterSpacing (px 0.5)
+                , headerCss
                 , borderTop2 (px 1) solid
                 , borderBottom2 (px 1) solid
                 ]
@@ -279,22 +314,48 @@ graphical model patch =
         ]
 
 
+controlsGraphicalCss : Style
+controlsGraphicalCss =
+    batch
+        [ fontSize (px 14)
+        , fontWeight bold
+        , letterSpacing (px 0.5)
+        , color (hex "fff")
+        , Css.width (pct 33)
+        , float left
+        , maxWidth (px 390)
+        , marginRight (px 55)
+        ]
+
+
 graphicControls : Model -> Patch -> Html Msg
 graphicControls model patch =
-    div [ css [ Css.width (pct 33), float left, position Css.fixed, top (px 108) ] ]
+    div [ css [ controlsGraphicalCss ] ]
         [ waveOrGraph model patch.title
+        , div
+            [ css
+                [ Css.height (px 60)
+                , color (hex "000")
+                , borderBottom3 (px 2) solid (hex "000")
+                ]
+            ]
+            [ span [ css [ headerCss, display inlineBlock, marginTop (px 18) ] ] [ text "Audio signals" ] ]
         , patchMeta patch
         , parameters model patch
-        , button [ onClick (MovePatch patch -1) ] [ text "previous" ]
-        , button [ onClick (MovePatch patch 1) ] [ text "next" ]
         ]
 
 
 parameters : Model -> Patch -> Html Msg
 parameters model patch =
     div []
-        [ h1 [] [ text "parameters" ]
-        , hr [] []
+        [ div
+            [ css
+                [ Css.height (px 60)
+                , color (hex "000")
+                , borderBottom3 (px 2) solid (hex "000")
+                ]
+            ]
+            [ span [ css [ headerCss, display inlineBlock, marginTop (px 18) ] ] [ text "Parameters" ] ]
         , knob model patch
         ]
 

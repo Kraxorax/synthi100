@@ -5,14 +5,15 @@ import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, href, src)
 import Msg exposing (Msg)
 
+
 headerTitleCss : Style
 headerTitleCss =
     batch
-      [ letterSpacing (px 0.5)
-      , lineHeight (num 1.2)
-      , fontSize (px 24)
-      , fontWeight bold
-     ]
+        [ letterSpacing (px 0.5)
+        , lineHeight (num 1.2)
+        , fontSize (px 24)
+        , fontWeight bold
+        ]
 
 
 headerFlexCss : Style
@@ -24,15 +25,18 @@ headerFlexCss =
         , alignItems flexEnd
         , boxSizing borderBox
         , justifyContent spaceBetween
+        , marginBottom (px 40)
         ]
+
 
 navigationLinkCss : Style
 navigationLinkCss =
     batch
         [ flex (num 1)
         , textDecoration none
-        , visited [(color (hex "FFFFFF"))]
+        , visited [ color (hex "FFFFFF") ]
         ]
+
 
 headerNavigationCss : Style
 headerNavigationCss =
@@ -64,6 +68,7 @@ synthiTitleFlexCss =
         , justifyContent spaceBetween
         ]
 
+
 headerLineCss : Style
 headerLineCss =
     batch
@@ -81,22 +86,22 @@ header =
             [ css
                 [ flex (num 1)
                 , displayFlex
-                , alignItems (flexEnd)
+                , alignItems flexEnd
                 ]
             ]
             [ div
                 [ css [ flex (num 1), paddingLeft (px 31), marginBottom (px 1) ] ]
-                [ img [src "synthi-logo.svg"] [] ]
+                [ img [ src "synthi-logo.svg" ] [] ]
             , div
                 [ css [ synthiTitleFlexCss ] ]
-                [ div [css [ headerLineCss ]] []
+                [ div [ css [ headerLineCss ] ] []
                 , div
                     [ css [ maxWidth (px 230) ] ]
                     [ text "EMS SYNTHI 100 on the Web" ]
                 ]
             ]
         , div
-            [ css [headerTitleCss, flex (num 1), marginLeft (px -1)] ]
+            [ css [ headerTitleCss, flex (num 1), marginLeft (px -1) ] ]
             [ text "Elektronski studio Radio Beograda"
             , br [] []
             , text "Radio Belgrade — Electronic Studio"
@@ -106,6 +111,7 @@ header =
             navigation
         ]
 
+
 navLink : List Style -> String -> String -> Html Msg
 navLink css_ href_ text_ =
     a
@@ -114,8 +120,9 @@ navLink css_ href_ text_ =
         ]
         [ text text_ ]
 
+
 navigation : List (Html Msg)
 navigation =
-    [ navLink [textAlign center] "/database" "database"
-    , navLink [textAlign left] "/about" "about / credits"
+    [ navLink [ textAlign center ] "/database" "database"
+    , navLink [ textAlign left ] "/about" "about / credits"
     ]
