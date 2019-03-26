@@ -29,6 +29,7 @@ type Msg
     | TimeUpdate P.Patch Float
     | Seek P.Patch MouseData
     | VolumeChange Float
+    | Mute Bool
     | Filter String String
     | SortBy String
     | Sort SortDirection

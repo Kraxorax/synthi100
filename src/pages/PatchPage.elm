@@ -99,8 +99,8 @@ linkUnstyle =
 audioControlsCss : Style
 audioControlsCss =
     batch
-        [ height (px 312)
-        , padding2 (px 25) (px 0)
+        [ height (px 280)
+        , padding2 (px 20) (px 0)
         ]
 
 
@@ -141,7 +141,7 @@ ppVolumeInput model =
             ]
             []
         , span [] [ text "volume" ]
-        , muteBttn isMute
+        , muteBttn model.muted
         ]
 
 
@@ -158,7 +158,7 @@ muteBttn isMute =
     img
         [ src url
         , css [ Css.float right, marginTop (px -10) ]
-        , onClick (VolumeChange 0)
+        , onClick (Mute (not isMute))
         ]
         []
 
@@ -174,18 +174,77 @@ controls model patch =
             , audioNode model patch
             , patchMeta patch
             ]
-        , button [ onClick (MovePatch patch -1) ] [ text "previous" ]
-        , button [ onClick (MovePatch patch 1) ] [ text "next" ]
+        , h1
+            [ css
+                [ padding2 (px 18) (px 0)
+                , margin (px 0)
+                , fontSize (px 24)
+                , fontWeight bold
+                , letterSpacing (px 0.5)
+                , borderTop2 (px 1) solid
+                , borderBottom2 (px 1) solid
+                ]
+            ]
+            [ text "Textual" ]
+        , div
+            [ css
+                [ Css.height (px 60)
+                , borderTop2 (px 1) solid
+                , borderBottom2 (px 1) solid
+                , maxWidth (px 390)
+                , Css.width (pct 33)
+                , position fixed
+                , bottom (px 30)
+                ]
+            ]
+            [ div [ css [ width (pct 50), float left ] ] [ h1 [] [ text "Patch" ] ]
+            , div [ css [ float right, display inlineBlock, marginTop (px 5) ] ]
+                [ prevBttn (MovePatch patch -1)
+                , nextBttn (MovePatch patch 1)
+                ]
+            ]
+        ]
+
+
+pnBttnDivCss : Style
+pnBttnDivCss =
+    batch
+        [ display inlineBlock
+        , margin2 (px 5) (px 10)
+        , cursor pointer
+        ]
+
+
+pnBttnSpanCss : Style
+pnBttnSpanCss =
+    batch
+        [ display inlineBlock
+        , marginTop (px 6)
+        ]
+
+
+prevBttn : msg -> Html msg
+prevBttn msg =
+    div [ onClick msg, css [ pnBttnDivCss ] ]
+        [ prev
+        , span [ css [ pnBttnSpanCss ] ] [ text "previous" ]
+        ]
+
+
+nextBttn : msg -> Html msg
+nextBttn msg =
+    div [ onClick msg, css [ pnBttnDivCss ] ]
+        [ next
+        , span [ css [ pnBttnSpanCss ] ] [ text "next" ]
         ]
 
 
 patchMeta : Patch -> Html Msg
 patchMeta patch =
-    div []
+    div [ css [ Css.height (px 182) ] ]
         [ h1 [ css [ Css.fontSize (px 48) ] ] [ text patch.title ]
         , p [ css [ marginBottom (px 20) ] ] [ text ("duration: " ++ (patch.duration |> String.fromFloat)) ]
         , p [ css [ marginBottom (px 20) ] ] [ text (patch.attributeValues |> String.join " / ") ]
-        , hr [] []
         ]
 
 

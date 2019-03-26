@@ -378,6 +378,9 @@ update msg model =
         VolumeChange vol ->
             ( { model | volume = vol / 100 }, Cmd.none )
 
+        Mute is ->
+            ( { model | muted = is }, Cmd.none )
+
         SortBy sortBy ->
             let
                 sortedPatches =

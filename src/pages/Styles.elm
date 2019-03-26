@@ -1,4 +1,4 @@
-module Styles exposing (theBlue, vi, xBox)
+module Styles exposing (next, prev, theBlue, vi, xBox)
 
 -- import Svg exposing (..)
 
@@ -10,6 +10,10 @@ import Svg.Styled.Events as Svg exposing (..)
 
 theBlue =
     hex "4a90e2"
+
+
+theBlueString =
+    "#4a90e2"
 
 
 cross =
@@ -38,6 +42,26 @@ xBox isCheck =
             []
             :: c
         )
+
+
+pnBttnImgCss : Style
+pnBttnImgCss =
+    batch
+        [ Css.display block
+        , margin auto
+        ]
+
+
+prev =
+    svg [ Svg.height "20px", Svg.width "20px", css [ pnBttnImgCss ] ]
+        [ polygon [ points "20,0 20,20 0,10", Svg.fill theBlueString ] []
+        ]
+
+
+next =
+    svg [ Svg.height "20px", Svg.width "20px", css [ pnBttnImgCss ] ]
+        [ polygon [ points "0,0 20,10 0,20", Svg.fill theBlueString ] []
+        ]
 
 
 vi pos =

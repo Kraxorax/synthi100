@@ -77,12 +77,19 @@ audioNode model patch =
 
                 Nothing ->
                     False
+
+        volume =
+            if model.muted then
+                0
+
+            else
+                model.volume
     in
     if playing then
         audio
             [ id patch.title
             , src patch.soundUrl
-            , HAE.volume model.volume |> HSA.fromUnstyled
+            , HAE.volume volume |> HSA.fromUnstyled
             , onEnded (Ended patch) |> HSA.fromUnstyled
             , onTimeUpdate (TimeUpdate patch) |> HSA.fromUnstyled
             ]
