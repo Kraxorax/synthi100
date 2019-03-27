@@ -34,6 +34,7 @@ navigationLinkCss =
     batch
         [ flex (num 1)
         , textDecoration none
+        , color (hex "FFFFFF")
         , visited [ color (hex "FFFFFF") ]
         ]
 
@@ -43,6 +44,7 @@ headerNavigationCss =
     batch
         [ justifyContent spaceAround
         , borderLeftStyle solid
+        , borderLeftWidth (px 2)
         , height (px 73)
         , color (hex "4a90e2")
         , displayFlex

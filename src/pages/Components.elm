@@ -14,14 +14,83 @@ import Model exposing (..)
 import Mouse exposing (..)
 import Msg exposing (..)
 import Patch exposing (..)
+import Styles exposing (theBlue)
 
 
-volumeInput : Html Msg
-volumeInput =
-    div []
-        [ span [] [ text "volume" ]
-        , input [ type_ "range", onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange) ] []
-        , button [] [ text "mute" ]
+volumeThumbCss : Style
+volumeThumbCss =
+    batch
+        [ Css.property "-webkit-appearance" "none"
+        , Css.width (px 9)
+        , Css.height (px 23)
+        , backgroundColor theBlue
+        , borderColor (hex "000000")
+        , borderWidth (px 1)
+        , borderStyle (solid)
+        , borderRadius (px 0)
+        ]
+
+
+volumeSliderCss : Style
+volumeSliderCss =
+    batch
+        [ Css.property "-webkit-appearance" "none"
+        , Css.property "-moz-appearance" "none"
+        , Css.width (px 102)
+        , Css.height (px 2)
+        , minWidth (px 88)
+        , marginRight (px 80)
+        , pseudoElement "-moz-range-thumb" [ volumeThumbCss ]
+        , pseudoElement "-webkit-slider-thumb" [ volumeThumbCss ]
+        ]
+
+
+muteButtonCss : Style
+muteButtonCss =
+    batch
+        [ Css.property "-webkit-appearance" "none"
+        , Css.property "-moz-appearance" "none"
+        , backgroundRepeat noRepeat
+        , Css.height (px 28)
+        , minWidth (px 33)
+        , margin (px 2)
+        , Css.checked [ backgroundImage (url "/mute.svg") ]
+        , backgroundImage (url "/unmute.svg")
+        ]
+
+
+volumeInputCss : Style
+volumeInputCss =
+    batch
+        [ boxSizing borderBox
+        , padding4 (px 0) (pct 8) (px 0) (px 0)
+        , displayFlex
+        , justifyContent flexEnd
+        , alignItems center
+        , fontWeight bold
+        , fontSize (px 20)
+        , borderTop2 (px 1) solid
+        , Css.height (px 46), Css.maxWidth (pct 50)
+        ]
+
+
+volumeInput : Bool -> Html Msg
+volumeInput muted =
+    div [ css [ volumeInputCss ] ]
+        [ span [css [ marginRight auto ]] [ text "volume" ]
+        , input
+            [ css [ volumeSliderCss ]
+            , type_ "range"
+            , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
+            ]
+            [ ]
+        , input
+            [ css [ muteButtonCss ]
+            , type_ "checkbox"
+            , HSA.checked (not muted)
+            , onClick (Mute (not muted))
+            ]
+            [ ]
         ]
 
 
