@@ -33,7 +33,12 @@ initModel : Key -> Model
 initModel key =
     { navKey = key
     , currentRoute = PatchGraphical "20190325-001"
-    , audioPinModel = PinTable.initModel
+    -- , currentRoute = Database
+    -- , audioPinModel = PinTable.initModel
+    , audioPinModel =
+        { hoverPin = ( 1, 1 )
+        , activePin = ( 1, 1 )
+        }
     , controlPinModel = PinTable.initModel
     , circleFill = "#0000ff"
     , hoverKnob = ( -1, -1 )

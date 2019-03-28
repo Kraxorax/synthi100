@@ -14,6 +14,8 @@ import Patch exposing (..)
 import PinTable exposing (..)
 import Routing as R
 import Styles exposing (..)
+import Svg.Styled as Svg
+import Svg.Styled.Attributes as Svg
 import SynthiSchema as SS
 import Url as Url
 import Url.Builder as Url exposing (absolute, relative)
@@ -305,7 +307,7 @@ waveAndText model patch =
 
 graphical : Model -> Patch -> Html Msg
 graphical model patch =
-    div [ css [ Css.backgroundColor (hex "9b9b9b"), float left, Css.width (pct 100) ] ]
+    div [ css [ float left, Css.width (pct 100) ] ]
         [ graphicControls model patch
         , div [ css [ Css.width (pct 66), float right ] ]
             [ pin model patch
@@ -394,18 +396,52 @@ pin model patch =
                     (getModulesText Control model.controlPinModel)
                 |> Maybe.withDefault ( "", "" )
     in
-    div []
-        [ div [ css [ Css.height (px 100) ] ]
-            [ div [] [ text audioInModuleText ]
-            , div [] [ text audioOutModuleText ]
+    div [ css [ Css.width (px 760) ] ]
+        [ div [ css [ Css.height (px 58) ] ]
+            [ moduleStrip audioOutModuleText (px 40) (px 0) dots4
+            , moduleStrip audioInModuleText (px 0) (px -14) dots3
             ]
-        , HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins model.audioPinModel)
-        , div [ css [ Css.height (px 100) ] ]
-            [ div [] [ text controlInModuleText ]
-            , div [] [ text controlOutModuleText ]
+        , div [css [marginBottom (px 40)]] [ HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins model.audioPinModel) ]
+        , div [ css [ Css.height (px 58) ] ]
+            [ moduleStrip controlOutModuleText (px 40) (px 0) dots4
+            , moduleStrip controlInModuleText (px 0) (px -14) dots3
             ]
-        , HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins model.controlPinModel)
+        , div [css [marginBottom (px 40)]] [  HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins model.controlPinModel) ]
         ]
+
+
+moduleStrip : String -> Px -> Px -> Html PinMsg -> Html Msg
+moduleStrip txt rm tm dots =
+    div
+        [ css
+            [ Css.height (px 50)
+            , Css.width (px 327)
+            , borderBottom3 (px 1) solid (hex "000")
+            , borderTop3 (px 1) solid (hex "000")
+            , float left
+            , margin4 (px 0) rm (px 0) (px 20)
+            , textTransform uppercase
+            , fontSize (px 10)
+            , fontWeight bold
+            , letterSpacing (px 1.4)
+            ]
+        ]
+        [ div [ css [ display inlineBlock, marginLeft (px -20), marginTop tm, float left ] ]
+            [ dots |> HS.map (\pm -> PinEvent pm) ]
+        , span [ css [ display inlineBlock, margin2 (px 20) (px 0), float left ] ] [ text txt ]
+        ]
+
+
+dots4 : Html PinMsg
+dots4 =
+    Svg.svg [ Svg.width "72", Svg.height "50" ]
+        (List.range 0 3 |> List.map (\x -> pinSvg ( x, 0 ) "" Nothing initModel))
+
+
+dots3 : Html PinMsg
+dots3 =
+    Svg.svg [ Svg.width "72", Svg.height "70" ]
+        (List.range 0 2 |> List.map (\y -> pinSvg ( 0, y ) "" Nothing initModel))
 
 
 outputChannels : Model -> Patch -> HS.Html Msg
@@ -548,7 +584,7 @@ getModulesText panel pm ss =
 moduleAndPosToText : Int -> SS.Connection -> String
 moduleAndPosToText pos mod =
     if pos >= 0 then
-        (pos |> String.fromInt) ++ " - " ++ mod.name ++ " : " ++ mod.module_
+        (pos |> String.fromInt) ++ " " ++ mod.module_ ++ " " ++ mod.name
 
     else
         ""

@@ -1,4 +1,4 @@
-module PinTable exposing (Panel(..), PinModel, PinMsg(..), audioPanel, coordsToPinPos, initModel, pinTable, setActivePin, setHoverPin, update)
+module PinTable exposing (Panel(..), PinModel, PinMsg(..), audioPanel, coordsToPinPos, initModel, pinSvg, pinTable, setActivePin, setHoverPin, update)
 
 import Array
 import Html.Attributes exposing (style)
@@ -19,9 +19,9 @@ color =
     , offD =
         "#000000"
     , hover =
-        "#66AAFF"
+        "#dfdfdf"
     , active =
-        "#FF9999"
+        "#fff"
     }
 
 
@@ -92,8 +92,8 @@ setHoverPin xy model =
     { model | hoverPin = xy }
 
 
-pinSvg : ( Int, Int ) -> String -> PinModel -> Svg PinMsg
-pinSvg ( xp, yp ) pinColor model =
+pinSvg : ( Int, Int ) -> String -> Maybe String -> PinModel -> Svg PinMsg
+pinSvg ( xp, yp ) fillColor strokeColor model =
     let
         yPos =
             (if yp >= 30 then
@@ -108,12 +108,20 @@ pinSvg ( xp, yp ) pinColor model =
 
         xPos =
             (xp * pinDistanceX) + pinRadius + margin |> String.fromInt
+
+        ( strokeCol, strokeWdth, rad ) =
+            strokeColor
+                |> Maybe.map
+                    (\sc -> ( stroke sc, strokeWidth "3", pinRadius + 1 ))
+                |> Maybe.withDefault ( stroke "", strokeWidth "0", pinRadius )
     in
     circle
-        [ r (pinRadius |> String.fromInt)
+        [ r (rad |> String.fromInt)
         , cx xPos
         , cy yPos
-        , fill pinColor
+        , fill fillColor
+        , strokeCol
+        , strokeWdth
         , onMouseOver (PinIn ( xp, yp ))
         , onMouseOut PinOut
         , onMouseDown (PinClick ( xp, yp ))
@@ -150,15 +158,13 @@ audioPanel pins model =
                                         p.into == into && p.out == out
                                     )
 
-                        pinColor =
-                            case pin of
-                                Just p ->
-                                    p.color
+                        pinStrokeColor =
+                            pin |> Maybe.map (\p -> pinColorToHex p.color)
 
-                                Nothing ->
-                                    getPinColor ( x, y ) model
+                        pinFillColor =
+                            getPinColor ( x, y ) model
                     in
-                    pinSvg ( x, y ) pinColor model
+                    pinSvg ( x, y ) pinFillColor pinStrokeColor model
                 )
 
         w =
@@ -203,9 +209,13 @@ pinNumberY ( i, o ) =
             coordsToPinPos ( i, o )
     in
     Svg.text_
-        [ dx "14"
+        [ dx "8"
         , dy y
         , textAnchor "middle"
+        , fontFamily "Metropolis"
+        , fontWeight "bold"
+        , fontSize "14px"
+        , letterSpacing "1.4px"
         , fill "#FFFFFF"
         ]
         [ Svg.text (ro |> String.fromInt) ]
@@ -225,6 +235,10 @@ pinNumberX ( i, o ) =
         [ dx x
         , dy "14"
         , textAnchor "middle"
+        , fontFamily "Metropolis"
+        , fontWeight "bold"
+        , fontSize "14px"
+        , letterSpacing "1.4px"
         , fill "#FFFFFF"
         ]
         [ Svg.text (ri |> String.fromInt) ]
@@ -237,7 +251,7 @@ pinTable model =
             generate 60
                 60
                 (\x y ->
-                    pinSvg ( x, y ) "" model
+                    pinSvg ( x, y ) "" Nothing model
                 )
     in
     svg [ width "480", height "495" ]
@@ -260,6 +274,21 @@ getPinColor ( x, y ) model =
 
     else
         color.offL
+
+
+pinColorToHex : String -> String
+pinColorToHex col =
+    if col == "white" then
+        "#fff"
+
+    else if col == "blue" then
+        "#4a90e2"
+
+    else if col == "orange" then
+        "#f5a623"
+
+    else
+        col
 
 
 shouldDarkenPin : Int -> Int -> Bool
