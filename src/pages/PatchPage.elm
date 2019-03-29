@@ -19,7 +19,7 @@ import Svg.Styled.Attributes as Svg
 import SynthiSchema as SS
 import Url as Url
 import Url.Builder as Url exposing (absolute, relative)
-import ViewModel exposing (Knob, Module)
+import ViewModel exposing (Control(..), Knob, Module)
 
 
 page : Bool -> String -> Model -> Html Msg
@@ -327,6 +327,8 @@ controlsGraphicalCss =
         , float left
         , maxWidth (px 390)
         , marginRight (px 55)
+        , position sticky
+        , top (px 18)
         ]
 
 
@@ -355,9 +357,24 @@ parameters model patch =
                 [ Css.height (px 60)
                 , color (hex "000")
                 , borderBottom3 (px 2) solid (hex "000")
+                , borderTop3 (px 2) solid (hex "000")
                 ]
             ]
             [ span [ css [ headerCss, display inlineBlock, marginTop (px 18) ] ] [ text "Parameters" ] ]
+        , div
+            [ css
+                [ Css.height (px 28)
+                , color (hex "d8d8d8")
+                , borderBottom3 (px 2) solid (hex "000")
+                , fontSize (px 18)
+                , fontWeight (int 500)
+                , letterSpacing (px 1.4)
+                , padding2 (px 10) (px 0)
+                ]
+            ]
+            [ div [ css [ float left ] ] [ circ ]
+            , div [ css [ marginLeft (px 40), marginTop (px 4), width (pct 50) ] ] [ text "NAME / VALUE" ]
+            ]
         , knob model patch
         ]
 
@@ -371,14 +388,65 @@ knob model patch =
         ( iac, oac ) =
             model.activeControl
     in
-    div []
-        [ p [] [ text im.name ]
-        , p [] [ text (iac |> Maybe.withDefault ".") ]
-        , HS.map (\kmsg -> InputKnobEvent kmsg) (controlsToKnobSvg im.controls)
-        , p [] [ text om.name ]
-        , p [] [ text (oac |> Maybe.withDefault ".") ]
-        , HS.map (\kmsg -> OutputKnobEvent kmsg) (controlsToKnobSvg om.controls)
+    div
+        [ css
+            [ color (hex "d8d8d8")
+            , fontWeight bold
+            , letterSpacing (px 0.5)
+            , textTransform uppercase
+            ]
         ]
+        [ div
+            [ css
+                [ Css.width (pct 100)
+                , margin2 (px 15) (px 0)
+                ]
+            ]
+            [ div [ css [ Css.width (pct 50), display inlineBlock, textAlign center ] ]
+                [ span [] [ text im.name ] ]
+            , div [ css [ Css.width (pct 50), display inlineBlock, textAlign center ] ]
+                [ span [] [ text (iac |> Maybe.withDefault "") ] ]
+            ]
+        , div [ css [ marginBottom (px 22) ] ]
+            [ HS.map (\kmsg -> InputKnobEvent kmsg) (controlsToKnobSvg False im.controls) ]
+        , div [ css [ Css.position Css.relative ] ]
+            [ div [ css [ Css.width (pct 44), display inlineBlock, Css.position Css.absolute, top (px 12) ] ]
+                [ span [] [ text om.name ] ]
+            , div [ css [ Css.width (pct 12), display inlineBlock, Css.position Css.absolute, left (pct 42) ] ]
+                [ HS.map (\kmsg -> OutputKnobEvent kmsg) (controlsToKnobSvg True om.controls) ]
+            , div [ css [ Css.width (pct 44), display inlineBlock, textAlign right, Css.position Css.absolute, left (pct 50), top (px 12) ] ]
+                [ span [] [ text (oac |> Maybe.withDefault "") ] ]
+            ]
+        ]
+
+
+controlsToKnobSvg : Bool -> List Control -> HS.Html KnobMsg
+controlsToKnobSvg isVert cs =
+    div [ css [ fontWeight (int 500) ] ]
+        (cs
+            |> List.map
+                (\ctrl ->
+                    case ctrl of
+                        KnobCtrl knb ->
+                            ctrlHldr isVert (simpleKnobSvg knb)
+
+                        SwitchCtrl sw ->
+                            ctrlHldr isVert (simpleSwitchSvg sw)
+                )
+        )
+
+
+ctrlHldr : Bool -> Html KnobMsg -> Html KnobMsg
+ctrlHldr isVert ctrl =
+    let
+        dspl =
+            if isVert then
+                display block
+
+            else
+                display inlineBlock
+    in
+    div [ css [ dspl, marginRight (px 6), cursor default ] ] [ ctrl ]
 
 
 pin : Model -> Patch -> HS.Html Msg
@@ -401,12 +469,12 @@ pin model patch =
             [ moduleStrip audioOutModuleText (px 40) (px 0) dots4
             , moduleStrip audioInModuleText (px 0) (px -14) dots3
             ]
-        , div [css [marginBottom (px 40)]] [ HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins model.audioPinModel) ]
+        , div [ css [ marginBottom (px 40) ] ] [ HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins model.audioPinModel) ]
         , div [ css [ Css.height (px 58) ] ]
             [ moduleStrip controlOutModuleText (px 40) (px 0) dots4
             , moduleStrip controlInModuleText (px 0) (px -14) dots3
             ]
-        , div [css [marginBottom (px 40)]] [  HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins model.controlPinModel) ]
+        , div [ css [ marginBottom (px 40) ] ] [ HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins model.controlPinModel) ]
         ]
 
 
@@ -428,7 +496,7 @@ moduleStrip txt rm tm dots =
         ]
         [ div [ css [ display inlineBlock, marginLeft (px -20), marginTop tm, float left ] ]
             [ dots |> HS.map (\pm -> PinEvent pm) ]
-        , span [ css [ display inlineBlock, margin2 (px 20) (px 0), float left ] ] [ text txt ]
+        , span [ css [ display inlineBlock, margin2 (px 23) (px 0), float left ] ] [ text txt ]
         ]
 
 

@@ -1,4 +1,4 @@
-module Styles exposing (next, prev, theBlue, vi, xBox)
+module Styles exposing (circ, next, prev, theBlue, vi, xBox)
 
 -- import Svg exposing (..)
 
@@ -64,6 +64,9 @@ next =
         ]
 
 
+circ =
+    svg [ Svg.width "25px", Svg.height "25px" ]
+        [ Svg.circle [ r "12", cx "12", cy "12", Svg.fill "#d8d8d8" ] [] ]
 
 
 vi pos =

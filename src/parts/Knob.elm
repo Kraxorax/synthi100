@@ -1,4 +1,4 @@
-module Knob exposing (KnobMsg(..), controlsToKnobSvg, knobSvg, simpleKnobSvg, simpleSwitchSvg)
+module Knob exposing (KnobMsg(..), knobSvg, simpleKnobSvg, simpleSwitchSvg)
 
 import Html.Styled as Html exposing (..)
 import Maybe.Extra exposing (isJust)
@@ -15,8 +15,8 @@ type KnobMsg
 
 
 colors =
-    { enabled = "#333333"
-    , disabled = "#cccccc"
+    { enabled = "#ccc"
+    , disabled = "#999"
     }
 
 
@@ -72,7 +72,7 @@ simpleKnobSvg knob =
             [ dx "20"
             , dy "25"
             , textAnchor "middle"
-            , fill "#FFFFFF"
+            , fill "#000"
             ]
             [ Svg.text value ]
         ]
@@ -116,48 +116,10 @@ simpleSwitchSvg switch =
             [ dx "20"
             , dy "25"
             , textAnchor "middle"
-            , fill "#FFFFFF"
+            , fill "#000"
             ]
             [ Svg.text value ]
         ]
-
-
-
--- knob10Svg : ( Int, Int ) -> Bool -> Float -> Html.Html KnobMsg
--- knob10Svg ( kx, ky ) active val =
---     let
---         xPos =
---             kx * 50
---         yPos =
---             ky * 80
---         rotation =
---             "rotate(" ++ String.fromFloat (knobValueToAngle val) ++ " 20 20)"
---         textColor =
---             if active then
---                 hoverColor
---             else
---                 "#333333"
---     in
---     svg
---         [ x (String.fromInt xPos)
---         , y (String.fromInt yPos)
---         , width "40"
---         , height "70"
---         , onMouseOver (KnobIn ( kx, ky ))
---         , onMouseOut KnobOut
---         ]
---         [ text_
---             [ dx "20"
---             , dy "20"
---             , textAnchor "middle"
---             , color textColor
---             ]
---             [ Svg.text (String.fromFloat val)
---             ]
---         , svg [ y "30" ]
---             [ simpleKnobSvg (Just val)
---             ]
---         ]
 
 
 controlsToKnobSvg : List Control -> Html.Html KnobMsg
