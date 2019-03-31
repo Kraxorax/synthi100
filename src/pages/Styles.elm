@@ -1,6 +1,5 @@
 module Styles exposing (circ, next, prev, theBlue, vi, xBox)
 
--- import Svg exposing (..)
 
 import Css exposing (..)
 import Svg.Styled as Svg exposing (..)

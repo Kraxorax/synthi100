@@ -523,9 +523,11 @@ outputChannels model patch =
                     )
                 |> Maybe.withDefault []
     in
-    div []
-        (channels
-            |> List.map outputChan
+    div [ css [ Css.color (hex "000"), fontSize (px 14), fontWeight bold, letterSpacing (px 1.4), marginLeft (px 26) ] ]
+        (div [ css [ Css.height (px 50), Css.width (px 327), borderTop2 (px 1) solid, marginLeft (px 33) ] ]
+            [ span [ css [ display inlineBlock, marginTop (px 16) ] ] [ text "OUTPUT CHANNELS" ]
+            ]
+            :: [ outputPanel channels ]
         )
 
 
