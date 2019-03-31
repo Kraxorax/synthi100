@@ -22,9 +22,9 @@ import SynthiSchema exposing (Attribute)
 
 page : Model -> Html Msg
 page model =
-    div [ css [ Css.paddingLeft (px 31) ] ]
-        [ filterList model
-        , patchesList model
+    div [ css [ displayFlex ] ]
+        [ div [ css [ flex (num 1)]] [filterList model]
+        , div [css  [ flex (num 2)]] [patchesList model]
         ]
 
 
@@ -50,7 +50,7 @@ filterList model =
                 Nothing ->
                     []
     in
-    div [ css [ Css.width (pct 33), float left, maxWidth (px 390) ] ]
+    div [ css [ paddingLeft (px 31), maxWidth (px 390) ] ]
         [ div [ css [ filterHeaderStyle ] ]
             [ text "filters" ]
         , div []
@@ -130,29 +130,150 @@ patchesList model =
                 |> List.map
                     (\p -> patchItem model p)
     in
-    div [ css [ Css.width (pct 66), float left ] ]
+    div [ css
+            [ marginTop (px 18)
+            , letterSpacing (px 0.5)
+            , fontSize (px 20)
+            ]
+        ]
         (sortInput
-            :: volumeInput
+            :: volumeInput model.muted
             :: patchItems
         )
 
 
+sortingArrowCss : Style
+sortingArrowCss =
+    batch
+        [ Css.property "-webkit-appearance" "none"
+        , Css.property "-moz-appearance" "none"
+        , backgroundImage (url "sort_arrow_down.svg")
+        , backgroundColor transparent
+        , backgroundRepeat noRepeat
+        , Css.width (px 33)
+        , Css.margin4 (px 0) (px 6) (px 0) (px 6)
+        , Css.minWidth (px 33)
+        , Css.height (px 17)
+        , outline none
+        , Css.checked [backgroundImage (url "sort_arrow_down_selected.svg")]
+        ]
+
+
+sortingSelectCss : Style
+sortingSelectCss =
+    batch
+        [ Css.property "-moz-appearance" "none"
+        , Css.property "-webkit-appearance" "none"
+        , border3 (px 1) solid (hex "ffffff")
+        , backgroundImage (url "select_arrow_down.svg")
+        , backgroundColor (hex "000000")
+        , Css.color (hex "#ffffff")
+        , backgroundRepeat noRepeat
+        , Css.property "background-position" "right 5px center"
+        , Css.fontFamily inherit
+        , Css.height (px 23)
+        , paddingLeft (px 6)
+        , margin4 (px 0) (px 12) (px 0) (px 12)
+        , Css.letterSpacing (px 0.5)
+        , Css.width  (px 116)
+        , Css.minWidth  (px 88)
+        , Css.fontSize (px 14)
+        ]
+
+
 sortInput : Html Msg
 sortInput =
-    div []
-        [ span [] [ text "sort by" ]
-        , select [ onInput SortBy ]
+    div
+        [ css
+            [ displayFlex
+            , alignItems center
+            , fontWeight bold
+            , borderTop2 (px 1) solid
+            , fontSize (px 20)
+            , maxWidth (pct 50)
+            , Css.height (px 46)
+            , justifyContent flexEnd
+            , boxSizing borderBox
+            , padding4 (px 0) (pct 8) (px 4) (px 0)
+            ]
+        ]
+        [ span [ css [ marginRight auto, whiteSpace noWrap ] ] [ text "sort by" ]
+        , select [ onInput SortBy, css [sortingSelectCss] ]
             [ option [ value "duration" ] [ text "duration" ]
             , option [ value "title" ] [ text "title" ]
             ]
-        , button [ onClick (Sort Ascending) ] [ text "asc" ]
-        , button [ onClick (Sort Descending) ] [ text "desc" ]
+        , input [ type_ "radio"
+                , name "sort"
+                , onClick (Sort Ascending)
+                , css [ sortingArrowCss ]
+                ]
+                []
+        , input [ type_ "radio"
+                , name "sort"
+                , onClick (Sort Descending)
+                , css [ sortingArrowCss
+                      , Css.property "-webkit-transform" "rotate(180deg)"
+                      ]
+                ]
+                []
+        ]
+
+
+patchMetaCss =
+    batch
+        [ displayFlex
+        , flex (num 1.06)
+        , textDecoration none
+        , color inherit
+        , alignItems baseline
+        , justifyContent spaceBetween
+        ]
+
+
+patchTitleCss =
+    batch
+        [ flex (num 1)
+        , whiteSpace noWrap
+        , lineHeight (px 62)
+        , letterSpacing (px 0)
+        , marginRight (px 10)
+        ]
+
+
+patchMediaCss =
+    batch
+        [ displayFlex
+        , flex (num 1)
+        , alignItems center
+        ]
+
+
+patchInfoCss =
+    batch
+        [ flex (num 2)
+        , marginRight (px 19)
+        , fontSize (px 14)
+        , displayFlex
+        , maxWidth (px 275)
+        , flexDirection (column)
+        ]
+
+
+patchItemCss : Style
+patchItemCss =
+    batch
+        [ displayFlex
+        , color (hex "ffffff")
+        , fontWeight bold
+        , borderTop2 (px 1) solid
+        , marginRight (pct 3.125)
+        , borderColor theBlue
         ]
 
 
 patchItem : Model -> P.Patch -> Html Msg
 patchItem model patch =
-    div [ css [ display block, Css.height (px 90) ] ]
+    div [ css [ patchItemCss ] ]
         [ patchMeta patch
         , patchMedia model patch
         ]
@@ -160,16 +281,15 @@ patchItem model patch =
 
 patchMedia : Model -> P.Patch -> Html Msg
 patchMedia model patch =
-    div [ patchMediaCss ]
-        [ playButton patch
-        , div [ css [ Css.width (px 320), Css.height (px 90) ] ]
+    div [ css [ patchMediaCss ] ]
+        [ div
+            [ css [ Css.width (px 64), Css.height (px 64) ] ]
+            [ playButton patch ]
+        , div
+            [ css [ Css.width auto, Css.height (px 90), marginLeft (px 9) ] ]
             [ waveformSeeker patch ]
         , audioNode model patch
         ]
-
-
-patchMediaCss =
-    css [ display block, Css.height (pct 100), float left ]
 
 
 patchMeta : P.Patch -> Html Msg
@@ -184,12 +304,11 @@ patchMeta p =
         patchUrl =
             "patch/" ++ p.title
     in
-    a [ href patchUrl, css [ Css.width (pct 50), Css.height (pct 100), display block, float left ] ]
-        [ div [ css [ Css.width (pct 33), float left ] ]
+    a [ href patchUrl, css [ patchMetaCss ] ]
+        [ div [ css  [ patchTitleCss ] ]
             [ text p.title ]
-        , div [ css [ Css.width (pct 66), float left ] ]
-            [ text durationText
-            , br [] []
-            , text attribs
+        , div [ css [ patchInfoCss ] ]
+            [ div [ css [lineHeight (num 1.2), marginBottom (px 7) ] ] [ text durationText ]
+            , div [ css [lineHeight (num 1.15), marginBottom (px 10) ] ] [ text attribs ]
             ]
         ]
