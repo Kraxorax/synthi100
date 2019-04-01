@@ -32,13 +32,8 @@ type alias Model =
 initModel : Key -> Model
 initModel key =
     { navKey = key
-    , currentRoute = PatchGraphical "20190325-001"
-    -- , currentRoute = Database
-    -- , audioPinModel = PinTable.initModel
-    , audioPinModel =
-        { hoverPin = ( 1, 1 )
-        , activePin = ( 1, 1 )
-        }
+    , currentRoute = Database
+    , audioPinModel = PinTable.initModel
     , controlPinModel = PinTable.initModel
     , circleFill = "#0000ff"
     , hoverKnob = ( -1, -1 )

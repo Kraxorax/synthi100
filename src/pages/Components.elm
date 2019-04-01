@@ -71,8 +71,8 @@ volumeInputCss =
         , displayFlex
         , justifyContent flexEnd
         , alignItems center
-        , fontWeight bold
-        , fontSize (px 20)
+        , Css.fontWeight bold
+        , Css.fontSize (px 20)
         , borderTop2 (px 1) solid
         , Css.height (px 46), Css.maxWidth (pct 50)
         ]
@@ -80,30 +80,24 @@ volumeInputCss =
 
 volumeInput : Bool -> Html Msg
 volumeInput muted =
-    div [ css [ volumeInputCss ] ]
-        [ span [css [ marginRight auto ]] [ text "volume" ]
+    div [ HSA.css [ volumeInputCss ] ]
+        [ span [HSA.css [ marginRight auto ]] [ HS.text "volume" ]
         , input
-            [ css [ volumeSliderCss ]
-            , type_ "range"
+            [ HSA.css [ volumeSliderCss ]
+            , HSA.type_ "range"
             , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
             ]
             [ ]
         , input
-            [ css [ muteButtonCss ]
-            , type_ "checkbox"
+            [ HSA.css [ muteButtonCss ]
+            , HSA.type_ "checkbox"
             , HSA.checked (not muted)
-            , onClick (Mute (not muted))
+            , HS.onClick (Mute (not muted))
             ]
             [ ]
-
-
-volumeInput : Html Msg
-volumeInput =
-    div []
-        [ span [] [ HS.text "volume" ]
-        , input [ HSA.type_ "range", onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange) ] []
-        , button [] [ HS.text "mute" ]
         ]
+
+
 
 
 waveformSeeker : Patch -> Html Msg
