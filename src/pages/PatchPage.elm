@@ -93,7 +93,7 @@ waveOrGraph model patchTitle =
         [ a [ href waveTextUrl, css [ Css.float left, linkUnstyle ] ]
             [ img [ src "/wave-textual.svg", css [ marginBottom (px 10) ] ] []
             , br [] []
-            , span [] [ text "wave / textual" ]
+            , span [] [ text "audio / text" ]
             ]
         , a [ href graphicalUrl, css [ Css.float right, linkUnstyle ] ]
             [ span [] [ text "graphical" ]
@@ -222,7 +222,7 @@ controls model patch =
                 , borderBottom2 (px 1) solid
                 ]
             ]
-            [ text "Textual" ]
+            [ text "Audio / Text" ]
         , div
             [ css
                 [ Css.height (px 60)
@@ -289,7 +289,7 @@ waveAndText : Model -> Patch -> Html Msg
 waveAndText model patch =
     div [ css [ Css.width (pct 66), float left ] ]
         [ div [ css [ Css.width (pct 100), Css.height (px 386), marginBottom (px 15) ] ]
-            [ waveformSeeker patch ]
+            [ waveformSeeker True patch ]
         , div [ css [ backgroundColor (hex "c8c8c8"), padding2 (px 35) (px 42) ] ]
             [ HS.pre
                 [ css
@@ -361,20 +361,6 @@ parameters model patch =
                 ]
             ]
             [ span [ css [ headerCss, display inlineBlock, marginTop (px 18) ] ] [ text "Parameters" ] ]
-        , div
-            [ css
-                [ Css.height (px 28)
-                , color (hex "d8d8d8")
-                , borderBottom3 (px 2) solid (hex "000")
-                , fontSize (px 18)
-                , fontWeight (int 500)
-                , letterSpacing (px 1.4)
-                , padding2 (px 10) (px 0)
-                ]
-            ]
-            [ div [ css [ float left ] ] [ circ ]
-            , div [ css [ marginLeft (px 40), marginTop (px 4), width (pct 50) ] ] [ text "NAME / VALUE" ]
-            ]
         , knob model patch
         ]
 

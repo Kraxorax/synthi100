@@ -42,7 +42,7 @@ pinRadius =
 
 
 margin =
-    24
+    30
 
 
 type Panel
@@ -209,7 +209,7 @@ pinNumberY ( i, o ) =
             coordsToPinPos ( i, o )
     in
     Svg.text_
-        [ dx "8"
+        [ dx "15"
         , dy y
         , textAnchor "middle"
         , fontFamily "Metropolis"

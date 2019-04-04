@@ -287,7 +287,7 @@ patchMedia model patch =
             [ playButton patch ]
         , div
             [ css [ Css.width auto, Css.height (px 90), marginLeft (px 9) ] ]
-            [ waveformSeeker patch ]
+            [ waveformSeeker False patch ]
         , audioNode model patch
         ]
 

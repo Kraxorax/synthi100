@@ -100,9 +100,11 @@ volumeInput muted =
 
 
 
-waveformSeeker : Patch -> Html Msg
-waveformSeeker patch =
+waveformSeeker : Bool -> Patch -> Html Msg
+waveformSeeker isBig patch =
     let
+        bgSource = if isBig then patch.waveformBig else patch.waveformSmall
+
         seekerPosition =
             patch.audioModel
                 |> Maybe.map
@@ -137,7 +139,7 @@ waveformSeeker patch =
             , Css.float left
             ]
         ]
-        [ img [ src patch.waveformSmall, HSA.css [ Css.width (pct 100), Css.height (pct 100) ] ] []
+        [ img [ src bgSource, HSA.css [ Css.width (pct 100), Css.height (pct 100) ] ] []
         , seeker
         ]
 

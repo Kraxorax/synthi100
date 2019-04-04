@@ -43,7 +43,7 @@ init : () -> Url -> Key -> ( Model, Cmd Msg )
 init _ url key =
     let
         mdl =
-            Model.initModel key
+            Model.initModel url key
 
         cmd =
             Cmd.batch

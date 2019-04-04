@@ -2,9 +2,10 @@ module Model exposing (AttrFilter, Model, PinConnection, SortDirection(..), init
 
 import AudioModel exposing (AudioModel)
 import Browser.Navigation exposing (Key)
+import Url exposing (Url)
 import Patch as P
 import PinTable
-import Routing exposing (Route(..))
+import Routing exposing (Route(..), urlToRoute)
 import SynthiSchema as SS
 import ViewModel exposing (..)
 
@@ -29,10 +30,10 @@ type alias Model =
     }
 
 
-initModel : Key -> Model
-initModel key =
+initModel : Url -> Key -> Model
+initModel url key =
     { navKey = key
-    , currentRoute = Database
+    , currentRoute = urlToRoute url
     , audioPinModel = PinTable.initModel
     , controlPinModel = PinTable.initModel
     , circleFill = "#0000ff"
