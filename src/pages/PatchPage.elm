@@ -4,7 +4,7 @@ import Components exposing (..)
 import Css exposing (..)
 import Css.Global exposing (body, global)
 import Html.Styled as HS exposing (..)
-import Html.Styled.Attributes exposing (css, href, src, type_)
+import Html.Styled.Attributes exposing (css, href, src, type_, download)
 import Html.Styled.Events exposing (..)
 import Knob exposing (..)
 import List.Extra exposing (find)
@@ -121,8 +121,7 @@ linkUnstyle =
     batch
         [ color (hex "fff")
         , textDecoration none
-        , display block
-        , textAlign center
+        , display inlineBlock
         ]
 
 
@@ -213,16 +212,25 @@ controls model patch =
             , audioNode model patch
             , patchMeta patch
             ]
-        , h1
+        , div
             [ css
                 [ padding2 (px 18) (px 0)
                 , margin (px 0)
-                , headerCss
                 , borderTop2 (px 1) solid
                 , borderBottom2 (px 1) solid
+                , displayFlex
+                , alignItems center
                 ]
             ]
-            [ text "Audio / Text" ]
+            [ dlBttn
+            , a [ href patch.download
+                , download patch.download
+                , css [ linkUnstyle
+                    , paddingLeft (px 15)
+                    ]
+                ] 
+                [ text "download audio + text"] 
+            ]
         , div
             [ css
                 [ Css.height (px 60)

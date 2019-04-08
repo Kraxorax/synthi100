@@ -1,4 +1,4 @@
-module Styles exposing (circ, next, prev, theBlue, vi, xBox)
+module Styles exposing (circ, next, prev, theBlue, vi, xBox, dlBttn)
 
 
 import Css exposing (..)
@@ -76,4 +76,12 @@ vi pos =
     svg [ Svg.width "264px", Svg.height "40px" ]
         [ rect [ Svg.x "0px", Svg.y "18px", Svg.width "264px", Svg.height "4px", Svg.fill "white" ] []
         , rect [ Svg.x x, Svg.y "0px", Svg.width "10px", Svg.height "40px", Svg.fill "#4a90e2", Svg.stroke "black" ] []
+        ]
+
+
+dlBttn =
+    svg [ Svg.width "20", Svg.height "20"]
+        [ rect [x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill "#fff"] []
+        , line [x1 "4", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2"] []
+        , line [x1 "16", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2"] []
         ]
