@@ -7,7 +7,7 @@ import Browser
 import Browser.Navigation exposing (Key, load, pushUrl)
 import CreditsPage
 import Css exposing (..)
-import Css.Global exposing (body, global)
+import Css.Global exposing (body, global, selector)
 import Debug
 import Header exposing (header)
 import HomePage
@@ -595,6 +595,13 @@ globalCSS =
             , fontFamilies [ "Metropolis" ]
             , maxWidth (px 1440)
             , margin auto
+            , displayFlex
+            , flexDirection column
+            , height (pct 100)
+            ]
+        , selector "html"
+            [
+                height (pct 100)
             ]
         ]
 

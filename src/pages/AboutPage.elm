@@ -10,10 +10,11 @@ import Msg exposing (Msg)
 
 page : Model -> Html Msg
 page model =
-    div [ css [ Css.displayFlex, width (pct 100), color (hex "000"), fontSize (px 12) ] ]
+    div [ css [ Css.displayFlex, flex auto, width (pct 100), color (hex "000"), fontSize (px 14) ] ]
         [ div [ css [ flex (int 1), backgroundColor (hex "9b9b9b"), padding4 (px 30) (px 58) (px 5) (px 30) ] ]
             [ div [ css [ headerCss, width (pct 100) ] ]
                 [ span [] [ text "Credits" ] ]
+            , credits
             ]
         , div [ css [ flex (int 2), backgroundColor (hex "c8c8c8"), padding4 (px 30) (px 58) (px 5) (px 30) ] ]
             [ div [ css [ headerCss, width (pct 40) ] ]
@@ -35,6 +36,27 @@ headerCss =
         , boxSizing borderBox
         ]
 
+credits =
+    div [ css [color (hex "ffffff")]] 
+        [ p [] [ text "SYNTHI ON THE WEB TEAM:" ]
+        , br [] []
+        , p [] [ text "Ksenija Stevanović - Project leader" ]
+        , p [] [ text "Svetlana Maraš - User interface design, project co-ordinator" ]
+        , p [] [ text "Bojan Petrović, Marko Kralj - Software development" ]
+        , p [] [ text "Andrej Dolinka - Graphic design" ]
+        , br [] [] , hr [ css [borderColor (hex "ffffff")]] [] , br [] []
+        , div [ css [fontWeight bold]] 
+            [ p [] [ text "CONTRIBUTING ARTISTS FOR THE SOUND DATABASE:" ]
+            , br [] []
+            , p [] [ text "Paul Pignon" ]
+            , p [] [ text "Paul Oomen" ]
+            , p [] [ text "Derek Holzer" ]
+            , p [] [ text "Nicola Ratti" ]
+            , p [] [ text "Robert Lippok" ]
+            , p [] [ text "Rastko Lazić" ]
+            ]
+        , br [] [] , hr [css [borderColor (hex "ffffff")]] [] , br [] []
+        ]
 
 theText : Html msg
 theText =
@@ -44,13 +66,4 @@ theText =
         , p [] [ text "In this way, the vast possibilities of EMS SYNTHI 100 are made more transparent for the general public whose access to this rare instrument is limited." ]
         , p [] [ text "This website is part of the ongoing research of the Electronic Music Studio of Radio Belgrade and Radio Belgrade 3 into the creative possibilities of EMS SYNTHI 100,  sharing its rich heritage with professionals and enthusiasts worldwide, while emphasizing the educational and creative potential of such projects within the sphere of modern radio and beyond." ]
         , p [] [ text "This is an ongoing project initiated in 2017 and supported by the EBU Innovation Fund." ]
-        , br [] []
-        , p [] [ text "SYNTHI ON THE WEB TEAM:" ]
-        , br [] []
-        , p [] [ text "Ksenija Stevanović - Project leader" ]
-        , p [] [ text "Svetlana Maraš - User interface design, project co-ordinator" ]
-        , p [] [ text "Bojan Petrović, Marko Kralj - Software development" ]
-        , p [] [ text "Andrej Dolinka - Graphic design" ]
-        , br [] []
-        , p [] [ text "CONTRIBUTING ARTISTS FOR THE SOUND DATABASE: Paul Pignon, Paul Oomen, Derek Holzer, Nicola Ratti, Robert Lippok, Rastko Lazić" ]
         ]
