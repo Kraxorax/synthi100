@@ -168,7 +168,7 @@ update msg model =
                         filters =
                             schema.attributes
                                 |> List.map
-                                    (\attr -> AttrFilter attr.name attr.values)
+                                    (\attr -> AttrFilter attr.name [])
                     in
                     ( { model | synthiSchema = Just schema, attributeFilters = filters }, Cmd.none )
 

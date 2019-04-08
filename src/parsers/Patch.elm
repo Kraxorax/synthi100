@@ -9,10 +9,12 @@ import Maybe.Extra exposing (isJust)
 
 type alias Patch =
     { soundUrl : String
+    , download: String
     , waveformSmall : String
     , waveformBig : String
     , title : String
     , duration : Float
+    , attributes: Attributes
     , attributeValues : List String
     , score : String
     , audioPins : List Pin
@@ -52,6 +54,14 @@ type alias Switch =
     }
 
 
+type alias Attributes =
+    { type_: String
+    , quality: String
+    , range: String
+    , complexity: String
+    }
+
+
 patchesDecoder : Decoder (List Patch)
 patchesDecoder =
     list patchDecoder
@@ -61,10 +71,12 @@ patchDecoder : Decoder Patch
 patchDecoder =
     succeed Patch
         |> required "sound_url" string
+        |> required "download" string
         |> required "waveform_small" string
         |> required "waveform_big" string
         |> required "title" string
         |> required "duration" float
+        |> required "attributes" attirbutesDecoder
         |> required "attribute_values" (list string)
         |> required "score" string
         |> required "audio_pins" (list pinDecoder)
@@ -125,18 +137,37 @@ controlType =
     index 1 (maybe (field "position" float))
 
 
+attirbutesDecoder : Decoder Attributes
+attirbutesDecoder =
+    succeed Attributes
+        |> required "type" string
+        |> required "quality" string
+        |> required "range" string
+        |> required "complexity" string
+
+
 noPatch =
     { soundUrl = ""
+    , download = ""
     , waveformSmall = ""
     , waveformBig = ""
     , title = ""
     , duration = -0.1
+    , attributes = noAttributes
     , attributeValues = []
     , score = ""
     , audioPins = []
     , controlPins = []
     , moduleSettings = []
     , audioModel = Nothing
+    }
+
+
+noAttributes =
+    { type_ = ""
+    , quality = ""
+    , range = ""
+    , complexity = ""
     }
 
 
