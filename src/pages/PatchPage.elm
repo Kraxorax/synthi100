@@ -403,14 +403,20 @@ knob model patch =
             ]
         , div [ css [ marginBottom (px 22) ] ]
             [ HS.map (\kmsg -> InputKnobEvent kmsg) (controlsToKnobSvg False im.controls) ]
-        , div [ css [ Css.position Css.relative ] ]
-            [ div [ css [ Css.width (pct 44), display inlineBlock, Css.position Css.absolute, top (px 12) ] ]
+        
+        , div
+            [ css
+                [ Css.width (pct 100)
+                , margin2 (px 15) (px 0)
+                ]
+            ]
+            [ div [ css [ Css.width (pct 50), display inlineBlock, textAlign center ] ]
                 [ span [] [ text om.name ] ]
-            , div [ css [ Css.width (pct 12), display inlineBlock, Css.position Css.absolute, left (pct 42) ] ]
-                [ HS.map (\kmsg -> OutputKnobEvent kmsg) (controlsToKnobSvg True om.controls) ]
-            , div [ css [ Css.width (pct 44), display inlineBlock, textAlign right, Css.position Css.absolute, left (pct 50), top (px 12) ] ]
+            , div [ css [ Css.width (pct 50), display inlineBlock, textAlign center ] ]
                 [ span [] [ text (oac |> Maybe.withDefault "") ] ]
             ]
+        , div [ ]
+                [ HS.map (\kmsg -> OutputKnobEvent kmsg) (controlsToKnobSvg False om.controls) ]
         ]
 
 
