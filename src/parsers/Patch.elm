@@ -5,6 +5,7 @@ import Json.Decode exposing (..)
 import Json.Decode.Extra exposing (optionalField, when, withDefault)
 import Json.Decode.Pipeline exposing (hardcoded, optional, optionalAt, required, requiredAt)
 import Maybe.Extra exposing (isJust)
+import String exposing (padLeft)
 
 
 type alias Patch =
@@ -184,6 +185,7 @@ durationToTime dur =
         d = round dur
         mins = d // 60
         secs = d - (mins * 60)
+        pad2 = padLeft 2 '0'
     in
-        (mins |> String.fromInt) ++ ":" ++ (secs |> String.fromInt)
+        (mins |> String.fromInt |> pad2)  ++ ":" ++ (secs |> String.fromInt |> pad2)
     
