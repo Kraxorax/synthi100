@@ -104,6 +104,10 @@ waveformSeeker isBig patch =
     let
         bgSource = if isBig then patch.waveformBig else patch.waveformSmall
 
+        seekerColor = hex (if isBig then "000000" else "ffffff")
+
+        bgColorAttribs = if isBig then [backgroundColor theBlue] else []
+
         seekerPosition =
             patch.audioModel
                 |> Maybe.map
@@ -117,7 +121,7 @@ waveformSeeker isBig patch =
                     [ HSA.css
                         [ Css.height (pct 100)
                         , Css.width (px 1)
-                        , backgroundColor (hex "ffffff")
+                        , backgroundColor seekerColor
                         , Css.position absolute
                         , top (px 0)
                         , left (pct (seekerPosition |> Maybe.withDefault 0))
@@ -132,11 +136,13 @@ waveformSeeker isBig patch =
     div
         [ HS.on "click" (JD.map (Seek patch) mouseDecoder)
         , HSA.css
-            [ Css.width (pct 100)
-            , Css.height (pct 100)
-            , Css.position relative
-            , Css.float left
-            ]
+            (
+                [ Css.width (pct 100)
+                , Css.height (pct 100)
+                , Css.position relative
+                , Css.float left
+                ] ++ bgColorAttribs
+            )
         ]
         [ img [ src bgSource, HSA.css [ Css.width (pct 100), Css.height (pct 100) ] ] []
         , seeker
