@@ -10,7 +10,6 @@ type Route
     = Database
     | Patch String
     | PatchGraphical String
-    | Credits
     | About
 
 
@@ -30,6 +29,5 @@ route =
         [ map Database (s "database")
         , map PatchGraphical (s "patch" </> string </> s "graphical")
         , map Patch (s "patch" </> string)
-        , map Credits (s "credits")
         , map About (s "about")
         ]

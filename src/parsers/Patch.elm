@@ -1,4 +1,4 @@
-module Patch exposing (Control(..), ModuleSettings, Patch, Pin, noPatch, patchesDecoder)
+module Patch exposing (Control(..), ModuleSettings, Patch, Pin, noPatch, patchesDecoder, durationToTime)
 
 import AudioModel exposing (AudioModel)
 import Json.Decode exposing (..)
@@ -176,3 +176,14 @@ noPin =
     , out = -1
     , color = ""
     }
+
+
+durationToTime : Float -> String
+durationToTime dur =
+    let
+        d = round dur
+        mins = d // 60
+        secs = d - (mins * 60)
+    in
+        (mins |> String.fromInt) ++ ":" ++ (secs |> String.fromInt)
+    

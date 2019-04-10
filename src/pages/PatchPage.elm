@@ -171,7 +171,7 @@ ppVolumeInput model =
             ]
             []
         , span [] [ text "volume" ]
-        , muteBttn model.muted
+        , muteBttn (model.volume == 0)
         ]
 
 
@@ -180,15 +180,14 @@ muteBttn isMute =
     let
         url =
             if isMute then
-                "/unmute.svg"
+                "/mute.svg"
 
             else
-                "/mute.svg"
+                "/unmute.svg"
     in
     img
         [ src url
         , css [ Css.float right, marginTop (px -10) ]
-        , onClick (Mute (not isMute))
         ]
         []
 
@@ -289,7 +288,7 @@ patchMeta : Patch -> Html Msg
 patchMeta patch =
     div [ css [ Css.height (px 182) ] ]
         [ h1 [ css [ Css.fontSize (px 48) ] ] [ text patch.title ]
-        , p [ css [ marginBottom (px 20) ] ] [ text ("duration: " ++ (patch.duration |> String.fromFloat)) ]
+        , p [ css [ marginBottom (px 20) ] ] [ text ("duration: " ++ (durationToTime patch.duration )) ]
         , p [ css [ marginBottom (px 20) ] ] [ text (patch.attributeValues |> String.join " / ") ]
         ]
 

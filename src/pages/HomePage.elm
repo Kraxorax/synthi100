@@ -127,7 +127,7 @@ patchesList model =
             ]
         ]
         (sortInput
-            :: volumeInput model.muted
+            :: volumeInput (model.volume == 0)
             :: patchItems
         )
 
@@ -308,7 +308,7 @@ patchMeta : P.Patch -> Html Msg
 patchMeta p =
     let
         durationText =
-            "duration: " ++ (p.duration |> String.fromFloat) ++ " sec"
+            "duration: " ++ (P.durationToTime p.duration)
 
         attribs =
             p.attributeValues |> String.join " / "

@@ -58,8 +58,8 @@ muteButtonCss =
         , Css.height (px 28)
         , minWidth (px 33)
         , margin (px 2)
-        , Css.checked [ backgroundImage (url "/mute.svg") ]
-        , backgroundImage (url "/unmute.svg")
+        , Css.checked [ backgroundImage (url "/unmute.svg") ]
+        , backgroundImage (url "/mute.svg")
         ]
 
 
@@ -92,7 +92,6 @@ volumeInput muted =
             [ HSA.css [ muteButtonCss ]
             , HSA.type_ "checkbox"
             , HSA.checked (not muted)
-            , HS.onClick (Mute (not muted))
             ]
             [ ]
         ]
@@ -155,18 +154,12 @@ audioNode model patch =
                 Nothing ->
                     False
 
-        volume =
-            if model.muted then
-                0
-
-            else
-                model.volume
     in
     if playing then
         audio
             [ HSA.id patch.title
             , src patch.soundUrl
-            , HAE.volume volume |> HSA.fromUnstyled
+            , HAE.volume model.volume |> HSA.fromUnstyled
             , onEnded (Ended patch) |> HSA.fromUnstyled
             , onTimeUpdate (TimeUpdate patch) |> HSA.fromUnstyled
             ]

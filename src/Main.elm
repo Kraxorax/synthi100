@@ -5,7 +5,6 @@ import Array
 import AudioModel exposing (emptyAudioModel)
 import Browser
 import Browser.Navigation exposing (Key, load, pushUrl)
-import CreditsPage
 import Css exposing (..)
 import Css.Global exposing (body, global, selector)
 import Debug
@@ -366,9 +365,6 @@ update msg model =
         VolumeChange vol ->
             ( { model | volume = vol / 100 }, Cmd.none )
 
-        Mute is ->
-            ( { model | muted = is }, Cmd.none )
-
         SortBy sortBy ->
             let
                 sortedPatches =
@@ -555,9 +551,6 @@ view model =
 
                 PatchGraphical patchTitle ->
                     PatchPage.page True patchTitle model
-
-                Credits ->
-                    CreditsPage.page model
 
                 About ->
                     AboutPage.page model

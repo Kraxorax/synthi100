@@ -16,8 +16,6 @@ type alias Model =
     , scroll : Int
     , hoverKnob : ( Int, Int )
     , pinModel : PinTable.PinModel
-    -- , audioPinModel : PinTable.PinModel
-    -- , controlPinModel : PinTable.PinModel
     , synthiSchema : Maybe SS.SynthiSchema
     , patches : Maybe (List P.Patch)
     , error : Maybe String
@@ -25,7 +23,6 @@ type alias Model =
     , attributeFilters : List AttrFilter
     , activeControl : ( Maybe String, Maybe String )
     , volume : Float
-    , muted : Bool
     , sortOrder : SortDirection
     , sortBy : String
     }
@@ -37,8 +34,6 @@ initModel url key =
     , currentRoute = urlToRoute url
     , scroll = 0
     , pinModel = PinTable.initModel
-    -- , audioPinModel = PinTable.initModel
-    -- , controlPinModel = PinTable.initModel
     , hoverKnob = ( -1, -1 )
     , synthiSchema = Nothing
     , patches = Nothing
@@ -47,7 +42,6 @@ initModel url key =
     , attributeFilters = []
     , activeControl = ( Nothing, Nothing )
     , volume = 0.5
-    , muted = False
     , sortOrder = Ascending
     , sortBy = "title"
     }

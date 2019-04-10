@@ -9,6 +9,7 @@ import Patch as P
 import Svg.Styled as Svg exposing (..)
 import Svg.Styled.Attributes as Svg exposing (..)
 import Svg.Styled.Events as Svg exposing (..)
+import Css as Css
 import SynthiSchema as SS
 import Tuple exposing (first, second)
 
@@ -130,6 +131,7 @@ pinSvg ( xp, yp ) fillColor strokeColor model =
         , onMouseOver (PinIn ( xp, yp ))
         , onMouseOut PinOut
         , onMouseDown (PinClick ( xp, yp ))
+        , css [ Css.cursor Css.pointer ]
         ]
         []
 
