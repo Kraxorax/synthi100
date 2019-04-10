@@ -159,7 +159,7 @@ sortingArrowCss =
     batch
         [ Css.property "-webkit-appearance" "none"
         , Css.property "-moz-appearance" "none"
-        , backgroundImage (url "sort_arrow_down.svg")
+        , backgroundImage (url "/sort_arrow_down.svg")
         , backgroundColor transparent
         , backgroundRepeat noRepeat
         , Css.width (px 33)
@@ -167,7 +167,7 @@ sortingArrowCss =
         , Css.minWidth (px 33)
         , Css.height (px 17)
         , outline none
-        , Css.checked [backgroundImage (url "sort_arrow_down_selected.svg")]
+        , Css.checked [backgroundImage (url "/sort_arrow_down_selected.svg")]
         ]
 
 
@@ -177,7 +177,7 @@ sortingSelectCss =
         [ Css.property "-moz-appearance" "none"
         , Css.property "-webkit-appearance" "none"
         , border3 (px 1) solid (hex "ffffff")
-        , backgroundImage (url "select_arrow_down.svg")
+        , backgroundImage (url "/select_arrow_down.svg")
         , backgroundColor (hex "000000")
         , Css.color (hex "#ffffff")
         , backgroundRepeat noRepeat
