@@ -10,13 +10,13 @@ import Patch as P
 import PinTable exposing (Panel, PinMsg)
 import SynthiSchema as SS
 import Url exposing (Url)
-import Scroll exposing (ScrollEvent)
+-- import Scroll exposing (ScrollEvent)
 
 
 type Msg
     = UpdateUrl Url
     | RequestedUrl UrlRequest
-    | Scroll ScrollEvent
+    | Scroll Int
     | InputKnobEvent KnobMsg
     | OutputKnobEvent KnobMsg
     | PinEvent PinMsg

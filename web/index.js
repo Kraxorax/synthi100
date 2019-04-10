@@ -9,9 +9,6 @@ const app = Elm.Main.init({
   flags: {}
 });
 
-console.log(app)
-
-
 /**
  *  Audio Player
  */
@@ -29,7 +26,6 @@ if (!!app.ports.setCurrentTime) {
     const time = idAndTime[1];
     const audio = document.getElementById(id);
     audio.currentTime = time;
-    console.log("JS set time:", id, time)
   });
 }
 
@@ -38,12 +34,15 @@ app.ports.play.subscribe((id) => {
   stopAll();
   const audio = document.getElementById(id);
   audio.play();
-  console.log("JS play:", id)
 });
 
 // Subscribe to pause messages
 app.ports.pause.subscribe((id) => {
   const audio = document.getElementById(id);
   audio.pause();
-  console.log("JS pause:", id)
 });
+
+
+window.onscroll = function(e) {
+  app.ports.scrollPort.send(e.target.scrollingElement.scrollTop)
+}

@@ -13,7 +13,7 @@ import ViewModel exposing (..)
 type alias Model =
     { navKey : Key
     , currentRoute : Route
-    , circleFill : String
+    , scroll : Int
     , hoverKnob : ( Int, Int )
     , pinModel : PinTable.PinModel
     , audioPinModel : PinTable.PinModel
@@ -35,10 +35,10 @@ initModel : Url -> Key -> Model
 initModel url key =
     { navKey = key
     , currentRoute = urlToRoute url
+    , scroll = 0
     , pinModel = PinTable.initModel
     , audioPinModel = PinTable.initModel
     , controlPinModel = PinTable.initModel
-    , circleFill = "#0000ff"
     , hoverKnob = ( -1, -1 )
     , synthiSchema = Nothing
     , patches = Nothing

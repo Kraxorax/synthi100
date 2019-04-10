@@ -20,7 +20,6 @@ import SynthiSchema as SS
 import Url as Url
 import Url.Builder as Url exposing (absolute, relative)
 import ViewModel exposing (Control(..), Knob, Module)
-import Scroll exposing (onScroll)
 
 page : Bool -> String -> Model -> Html Msg
 page showGraphical patchTitle model =
@@ -32,11 +31,11 @@ page showGraphical patchTitle model =
 
         ( view, bgColor ) =
             if showGraphical then
-                ( [ graphical model patch, cssHaxor ], "9b9b9b" )
+                ( [ graphical model patch ], "9b9b9b" )
 
             else
                 ( controls model patch
-                    :: [ waveAndText model patch, cssHaxor ]
+                    :: [ waveAndText model patch ]
                 , "000"
                 )
     in
@@ -48,6 +47,7 @@ page showGraphical patchTitle model =
             , backgroundColor (hex bgColor)
             , backgroundClip paddingBox
             , displayFlex
+            , flex (int 1)
             ]
         ]
         view
@@ -316,9 +316,12 @@ waveAndText model patch =
 
 graphical : Model -> Patch -> Html Msg
 graphical model patch =
-    div [ css [ displayFlex, Css.width (pct 100) ] ]
+    div [ css [ displayFlex, Css.width (pct 100), flex (int 1) ] ]
         [ graphicControls model patch
-        , div [ css [ flex (int 2) ] ]
+        , div   [ css 
+                    [ flex (int 2)
+                    ]
+                ]
             [ pin model patch
             , outputChannels model patch
             ]
@@ -343,6 +346,14 @@ controlsGraphicalCss =
 
 graphicControls : Model -> Patch -> Html Msg
 graphicControls model patch =
+    let
+        header = if model.scroll < 800 then
+                    "Audio signals"
+                else if model.scroll < 1300 then
+                    "Control voltages"
+                else
+                    "Output channels"
+    in
     div [ css [ controlsGraphicalCss ] ]
         [ waveOrGraph model patch.title
         , div
@@ -352,7 +363,8 @@ graphicControls model patch =
                 , borderBottom3 (px 2) solid (hex "000")
                 ]
             ]
-            [ span [ css [ headerCss, display inlineBlock, marginTop (px 18) ] ] [ text "Audio signals" ] ]
+            [ span [ css [ headerCss, display inlineBlock, marginTop (px 18) ] ] 
+                [ text header ] ]
         , patchMeta patch
         , parameters model patch
         ]
@@ -453,18 +465,6 @@ ctrlHldr isVert ctrl =
 pin : Model -> Patch -> HS.Html Msg
 pin model patch =
     let
-        -- ( audioInModuleText, audioOutModuleText ) =
-        --     model.synthiSchema
-        --         |> Maybe.map
-        --             (getModulesText Audio model.audioPinModel)
-        --         |> Maybe.withDefault ( "", "" )
-
-        -- ( controlInModuleText, controlOutModuleText ) =
-        --     model.synthiSchema
-        --         |> Maybe.map
-        --             (getModulesText Control model.controlPinModel)
-        --         |> Maybe.withDefault ( "", "" )
-
         ( inModuleText, outModuleText ) =
             model.synthiSchema
                 |> Maybe.map
@@ -482,10 +482,6 @@ pin model patch =
             ]
         , div [ css [ marginBottom (px 40) ] ] 
             [ HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins audioModel) ]
-        -- , div [ css [ Css.height (px 58) ] ]
-        --     [ moduleStrip controlOutModuleText (px 40) (px 0)
-        --     , moduleStrip controlInModuleText (px 0) (px -14)
-        --     ]
         , div [ css [ marginBottom (px 40) ] ] 
             [ HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins controlModel) ]
         ]
@@ -509,18 +505,6 @@ moduleStrip txt rm tm =
         ]
         [ span [ css [ display inlineBlock, margin2 (px 23) (px 0), float left ] ] [ text txt ]
         ]
-
-
--- dots4 : Html PinMsg
--- dots4 =
---     Svg.svg [ Svg.width "72", Svg.height "50" ]
---         (List.range 0 3 |> List.map (\x -> pinSvg ( x, 0 ) "" Nothing initModel))
-
-
--- dots3 : Html PinMsg
--- dots3 =
---     Svg.svg [ Svg.width "72", Svg.height "70" ]
---         (List.range 0 2 |> List.map (\y -> pinSvg ( 0, y ) "" Nothing initModel))
 
 
 outputChannels : Model -> Patch -> HS.Html Msg

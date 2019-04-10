@@ -32,6 +32,7 @@ import Routing exposing (Route(..), urlToRoute)
 import SynthiSchema as SS
 import Url exposing (Url)
 import ViewModel as VM
+import Scroll exposing (..)
 
 
 type alias Flags =
@@ -71,9 +72,9 @@ getPatches =
         }
 
 
-subs : Model -> Sub msg
+subs : Model -> Sub Msg
 subs model =
-    Sub.none
+    scrollPort Scroll
 
 
 main =
@@ -102,11 +103,7 @@ update msg model =
                     ( model, load href )
 
         Scroll se ->
-            let
-                _ = Debug.log "se" se
-            in
-            
-            (model, Cmd.none)
+            ({model | scroll = se}, Cmd.none)
 
         MovePatch patch step ->
             let
