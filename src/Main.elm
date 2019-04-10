@@ -12,6 +12,7 @@ import Debug
 import Header exposing (header)
 import HomePage
 import Html as H
+import Html.Events as HE
 import Html.Attributes as HA
 import Html.Styled exposing (Html, audio, node, text)
 import Html.Styled.Attributes exposing (controls, id, type_)
@@ -99,6 +100,13 @@ update msg model =
 
                 Browser.External href ->
                     ( model, load href )
+
+        Scroll se ->
+            let
+                _ = Debug.log "se" se
+            in
+            
+            (model, Cmd.none)
 
         MovePatch patch step ->
             let
@@ -198,18 +206,22 @@ update msg model =
                                 ( im, om ) =
                                     pinToModules panel schema patch ( x, y )
                             in
-                            case panel of
-                                PinTable.Audio ->
-                                    { model
-                                        | activeModules = Just ( im, om )
-                                        , audioPinModel = setActivePin ( x, y ) model.audioPinModel
-                                    }
+                            { model
+                                | activeModules = Just ( im, om )
+                                , pinModel = setActivePin panel ( x, y ) model.controlPinModel
+                            }
+                            -- case panel of
+                            --     PinTable.Audio ->
+                            --         { model
+                            --             | activeModules = Just ( im, om )
+                            --             , audioPinModel = setActivePin ( x, y ) model.audioPinModel
+                            --         }
 
-                                PinTable.Control ->
-                                    { model
-                                        | activeModules = Just ( im, om )
-                                        , controlPinModel = setActivePin ( x, y ) model.controlPinModel
-                                    }
+                            --     PinTable.Control ->
+                            --         { model
+                            --             | activeModules = Just ( im, om )
+                            --             , controlPinModel = setActivePin ( x, y ) model.controlPinModel
+                            --         }
                         )
                         model.synthiSchema
                         model.patches
@@ -223,25 +235,29 @@ update msg model =
                     model.synthiSchema
                         |> Maybe.map
                             (\schema ->
-                                case pin of
-                                    PinTable.Audio ->
-                                        { model
-                                            | audioPinModel = setHoverPin ( x, y ) model.audioPinModel
-                                        }
+                                { model
+                                    | pinModel = setHoverPin pin ( x, y ) model.pinModel
+                                }
+                                -- case pin of
+                                --     PinTable.Audio ->
+                                --         { model
+                                --             | audioPinModel = setHoverPin ( x, y ) model.audioPinModel
+                                --         }
 
-                                    PinTable.Control ->
-                                        { model
-                                            | controlPinModel = setHoverPin ( x, y ) model.controlPinModel
-                                        }
+                                --     PinTable.Control ->
+                                --         { model
+                                --             | controlPinModel = setHoverPin ( x, y ) model.controlPinModel
+                                --         }
                             )
                         |> Maybe.withDefault model
             in
             ( mdl, Cmd.none )
 
-        Msg.PinOut ->
+        Msg.PinOut panel ->
             ( { model
-                | controlPinModel = setHoverPin ( -1, -1 ) model.controlPinModel
-                , audioPinModel = setHoverPin ( -1, -1 ) model.audioPinModel
+                -- | controlPinModel = setHoverPin ( -1, -1 ) model.controlPinModel
+                -- , audioPinModel = setHoverPin ( -1, -1 ) model.audioPinModel
+                | pinModel = setHoverPin panel ( -1, -1) model.pinModel
               }
             , Cmd.none
             )
@@ -619,3 +635,4 @@ fontImport =
             font-weight: bold;
         }
     """ ]
+

@@ -59,6 +59,7 @@ type PinMsg
 type alias PinModel =
     { hoverPin : ( Int, Int )
     , activePin : ( Int, Int )
+    , panel : Panel
     }
 
 
@@ -66,6 +67,7 @@ initModel : PinModel
 initModel =
     { hoverPin = ( -1, -1 )
     , activePin = ( -1, -1 )
+    , panel = Audio
     }
 
 
@@ -82,14 +84,17 @@ update msg model =
             { model | activePin = ( x, y ) }
 
 
-setActivePin : ( Int, Int ) -> PinModel -> PinModel
-setActivePin xy model =
-    { model | activePin = xy }
+setActivePin : Panel -> ( Int, Int ) -> PinModel -> PinModel
+setActivePin panel xy model =
+    { model | activePin = xy, panel = panel }
 
 
-setHoverPin : ( Int, Int ) -> PinModel -> PinModel
-setHoverPin xy model =
-    { model | hoverPin = xy }
+setHoverPin : Panel -> ( Int, Int ) -> PinModel -> PinModel
+setHoverPin panel xy model =
+    if panel == model.panel then
+        { model | hoverPin = xy }
+    else
+        { model | hoverPin = xy, activePin = ( -1, -1), panel = panel }
 
 
 pinSvg : ( Int, Int ) -> String -> Maybe String -> PinModel -> Svg PinMsg

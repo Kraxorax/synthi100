@@ -20,7 +20,7 @@ import SynthiSchema as SS
 import Url as Url
 import Url.Builder as Url exposing (absolute, relative)
 import ViewModel exposing (Control(..), Knob, Module)
-
+import Scroll exposing (onScroll)
 
 page : Bool -> String -> Model -> Html Msg
 page showGraphical patchTitle model =
@@ -47,6 +47,7 @@ page showGraphical patchTitle model =
             , Css.paddingTop (px 18)
             , backgroundColor (hex bgColor)
             , backgroundClip paddingBox
+            , displayFlex
             ]
         ]
         view
@@ -224,7 +225,7 @@ controls model patch =
             ]
             [ dlBttn
             , a [ href patch.download
-                , download patch.download
+                , download ""
                 , css [ linkUnstyle
                     , paddingLeft (px 15)
                     ]
@@ -315,9 +316,9 @@ waveAndText model patch =
 
 graphical : Model -> Patch -> Html Msg
 graphical model patch =
-    div [ css [ float left, Css.width (pct 100) ] ]
+    div [ css [ displayFlex, Css.width (pct 100) ] ]
         [ graphicControls model patch
-        , div [ css [ Css.width (pct 66), float right ] ]
+        , div [ css [ flex (int 2) ] ]
             [ pin model patch
             , outputChannels model patch
             ]
@@ -331,8 +332,8 @@ controlsGraphicalCss =
         , fontWeight bold
         , letterSpacing (px 0.5)
         , color (hex "fff")
-        , Css.width (pct 33)
-        , float left
+        , flex (int 1)
+        , alignSelf flexStart
         , maxWidth (px 390)
         , marginRight (px 55)
         , position sticky
@@ -452,34 +453,46 @@ ctrlHldr isVert ctrl =
 pin : Model -> Patch -> HS.Html Msg
 pin model patch =
     let
-        ( audioInModuleText, audioOutModuleText ) =
+        -- ( audioInModuleText, audioOutModuleText ) =
+        --     model.synthiSchema
+        --         |> Maybe.map
+        --             (getModulesText Audio model.audioPinModel)
+        --         |> Maybe.withDefault ( "", "" )
+
+        -- ( controlInModuleText, controlOutModuleText ) =
+        --     model.synthiSchema
+        --         |> Maybe.map
+        --             (getModulesText Control model.controlPinModel)
+        --         |> Maybe.withDefault ( "", "" )
+
+        ( inModuleText, outModuleText ) =
             model.synthiSchema
                 |> Maybe.map
-                    (getModulesText Audio model.audioPinModel)
+                    (getModulesText model.pinModel)
                 |> Maybe.withDefault ( "", "" )
 
-        ( controlInModuleText, controlOutModuleText ) =
-            model.synthiSchema
-                |> Maybe.map
-                    (getModulesText Control model.controlPinModel)
-                |> Maybe.withDefault ( "", "" )
+        (audioModel, controlModel) = case model.pinModel.panel of
+                                        Audio -> ( model.pinModel, PinTable.initModel )
+                                        Control -> ( PinTable.initModel, model.pinModel )
     in
     div [ css [ Css.width (px 760) ] ]
-        [ div [ css [ Css.height (px 58) ] ]
-            [ moduleStrip audioOutModuleText (px 40) (px 0) dots4
-            , moduleStrip audioInModuleText (px 0) (px -14) dots3
+        [ div [ css [ Css.height (px 58), position sticky, top (px 0), paddingTop (px 18), paddingLeft (px 10), backgroundColor (hex "9b9b9b") ] ]
+            [ moduleStrip outModuleText (px 40) (px 0)
+            , moduleStrip inModuleText (px 0) (px -14)
             ]
-        , div [ css [ marginBottom (px 40) ] ] [ HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins model.audioPinModel) ]
-        , div [ css [ Css.height (px 58) ] ]
-            [ moduleStrip controlOutModuleText (px 40) (px 0) dots4
-            , moduleStrip controlInModuleText (px 0) (px -14) dots3
-            ]
-        , div [ css [ marginBottom (px 40) ] ] [ HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins model.controlPinModel) ]
+        , div [ css [ marginBottom (px 40) ] ] 
+            [ HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins audioModel) ]
+        -- , div [ css [ Css.height (px 58) ] ]
+        --     [ moduleStrip controlOutModuleText (px 40) (px 0)
+        --     , moduleStrip controlInModuleText (px 0) (px -14)
+        --     ]
+        , div [ css [ marginBottom (px 40) ] ] 
+            [ HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins controlModel) ]
         ]
 
 
-moduleStrip : String -> Px -> Px -> Html PinMsg -> Html Msg
-moduleStrip txt rm tm dots =
+moduleStrip : String -> Px -> Px -> Html Msg
+moduleStrip txt rm tm =
     div
         [ css
             [ Css.height (px 50)
@@ -494,22 +507,20 @@ moduleStrip txt rm tm dots =
             , letterSpacing (px 1.4)
             ]
         ]
-        [ div [ css [ display inlineBlock, marginLeft (px -20), marginTop tm, float left ] ]
-            [ dots |> HS.map (\pm -> PinEvent pm) ]
-        , span [ css [ display inlineBlock, margin2 (px 23) (px 0), float left ] ] [ text txt ]
+        [ span [ css [ display inlineBlock, margin2 (px 23) (px 0), float left ] ] [ text txt ]
         ]
 
 
-dots4 : Html PinMsg
-dots4 =
-    Svg.svg [ Svg.width "72", Svg.height "50" ]
-        (List.range 0 3 |> List.map (\x -> pinSvg ( x, 0 ) "" Nothing initModel))
+-- dots4 : Html PinMsg
+-- dots4 =
+--     Svg.svg [ Svg.width "72", Svg.height "50" ]
+--         (List.range 0 3 |> List.map (\x -> pinSvg ( x, 0 ) "" Nothing initModel))
 
 
-dots3 : Html PinMsg
-dots3 =
-    Svg.svg [ Svg.width "72", Svg.height "70" ]
-        (List.range 0 2 |> List.map (\y -> pinSvg ( 0, y ) "" Nothing initModel))
+-- dots3 : Html PinMsg
+-- dots3 =
+--     Svg.svg [ Svg.width "72", Svg.height "70" ]
+--         (List.range 0 2 |> List.map (\y -> pinSvg ( 0, y ) "" Nothing initModel))
 
 
 outputChannels : Model -> Patch -> HS.Html Msg
@@ -611,11 +622,11 @@ reactToAudioPinEvent p pinMsg =
             Msg.PinHover p ( x, y )
 
         PinTable.PinOut ->
-            Msg.PinOut
+            Msg.PinOut p
 
 
-getModulesText : Panel -> PinModel -> SS.SynthiSchema -> ( String, String )
-getModulesText panel pm ss =
+getModulesText : PinModel -> SS.SynthiSchema -> ( String, String )
+getModulesText pm ss =
     let
         ( inModuleIndex, outModuleIndex ) =
             pm.hoverPin
@@ -623,8 +634,8 @@ getModulesText panel pm ss =
         ( inModulePosition, outModulePosition ) =
             coordsToPinPos pm.hoverPin
 
-        p =
-            case panel of
+        p = 
+            case pm.panel of
                 Audio ->
                     ss.audioPanel
 

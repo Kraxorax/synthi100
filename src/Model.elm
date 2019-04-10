@@ -15,6 +15,7 @@ type alias Model =
     , currentRoute : Route
     , circleFill : String
     , hoverKnob : ( Int, Int )
+    , pinModel : PinTable.PinModel
     , audioPinModel : PinTable.PinModel
     , controlPinModel : PinTable.PinModel
     , synthiSchema : Maybe SS.SynthiSchema
@@ -34,6 +35,7 @@ initModel : Url -> Key -> Model
 initModel url key =
     { navKey = key
     , currentRoute = urlToRoute url
+    , pinModel = PinTable.initModel
     , audioPinModel = PinTable.initModel
     , controlPinModel = PinTable.initModel
     , circleFill = "#0000ff"
