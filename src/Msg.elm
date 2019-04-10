@@ -10,7 +10,6 @@ import Patch as P
 import PinTable exposing (Panel, PinMsg)
 import SynthiSchema as SS
 import Url exposing (Url)
--- import Scroll exposing (ScrollEvent)
 
 
 type Msg

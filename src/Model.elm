@@ -16,8 +16,8 @@ type alias Model =
     , scroll : Int
     , hoverKnob : ( Int, Int )
     , pinModel : PinTable.PinModel
-    , audioPinModel : PinTable.PinModel
-    , controlPinModel : PinTable.PinModel
+    -- , audioPinModel : PinTable.PinModel
+    -- , controlPinModel : PinTable.PinModel
     , synthiSchema : Maybe SS.SynthiSchema
     , patches : Maybe (List P.Patch)
     , error : Maybe String
@@ -37,8 +37,8 @@ initModel url key =
     , currentRoute = urlToRoute url
     , scroll = 0
     , pinModel = PinTable.initModel
-    , audioPinModel = PinTable.initModel
-    , controlPinModel = PinTable.initModel
+    -- , audioPinModel = PinTable.initModel
+    -- , controlPinModel = PinTable.initModel
     , hoverKnob = ( -1, -1 )
     , synthiSchema = Nothing
     , patches = Nothing

@@ -21,7 +21,7 @@ colors =
 
 
 noValue =
-    "-"
+    "–"
 
 
 hoverColor =
@@ -56,7 +56,7 @@ simpleKnobSvg knob =
     in
     svg
         [ width "40"
-        , height "40"
+        , height "41"
         , viewBox "0 0 40 40"
         , onMouseOver (KnobHover knob.name)
         , onMouseOut KnobOut
@@ -66,6 +66,7 @@ simpleKnobSvg knob =
             , cy "20"
             , r "20"
             , fill knobColor
+            , stroke colors.enabled
             ]
             []
         , text_
@@ -101,7 +102,7 @@ simpleSwitchSvg switch =
     in
     svg
         [ width "40"
-        , height "40"
+        , height "41"
         , viewBox "0 0 40 40"
         , onMouseOver (KnobHover switch.name)
         , onMouseOut KnobOut
@@ -110,6 +111,7 @@ simpleSwitchSvg switch =
             [ width "40"
             , height "40"
             , fill knobColor
+            , stroke colors.enabled
             ]
             []
         , text_

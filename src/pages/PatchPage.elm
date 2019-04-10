@@ -385,12 +385,17 @@ parameters model patch =
         , knob model patch
         ]
 
+knobInfoStyle : Style
+knobInfoStyle = 
+    batch [
+        borderBottom3 (px 1) solid (hex "d8d8d8"), paddingBottom (px 10), height (px 15)
+    ]
 
 knob : Model -> Patch -> Html Msg
 knob model patch =
     let
         ( im, om ) =
-            model.activeModules |> Maybe.withDefault ( Module "" [], Module "" [] )
+            model.activeModules |> Maybe.withDefault ( Module " " [], Module " " [] )
 
         ( iac, oac ) =
             model.activeControl
@@ -409,12 +414,12 @@ knob model patch =
                 , margin2 (px 15) (px 0)
                 ]
             ]
-            [ div [ css [ Css.width (pct 50), display inlineBlock, textAlign center ] ]
+            [ div [ css [ knobInfoStyle ] ]
                 [ span [] [ text im.name ] ]
-            , div [ css [ Css.width (pct 50), display inlineBlock, textAlign center ] ]
-                [ span [] [ text (iac |> Maybe.withDefault "") ] ]
+            , div [ css [ knobInfoStyle, paddingTop (px 10) ] ]
+                [ span [] [ text (iac |> Maybe.withDefault " ") ] ]
             ]
-        , div [ css [ marginBottom (px 22) ] ]
+        , div [ css [ marginBottom (px 22), height (px 43) ] ]
             [ HS.map (\kmsg -> InputKnobEvent kmsg) (controlsToKnobSvg False im.controls) ]
         
         , div
@@ -423,12 +428,12 @@ knob model patch =
                 , margin2 (px 15) (px 0)
                 ]
             ]
-            [ div [ css [ Css.width (pct 50), display inlineBlock, textAlign center ] ]
+            [ div [ css [ knobInfoStyle, borderTop3 (px 1) solid (hex "d8d8d8"), paddingTop (px 10) ] ]
                 [ span [] [ text om.name ] ]
-            , div [ css [ Css.width (pct 50), display inlineBlock, textAlign center ] ]
+            , div [ css [ knobInfoStyle, paddingTop (px 10) ] ]
                 [ span [] [ text (oac |> Maybe.withDefault "") ] ]
             ]
-        , div [ ]
+        , div [ css [ height (px 43) ] ]
                 [ HS.map (\kmsg -> OutputKnobEvent kmsg) (controlsToKnobSvg False om.controls) ]
         ]
 

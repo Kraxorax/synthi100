@@ -205,20 +205,8 @@ update msg model =
                             in
                             { model
                                 | activeModules = Just ( im, om )
-                                , pinModel = setActivePin panel ( x, y ) model.controlPinModel
+                                , pinModel = setActivePin panel ( x, y ) model.pinModel
                             }
-                            -- case panel of
-                            --     PinTable.Audio ->
-                            --         { model
-                            --             | activeModules = Just ( im, om )
-                            --             , audioPinModel = setActivePin ( x, y ) model.audioPinModel
-                            --         }
-
-                            --     PinTable.Control ->
-                            --         { model
-                            --             | activeModules = Just ( im, om )
-                            --             , controlPinModel = setActivePin ( x, y ) model.controlPinModel
-                            --         }
                         )
                         model.synthiSchema
                         model.patches
@@ -235,26 +223,13 @@ update msg model =
                                 { model
                                     | pinModel = setHoverPin pin ( x, y ) model.pinModel
                                 }
-                                -- case pin of
-                                --     PinTable.Audio ->
-                                --         { model
-                                --             | audioPinModel = setHoverPin ( x, y ) model.audioPinModel
-                                --         }
-
-                                --     PinTable.Control ->
-                                --         { model
-                                --             | controlPinModel = setHoverPin ( x, y ) model.controlPinModel
-                                --         }
                             )
                         |> Maybe.withDefault model
             in
             ( mdl, Cmd.none )
 
         Msg.PinOut panel ->
-            ( { model
-                -- | controlPinModel = setHoverPin ( -1, -1 ) model.controlPinModel
-                -- , audioPinModel = setHoverPin ( -1, -1 ) model.audioPinModel
-                | pinModel = setHoverPin panel ( -1, -1) model.pinModel
+            ( { model | pinModel = setHoverPin panel ( -1, -1) model.pinModel
               }
             , Cmd.none
             )
