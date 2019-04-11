@@ -59,7 +59,8 @@ waveOrGraphCss =
         [ borderTop2 (px 1) solid
         , borderBottom2 (px 1) solid
         , padding2 (px 12) (px 0)
-        , height (px 56)
+        , displayFlex
+        , justifyContent spaceBetween
         ]
 
 
@@ -69,7 +70,8 @@ waveOrGraphBlackCss =
         [ borderTop3 (px 2) solid (hex "000")
         , borderBottom3 (px 2) solid (hex "000")
         , padding2 (px 12) (px 0)
-        , height (px 56)
+        , displayFlex
+        , justifyContent spaceBetween
         ]
 
 
@@ -91,12 +93,12 @@ waveOrGraph model patchTitle =
                     waveOrGraphCss
     in
     div [ css [ wogCss ] ]
-        [ a [ href waveTextUrl, css [ Css.float left, linkUnstyle ] ]
+        [ a [ href waveTextUrl, css [ linkUnstyle ] ]
             [ img [ src "/wave-textual.svg", css [ marginBottom (px 10) ] ] []
             , br [] []
             , span [] [ text "audio / text" ]
             ]
-        , a [ href graphicalUrl, css [ Css.float right, linkUnstyle ] ]
+        , a [ href graphicalUrl, css [ linkUnstyle ] ]
             [ span [] [ text "graphical" ]
             , img [ src "/graphical.svg", css [ marginLeft (px 18) ] ] []
             ]
@@ -122,16 +124,12 @@ linkUnstyle =
     batch
         [ color (hex "fff")
         , textDecoration none
-        , display inlineBlock
         ]
 
 
 audioControlsCss : Style
 audioControlsCss =
-    batch
-        [ height (px 280)
-        , padding2 (px 20) (px 0)
-        ]
+    batch [  padding2 (px 20) (px 0) ]
 
 
 ppVICss : Style
@@ -220,6 +218,7 @@ controls model patch =
                 , borderBottom2 (px 1) solid
                 , displayFlex
                 , alignItems center
+                , marginTop (px 30)
                 ]
             ]
             [ dlBttn
@@ -286,7 +285,7 @@ nextBttn msg =
 
 patchMeta : Patch -> Html Msg
 patchMeta patch =
-    div [ css [ Css.height (px 182) ] ]
+    div [ ]
         [ h1 [ css [ Css.fontSize (px 48) ] ] [ text patch.title ]
         , p [ css [ marginBottom (px 20) ] ] [ text ("duration: " ++ (durationToTime patch.duration )) ]
         , p [ css [ marginBottom (px 20) ] ] [ text (patch.attributeValues |> String.join " / ") ]
