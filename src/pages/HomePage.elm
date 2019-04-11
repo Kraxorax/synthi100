@@ -126,7 +126,7 @@ patchesList model =
             , fontSize (px 20)
             ]
         ]
-        (sortInput
+        (sortInput model
             :: volumeInput (model.volume == 0)
             :: patchItems
         )
@@ -193,8 +193,12 @@ sortingSelectCss =
         ]
 
 
-sortInput : Html Msg
-sortInput =
+sortInput : Model -> Html Msg
+sortInput model =
+    let
+       sortedBy s = model.sortBy == s
+       isAscending = model.sortOrder == Ascending
+    in
     div
         [ css
             [ displayFlex
@@ -211,11 +215,12 @@ sortInput =
         ]
         [ span [ css [ marginRight auto, whiteSpace noWrap ] ] [ text "sort by" ]
         , select [ onInput SortBy, css [sortingSelectCss] ]
-            [ option [ value "duration" ] [ text "duration" ]
-            , option [ value "title" ] [ text "title" ]
+            [ option [ value "duration", selected (sortedBy "duration")] [ text "duration" ]
+            , option [ value "title", selected (sortedBy "title")] [ text "title" ]
             ]
         , input [ type_ "radio"
                 , name "sort"
+                , HSA.checked isAscending
                 , onClick (Sort Ascending)
                 , css [ sortingArrowCss ]
                 ]
@@ -223,6 +228,7 @@ sortInput =
         , input [ type_ "radio"
                 , name "sort"
                 , onClick (Sort Descending)
+                , HSA.checked (not isAscending)
                 , css [ sortingArrowCss
                       , Css.property "-webkit-transform" "rotate(180deg)"
                       ]
