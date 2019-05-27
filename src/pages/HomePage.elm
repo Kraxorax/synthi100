@@ -23,8 +23,8 @@ import SynthiSchema exposing (Attribute)
 page : Model -> Html Msg
 page model =
     div [ css [ displayFlex ] ]
-        [ div [ css [ flex (num 1)]] [filterList model]
-        , div [css  [ flex (num 2)]] [patchesList model]
+        [ div [ css [ flex (num 1) ] ] [ filterList model ]
+        , div [ css [ flex (num 2) ] ] [ patchesList model ]
         ]
 
 
@@ -116,11 +116,13 @@ patchesList model =
             model.attributeFilters |> List.concatMap (\f -> f.selected)
 
         patchItems =
-            ps |> filterPatches model.attributeFilters
+            ps
+                |> filterPatches model.attributeFilters
                 |> List.map
                     (\p -> patchItem model p)
     in
-    div [ css
+    div
+        [ css
             [ marginTop (px 18)
             , letterSpacing (px 0.5)
             , fontSize (px 20)
@@ -134,24 +136,44 @@ patchesList model =
 
 filterPatches : List AttrFilter -> List P.Patch -> List P.Patch
 filterPatches afs ps =
-    ps |> List.filter (\p ->
-        let
-            selTypes = afs |> List.Extra.find (\a -> a.attrName == "type") |> Maybe.withDefault {attrName="", selected=[]}
-            selQuality = afs |> List.Extra.find (\a -> a.attrName == "quality") |> Maybe.withDefault {attrName="", selected=[]}
-            selRange = afs |> List.Extra.find (\a -> a.attrName == "range") |> Maybe.withDefault {attrName="", selected=[]}
-            selComplexity = afs |> List.Extra.find (\a -> a.attrName == "complexity") |> Maybe.withDefault {attrName="", selected=[]}
+    ps
+        |> List.filter
+            (\p ->
+                let
+                    selTypes =
+                        afs |> List.Extra.find (\a -> a.attrName == "type") |> Maybe.withDefault { attrName = "", selected = [] }
 
-            passType = (selTypes.selected |> List.length) == 0 
-                || (selTypes.selected |> (List.Extra.findIndex (\s -> s == p.attributes.type_)) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
-            passQuality = (selQuality.selected |> List.length) == 0 
-                || (selQuality.selected |> (List.Extra.findIndex (\s -> s == p.attributes.quality)) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
-            passRange = (selRange.selected |> List.length) == 0 
-                || (selRange.selected |> (List.Extra.findIndex (\s -> s == p.attributes.range)) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
-            passComplexity = (selComplexity.selected |> List.length) == 0 
-                || (selComplexity.selected |> (List.Extra.findIndex (\s -> s == p.attributes.complexity)) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
-        in
-            passType && passQuality && passRange && passComplexity
-    )
+                    selQuality =
+                        afs |> List.Extra.find (\a -> a.attrName == "quality") |> Maybe.withDefault { attrName = "", selected = [] }
+
+                    selRange =
+                        afs |> List.Extra.find (\a -> a.attrName == "range") |> Maybe.withDefault { attrName = "", selected = [] }
+
+                    selComplexity =
+                        afs |> List.Extra.find (\a -> a.attrName == "complexity") |> Maybe.withDefault { attrName = "", selected = [] }
+
+                    passType =
+                        (selTypes.selected |> List.length)
+                            == 0
+                            || (selTypes.selected |> List.Extra.findIndex (\s -> s == p.attributes.type_) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
+
+                    passQuality =
+                        (selQuality.selected |> List.length)
+                            == 0
+                            || (selQuality.selected |> List.Extra.findIndex (\s -> s == p.attributes.quality) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
+
+                    passRange =
+                        (selRange.selected |> List.length)
+                            == 0
+                            || (selRange.selected |> List.Extra.findIndex (\s -> s == p.attributes.range) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
+
+                    passComplexity =
+                        (selComplexity.selected |> List.length)
+                            == 0
+                            || (selComplexity.selected |> List.Extra.findIndex (\s -> s == p.attributes.complexity) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
+                in
+                passType && passQuality && passRange && passComplexity
+            )
 
 
 sortingArrowCss : Style
@@ -167,7 +189,7 @@ sortingArrowCss =
         , Css.minWidth (px 33)
         , Css.height (px 17)
         , outline none
-        , Css.checked [backgroundImage (url "/sort_arrow_down_selected.svg")]
+        , Css.checked [ backgroundImage (url "/sort_arrow_down_selected.svg") ]
         ]
 
 
@@ -187,8 +209,8 @@ sortingSelectCss =
         , paddingLeft (px 6)
         , margin4 (px 0) (px 12) (px 0) (px 12)
         , Css.letterSpacing (px 0.5)
-        , Css.width  (px 116)
-        , Css.minWidth  (px 88)
+        , Css.width (px 116)
+        , Css.minWidth (px 88)
         , Css.fontSize (px 14)
         ]
 
@@ -196,8 +218,11 @@ sortingSelectCss =
 sortInput : Model -> Html Msg
 sortInput model =
     let
-       sortedBy s = model.sortBy == s
-       isAscending = model.sortOrder == Ascending
+        sortedBy s =
+            model.sortBy == s
+
+        isAscending =
+            model.sortOrder == Ascending
     in
     div
         [ css
@@ -214,26 +239,29 @@ sortInput model =
             ]
         ]
         [ span [ css [ marginRight auto, whiteSpace noWrap ] ] [ text "sort by" ]
-        , select [ onInput SortBy, css [sortingSelectCss] ]
-            [ option [ value "duration", selected (sortedBy "duration")] [ text "duration" ]
-            , option [ value "title", selected (sortedBy "title")] [ text "title" ]
+        , select [ onInput SortBy, css [ sortingSelectCss ] ]
+            [ option [ value "duration", selected (sortedBy "duration") ] [ text "duration" ]
+            , option [ value "title", selected (sortedBy "title") ] [ text "title" ]
             ]
-        , input [ type_ "radio"
-                , name "sort"
-                , HSA.checked isAscending
-                , onClick (Sort Ascending)
-                , css [ sortingArrowCss ]
+        , input
+            [ type_ "radio"
+            , name "sort"
+            , HSA.checked isAscending
+            , onClick (Sort Ascending)
+            , css [ sortingArrowCss ]
+            ]
+            []
+        , input
+            [ type_ "radio"
+            , name "sort"
+            , onClick (Sort Descending)
+            , HSA.checked (not isAscending)
+            , css
+                [ sortingArrowCss
+                , Css.property "-webkit-transform" "rotate(180deg)"
                 ]
-                []
-        , input [ type_ "radio"
-                , name "sort"
-                , onClick (Sort Descending)
-                , HSA.checked (not isAscending)
-                , css [ sortingArrowCss
-                      , Css.property "-webkit-transform" "rotate(180deg)"
-                      ]
-                ]
-                []
+            ]
+            []
         ]
 
 
@@ -251,10 +279,12 @@ patchMetaCss =
 patchTitleCss =
     batch
         [ flex (num 1)
+        , minWidth (px 150)
         , whiteSpace noWrap
-        , lineHeight (px 62)
         , letterSpacing (px 0)
         , marginRight (px 10)
+        , Css.height (pct 100)
+        , marginTop (px 32)
         ]
 
 
@@ -269,11 +299,9 @@ patchMediaCss =
 patchInfoCss =
     batch
         [ flex (num 2)
-        , marginRight (px 19)
         , fontSize (px 14)
         , displayFlex
-        , maxWidth (px 275)
-        , flexDirection (column)
+        , flexDirection column
         ]
 
 
@@ -292,15 +320,17 @@ patchItemCss =
 patchItem : Model -> P.Patch -> Html Msg
 patchItem model patch =
     div [ css [ patchItemCss ] ]
-        [ patchMeta patch
-        , patchMedia model patch
+        [ patchMedia model patch
+        , patchMeta patch
         ]
 
 
 patchMedia : Model -> P.Patch -> Html Msg
 patchMedia model patch =
     div [ css [ patchMediaCss ] ]
-        [ div
+        [ div [ css [ patchTitleCss ] ]
+            [ text patch.title ]
+        , div
             [ css [ Css.width (px 64), Css.height (px 64) ] ]
             [ playButton patch ]
         , div
@@ -314,7 +344,7 @@ patchMeta : P.Patch -> Html Msg
 patchMeta p =
     let
         durationText =
-            "duration: " ++ (P.durationToTime p.duration)
+            P.durationToTime p.duration
 
         attribs =
             p.attributeValues |> String.join " / "
@@ -323,10 +353,13 @@ patchMeta p =
             "patch/" ++ p.title
     in
     a [ href patchUrl, css [ patchMetaCss ] ]
-        [ div [ css  [ patchTitleCss ] ]
-            [ text p.title ]
-        , div [ css [ patchInfoCss ] ]
-            [ div [ css [lineHeight (num 1.2), marginBottom (px 7) ] ] [ text durationText ]
-            , div [ css [lineHeight (num 1.15), marginBottom (px 10) ] ] [ text attribs ]
+        [ div [ css [ patchInfoCss ] ]
+            [ div [ css [ displayFlex, marginTop (px 8), borderBottom3 (px 1) solid (hex "333") ] ]
+                [ div [ css [ lineHeight (num 1.2), minWidth (px 45), margin4 (px 0) (px 10) (px 7) (px 0), padding4 (px 5) (px 10) (px 0) (px 0), borderRight3 (px 2) solid theBlue ] ]
+                    [ text durationText ]
+                , div [ css [ lineHeight (num 1.2), marginBottom (px 10), paddingTop (px 5) ] ]
+                    [ text attribs ]
+                ]
+            , div [] [ text "linki" ]
             ]
         ]
