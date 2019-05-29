@@ -4,7 +4,7 @@ import Components exposing (..)
 import Css exposing (..)
 import Css.Global exposing (body, global)
 import Html.Styled as HS exposing (..)
-import Html.Styled.Attributes exposing (css, href, src, type_, download)
+import Html.Styled.Attributes exposing (css, download, href, src, type_)
 import Html.Styled.Events exposing (..)
 import Knob exposing (..)
 import List.Extra exposing (find)
@@ -20,6 +20,7 @@ import SynthiSchema as SS
 import Url as Url
 import Url.Builder as Url exposing (absolute, relative)
 import ViewModel exposing (Control(..), Knob, Module)
+
 
 page : Bool -> String -> Model -> Html Msg
 page showGraphical patchTitle model =
@@ -119,17 +120,12 @@ controlsCss =
         ]
 
 
-linkUnstyle : Style
-linkUnstyle =
-    batch
-        [ color (hex "fff")
-        , textDecoration none
-        ]
+
 
 
 audioControlsCss : Style
 audioControlsCss =
-    batch [  padding2 (px 20) (px 0) ]
+    batch [ padding2 (px 20) (px 0) ]
 
 
 ppVICss : Style
@@ -221,14 +217,16 @@ controls model patch =
                 , marginTop (px 30)
                 ]
             ]
-            [ dlBttn
-            , a [ href patch.download
+            [ downBttn
+            , a
+                [ href patch.download
                 , download ""
-                , css [ linkUnstyle
+                , css
+                    [ linkUnstyle
                     , paddingLeft (px 15)
                     ]
-                ] 
-                [ text "download audio + text"] 
+                ]
+                [ text "download audio + text" ]
             ]
         , div
             [ css
@@ -285,9 +283,9 @@ nextBttn msg =
 
 patchMeta : Patch -> Html Msg
 patchMeta patch =
-    div [ ]
+    div []
         [ h1 [ css [ Css.fontSize (px 48) ] ] [ text patch.title ]
-        , p [ css [ marginBottom (px 20) ] ] [ text ("duration: " ++ (durationToTime patch.duration )) ]
+        , p [ css [ marginBottom (px 20) ] ] [ text ("duration: " ++ durationToTime patch.duration) ]
         , p [ css [ marginBottom (px 20) ] ] [ text (patch.attributeValues |> String.join " / ") ]
         ]
 
@@ -316,10 +314,11 @@ graphical : Model -> Patch -> Html Msg
 graphical model patch =
     div [ css [ displayFlex, Css.width (pct 100), flex (int 1) ] ]
         [ graphicControls model patch
-        , div   [ css 
-                    [ flex (int 2)
-                    ]
+        , div
+            [ css
+                [ flex (int 2)
                 ]
+            ]
             [ pin model patch
             , outputChannels model patch
             ]
@@ -345,12 +344,15 @@ controlsGraphicalCss =
 graphicControls : Model -> Patch -> Html Msg
 graphicControls model patch =
     let
-        header = if model.scroll < 800 then
-                    "Audio signals"
-                else if model.scroll < 1300 then
-                    "Control voltages"
-                else
-                    "Output channels"
+        header =
+            if model.scroll < 800 then
+                "Audio signals"
+
+            else if model.scroll < 1300 then
+                "Control voltages"
+
+            else
+                "Output channels"
     in
     div [ css [ controlsGraphicalCss ] ]
         [ waveOrGraph model patch.title
@@ -361,8 +363,9 @@ graphicControls model patch =
                 , borderBottom3 (px 2) solid (hex "000")
                 ]
             ]
-            [ span [ css [ headerCss, display inlineBlock, marginTop (px 18) ] ] 
-                [ text header ] ]
+            [ span [ css [ headerCss, display inlineBlock, marginTop (px 18) ] ]
+                [ text header ]
+            ]
         , patchMeta patch
         , parameters model patch
         ]
@@ -383,11 +386,15 @@ parameters model patch =
         , knob model patch
         ]
 
+
 knobInfoStyle : Style
-knobInfoStyle = 
-    batch [
-        borderBottom3 (px 1) solid (hex "d8d8d8"), paddingBottom (px 10), height (px 15)
-    ]
+knobInfoStyle =
+    batch
+        [ borderBottom3 (px 1) solid (hex "d8d8d8")
+        , paddingBottom (px 10)
+        , height (px 15)
+        ]
+
 
 knob : Model -> Patch -> Html Msg
 knob model patch =
@@ -419,7 +426,6 @@ knob model patch =
             ]
         , div [ css [ marginBottom (px 22), height (px 43) ] ]
             [ HS.map (\kmsg -> InputKnobEvent kmsg) (controlsToKnobSvg False im.controls) ]
-        
         , div
             [ css
                 [ Css.width (pct 100)
@@ -432,7 +438,7 @@ knob model patch =
                 [ span [] [ text (oac |> Maybe.withDefault "") ] ]
             ]
         , div [ css [ height (px 43) ] ]
-                [ HS.map (\kmsg -> OutputKnobEvent kmsg) (controlsToKnobSvg False om.controls) ]
+            [ HS.map (\kmsg -> OutputKnobEvent kmsg) (controlsToKnobSvg False om.controls) ]
         ]
 
 
@@ -474,18 +480,22 @@ pin model patch =
                     (getModulesText model.pinModel)
                 |> Maybe.withDefault ( "", "" )
 
-        (audioModel, controlModel) = case model.pinModel.panel of
-                                        Audio -> ( model.pinModel, PinTable.initModel )
-                                        Control -> ( PinTable.initModel, model.pinModel )
+        ( audioModel, controlModel ) =
+            case model.pinModel.panel of
+                Audio ->
+                    ( model.pinModel, PinTable.initModel )
+
+                Control ->
+                    ( PinTable.initModel, model.pinModel )
     in
     div [ css [ Css.width (px 760) ] ]
         [ div [ css [ Css.height (px 58), position sticky, top (px 0), paddingTop (px 18), paddingLeft (px 10), backgroundColor (hex "9b9b9b") ] ]
             [ moduleStrip outModuleText (px 40) (px 0)
             , moduleStrip inModuleText (px 0) (px -14)
             ]
-        , div [ css [ marginBottom (px 40) ] ] 
+        , div [ css [ marginBottom (px 40) ] ]
             [ HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins audioModel) ]
-        , div [ css [ marginBottom (px 40) ] ] 
+        , div [ css [ marginBottom (px 40) ] ]
             [ HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins controlModel) ]
         ]
 
@@ -621,7 +631,7 @@ getModulesText pm ss =
         ( inModulePosition, outModulePosition ) =
             coordsToPinPos pm.hoverPin
 
-        p = 
+        p =
             case pm.panel of
                 Audio ->
                     ss.audioPanel

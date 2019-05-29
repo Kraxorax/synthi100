@@ -1,5 +1,4 @@
-module Styles exposing (circ, next, prev, theBlue, vi, xBox, dlBttn)
-
+module Styles exposing (circ, downBttn, next, prev, rightBttn, theBlue, vi, xBox, linkUnstyle)
 
 import Css exposing (..)
 import Svg.Styled as Svg exposing (..)
@@ -79,9 +78,25 @@ vi pos =
         ]
 
 
-dlBttn =
-    svg [ Svg.width "20", Svg.height "20"]
-        [ rect [x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill "#fff"] []
-        , line [x1 "4", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2"] []
-        , line [x1 "16", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2"] []
+linkUnstyle : Style
+linkUnstyle =
+    batch
+        [ Css.color (hex "fff")
+        , Css.textDecoration none
+        ]
+
+
+downBttn =
+    svg [ Svg.width "20", Svg.height "20" ]
+        [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill "#fff" ] []
+        , line [ x1 "4", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2" ] []
+        , line [ x1 "16", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2" ] []
+        ]
+
+
+rightBttn =
+    svg [ Svg.width "20", Svg.height "20" ]
+        [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill "#fff" ] []
+        , line [ x1 "6", y1 "4", x2 "13", y2 "10", Svg.stroke "#000", Svg.strokeWidth "2" ] []
+        , line [ x1 "6", y1 "16", x2 "13", y2 "10", Svg.stroke "#000", Svg.strokeWidth "2" ] []
         ]

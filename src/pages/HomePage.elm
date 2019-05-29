@@ -352,7 +352,7 @@ patchMeta p =
         patchUrl =
             "patch/" ++ p.title
     in
-    a [ href patchUrl, css [ patchMetaCss ] ]
+    div [ css [ patchMetaCss ] ]
         [ div [ css [ patchInfoCss ] ]
             [ div [ css [ displayFlex, marginTop (px 8), borderBottom3 (px 1) solid (hex "333") ] ]
                 [ div [ css [ lineHeight (num 1.2), minWidth (px 45), margin4 (px 0) (px 10) (px 7) (px 0), padding4 (px 5) (px 10) (px 0) (px 0), borderRight3 (px 2) solid theBlue ] ]
@@ -360,6 +360,11 @@ patchMeta p =
                 , div [ css [ lineHeight (num 1.2), marginBottom (px 10), paddingTop (px 5) ] ]
                     [ text attribs ]
                 ]
-            , div [] [ text "linki" ]
+            , div [ css [ displayFlex, marginTop (px 13) ] ]
+                [ div [ css [ flex (num 1), displayFlex, alignItems center ] ]
+                    [ downBttn, span [ css [ marginLeft (px 10) ] ] [ text "download audio" ] ]
+                , a [ href patchUrl, css [ linkUnstyle, flex (num 1), displayFlex, alignItems center ] ]
+                    [ rightBttn, span [ css [ marginLeft (px 10) ] ] [ text "score" ] ]
+                ]
             ]
         ]
