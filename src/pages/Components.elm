@@ -1,4 +1,4 @@
-module Components exposing (audioNode, cssHaxor, outputPanel, playButton, volumeInput, waveformSeeker)
+module Components exposing (audioNode, cssHaxor, outputPanel, playButton, volumeIcon, volumeInput, volumeSlider, waveformSeeker)
 
 import AudioModel exposing (..)
 import Css as Css exposing (..)
@@ -30,7 +30,7 @@ volumeThumbCss =
         , backgroundColor theBlue
         , borderColor (hex "000000")
         , borderWidth (px 1)
-        , borderStyle (solid)
+        , borderStyle solid
         , borderRadius (px 0)
         ]
 
@@ -74,39 +74,65 @@ volumeInputCss =
         , Css.fontWeight bold
         , Css.fontSize (px 20)
         , borderTop2 (px 1) solid
-        , Css.height (px 46), Css.maxWidth (pct 50)
+        , Css.height (px 46)
+        , Css.maxWidth (pct 50)
         ]
 
 
 volumeInput : Bool -> Html Msg
 volumeInput muted =
     div [ HSA.css [ volumeInputCss ] ]
-        [ span [HSA.css [ marginRight auto ]] [ HS.text "volume" ]
-        , input
-            [ HSA.css [ volumeSliderCss ]
-            , HSA.type_ "range"
-            , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
-            ]
-            [ ]
-        , input
-            [ HSA.css [ muteButtonCss ]
-            , HSA.type_ "checkbox"
-            , HSA.checked (not muted)
-            ]
-            [ ]
+        [ span [ HSA.css [ marginRight auto ] ] [ HS.text "volume" ]
+        , volumeSlider
+        , volumeIcon muted
         ]
 
 
+volumeSlider : Html Msg
+volumeSlider =
+    input
+        [ HSA.css [ volumeSliderCss ]
+        , HSA.type_ "range"
+        , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
+        ]
+        []
+
+
+volumeIcon : Bool -> Html Msg
+volumeIcon muted =
+    input
+        [ HSA.css [ muteButtonCss ]
+        , HSA.type_ "checkbox"
+        , HSA.checked (not muted)
+        ]
+        []
 
 
 waveformSeeker : Bool -> Patch -> Html Msg
 waveformSeeker isBig patch =
     let
-        bgSource = if isBig then patch.waveformBig else patch.waveformSmall
+        bgSource =
+            if isBig then
+                patch.waveformBig
 
-        seekerColor = hex (if isBig then "000000" else "ffffff")
+            else
+                patch.waveformSmall
 
-        bgColorAttribs = if isBig then [backgroundColor theBlue] else []
+        seekerColor =
+            hex
+                (if isBig then
+                    "000000"
+
+                 else
+                    "ffffff"
+                )
+
+        bgColorAttribs =
+            if isBig then
+                [ backgroundColor theBlue ]
+
+            else
+                []
 
         seekerPosition =
             patch.audioModel
@@ -136,12 +162,12 @@ waveformSeeker isBig patch =
     div
         [ HS.on "click" (JD.map (Seek patch) mouseDecoder)
         , HSA.css
-            (
-                [ Css.width (pct 100)
-                , Css.height (pct 100)
-                , Css.position relative
-                , Css.float left
-                ] ++ bgColorAttribs
+            ([ Css.width (pct 100)
+             , Css.height (pct 100)
+             , Css.position relative
+             , Css.float left
+             ]
+                ++ bgColorAttribs
             )
         ]
         [ img [ src bgSource, HSA.css [ Css.width (pct 100), Css.height (pct 100) ] ] []
@@ -159,7 +185,6 @@ audioNode model patch =
 
                 Nothing ->
                     False
-
     in
     if playing then
         audio

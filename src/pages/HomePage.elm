@@ -129,9 +129,34 @@ patchesList model =
             ]
         ]
         (sortInput model
-            :: volumeInput (model.volume == 0)
+            :: volume (model.volume == 0)
             :: patchItems
         )
+
+
+volume : Bool -> Html Msg
+volume muted =
+    div [ HSA.css [ volumeInputCss ] ]
+        [ span [ HSA.css [ marginRight auto ] ] [ text "volume" ]
+        , volumeIcon muted
+        , volumeSlider
+        ]
+
+
+volumeInputCss : Style
+volumeInputCss =
+    batch
+        [ boxSizing borderBox
+        , padding4 (px 0) (pct 8) (px 0) (px 0)
+        , displayFlex
+        , justifyContent flexEnd
+        , alignItems center
+        , Css.fontWeight bold
+        , Css.fontSize (px 20)
+        , borderTop2 (px 1) solid
+        , Css.height (px 46)
+        , Css.maxWidth (pct 50)
+        ]
 
 
 filterPatches : List AttrFilter -> List P.Patch -> List P.Patch

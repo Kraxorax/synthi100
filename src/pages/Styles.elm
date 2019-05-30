@@ -1,4 +1,4 @@
-module Styles exposing (circ, downBttn, next, prev, rightBttn, theBlue, vi, xBox, linkUnstyle)
+module Styles exposing (circ, downBttn, linkUnstyle, next, prev, rightBttn, theBlue, vi, xBox)
 
 import Css exposing (..)
 import Svg.Styled as Svg exposing (..)
