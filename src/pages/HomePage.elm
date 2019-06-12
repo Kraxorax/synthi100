@@ -137,9 +137,11 @@ patchesList model =
 volume : Bool -> Html Msg
 volume muted =
     div [ HSA.css [ volumeInputCss ] ]
-        [ span [ HSA.css [ marginRight auto ] ] [ text "volume" ]
-        , volumeIcon muted
-        , volumeSlider
+        [ div [ HSA.css [ flex (num 1) ] ] [ text "volume" ]
+        , div [ HSA.css [ displayFlex, flex (num 1) ] ]
+            [ div [ HSA.css [ marginRight (px 16) ] ] [ volumeIcon muted ]
+            , div [ HSA.css [ paddingTop (px 4) ] ] [ volumeSlider ]
+            ]
         ]
 
 
@@ -293,7 +295,8 @@ sortInput model =
 patchMetaCss =
     batch
         [ displayFlex
-        , flex (num 1.06)
+        , flex (num 1)
+        , paddingLeft (px 14)
         , textDecoration none
         , color inherit
         , alignItems baseline
@@ -317,6 +320,7 @@ patchMediaCss =
     batch
         [ displayFlex
         , flex (num 1)
+        , paddingRight (px 14)
         , alignItems center
         ]
 
@@ -337,8 +341,7 @@ patchItemCss =
         , color (hex "ffffff")
         , fontWeight bold
         , borderTop2 (px 1) solid
-        , marginRight (pct 3.125)
-        , borderColor theBlue
+        , borderColor (hex "ffffff")
         ]
 
 
@@ -386,7 +389,7 @@ patchMeta p =
                     [ text attribs ]
                 ]
             , div [ css [ displayFlex, marginTop (px 13) ] ]
-                [ div [ css [ flex (num 1), displayFlex, alignItems center ] ]
+                [ div [ css [ flex (num 1), displayFlex, alignItems center, cursor pointer ] ]
                     [ downBttn, span [ css [ marginLeft (px 10) ] ] [ text "download audio" ] ]
                 , a [ href patchUrl, css [ linkUnstyle, flex (num 1), displayFlex, alignItems center ] ]
                     [ rightBttn, span [ css [ marginLeft (px 10) ] ] [ text "score" ] ]

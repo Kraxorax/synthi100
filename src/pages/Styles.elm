@@ -10,6 +10,10 @@ theBlue =
     hex "4a90e2"
 
 
+theGray =
+    hex "9b9b9b"
+
+
 theBlueString =
     "#4a90e2"
 
@@ -88,7 +92,7 @@ linkUnstyle =
 
 downBttn =
     svg [ Svg.width "20", Svg.height "20" ]
-        [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill "#fff" ] []
+        [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill "#9b9b9b" ] []
         , line [ x1 "4", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2" ] []
         , line [ x1 "16", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2" ] []
         ]
@@ -96,7 +100,7 @@ downBttn =
 
 rightBttn =
     svg [ Svg.width "20", Svg.height "20" ]
-        [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill "#fff" ] []
+        [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill "#9b9b9b" ] []
         , line [ x1 "6", y1 "4", x2 "13", y2 "10", Svg.stroke "#000", Svg.strokeWidth "2" ] []
         , line [ x1 "6", y1 "16", x2 "13", y2 "10", Svg.stroke "#000", Svg.strokeWidth "2" ] []
         ]
