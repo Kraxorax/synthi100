@@ -8,6 +8,7 @@ import Html.Styled.Attributes exposing (css, download, href, src, type_)
 import Html.Styled.Events exposing (..)
 import Knob exposing (..)
 import List.Extra exposing (find)
+import Maybe.FlatMap exposing (flatMap)
 import Model exposing (Model)
 import Msg exposing (..)
 import Patch exposing (..)
@@ -31,14 +32,7 @@ page showGraphical patchTitle model =
                 |> Maybe.withDefault noPatch
 
         ( view, bgColor ) =
-            if showGraphical then
-                ( [ graphical model patch ], "9b9b9b" )
-
-            else
-                ( controls model patch
-                    :: [ waveAndText model patch ]
-                , "000"
-                )
+            ( [ graphical model patch ], "9b9b9b" )
     in
     div
         [ css
@@ -52,58 +46,6 @@ page showGraphical patchTitle model =
             ]
         ]
         view
-
-
-waveOrGraphCss : Style
-waveOrGraphCss =
-    batch
-        [ borderTop2 (px 1) solid
-        , borderBottom2 (px 1) solid
-        , padding2 (px 12) (px 0)
-        , displayFlex
-        , justifyContent spaceBetween
-        ]
-
-
-waveOrGraphBlackCss : Style
-waveOrGraphBlackCss =
-    batch
-        [ borderTop3 (px 2) solid (hex "000")
-        , borderBottom3 (px 2) solid (hex "000")
-        , padding2 (px 12) (px 0)
-        , displayFlex
-        , justifyContent spaceBetween
-        ]
-
-
-waveOrGraph : Model -> String -> Html Msg
-waveOrGraph model patchTitle =
-    let
-        waveTextUrl =
-            absolute [ "patch", patchTitle ] []
-
-        graphicalUrl =
-            absolute [ "patch", patchTitle, "graphical" ] []
-
-        wogCss =
-            case model.currentRoute of
-                R.PatchGraphical _ ->
-                    waveOrGraphBlackCss
-
-                _ ->
-                    waveOrGraphCss
-    in
-    div [ css [ wogCss ] ]
-        [ a [ href waveTextUrl, css [ linkUnstyle ] ]
-            [ img [ src "/wave-textual.svg", css [ marginBottom (px 10) ] ] []
-            , br [] []
-            , span [] [ text "audio / text" ]
-            ]
-        , a [ href graphicalUrl, css [ linkUnstyle ] ]
-            [ span [] [ text "graphical" ]
-            , img [ src "/graphical.svg", css [ marginLeft (px 18) ] ] []
-            ]
-        ]
 
 
 controlsCss : Style
@@ -120,21 +62,14 @@ controlsCss =
         ]
 
 
-
-
-
-audioControlsCss : Style
-audioControlsCss =
-    batch [ padding2 (px 20) (px 0) ]
-
-
 ppVICss : Style
 ppVICss =
     batch
         [ Css.property "-webkit-appearance" "none"
-        , width (px 256)
-        , height (px 4)
-        , margin2 (px 22) (px 0)
+        , width (px 80)
+        , height (px 3)
+        , margin2 (px 46) (px 0)
+        , transform (rotate (deg -90))
         ]
 
 
@@ -142,11 +77,11 @@ ppVIThumbCss : Style
 ppVIThumbCss =
     batch
         [ pseudoElement "-moz-range-thumb"
-            [ width (px 10)
-            , height (px 40)
-            , border3 (px 1) solid (hex "000")
+            [ width (px 4)
+            , height (px 20)
+            , border3 (px 2) solid theGray
             , borderRadius (px 0)
-            , backgroundColor theBlue
+            , backgroundColor theDarkGray
             ]
         ]
 
@@ -157,15 +92,17 @@ ppVolumeInput model =
         isMute =
             model.volume == 0
     in
-    div [ css [ Css.maxWidth (px 258), float right ] ]
-        [ input
-            [ type_ "range"
-            , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
-            , css [ ppVICss, ppVIThumbCss ]
+    div [ css [ displayFlex, flexDirection column, alignItems center, height (pct 100) ] ]
+        [ div [ css [ flex (int 4) ] ]
+            [ input
+                [ type_ "range"
+                , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
+                , css [ ppVICss, ppVIThumbCss ]
+                ]
+                []
             ]
-            []
-        , span [] [ text "volume" ]
-        , muteBttn (model.volume == 0)
+        , div [ css [ flex (int 1) ] ]
+            [ muteBttn (model.volume == 0) ]
         ]
 
 
@@ -181,7 +118,8 @@ muteBttn isMute =
     in
     img
         [ src url
-        , css [ Css.float right, marginTop (px -10) ]
+        , css [ height (px 20) ]
+        , Html.Styled.Attributes.style "filter" "brightness(1000%)"
         ]
         []
 
@@ -195,17 +133,31 @@ headerCss =
         ]
 
 
+audioControlsCss : Style
+audioControlsCss =
+    batch [ displayFlex, alignItems center, height (px 120) ]
+
+
+soundControls : Model -> Patch -> Html Msg
+soundControls model patch =
+    div [ css [ audioControlsCss ] ]
+        [ div [ css [ flex (int 1) ] ]
+            [ playButton patch ]
+        , div [ css [ flex (int 3), height (pct 100) ] ]
+            [ waveformSeeker True patch ]
+        , div [ css [ flex (int 1) ] ]
+            [ text (durationToTime patch.duration) ]
+        , div [ css [ flex (int 1), height (pct 100) ] ]
+            [ ppVolumeInput model ]
+        , div [] [ audioNode model patch ]
+        ]
+
+
 controls : Model -> Patch -> Html Msg
 controls model patch =
     div
         [ css [ controlsCss ] ]
-        [ waveOrGraph model patch.title
-        , div [ css [ audioControlsCss ] ]
-            [ playButton patch
-            , ppVolumeInput model
-            , audioNode model patch
-            , patchMeta patch
-            ]
+        [ soundControls model patch
         , div
             [ css
                 [ padding2 (px 18) (px 0)
@@ -217,7 +169,7 @@ controls model patch =
                 , marginTop (px 30)
                 ]
             ]
-            [ downBttn
+            [ downBttn "#ffffff"
             , a
                 [ href patch.download
                 , download ""
@@ -284,43 +236,63 @@ nextBttn msg =
 patchMeta : Patch -> Html Msg
 patchMeta patch =
     div []
-        [ h1 [ css [ Css.fontSize (px 48) ] ] [ text patch.title ]
-        , p [ css [ marginBottom (px 20) ] ] [ text ("duration: " ++ durationToTime patch.duration) ]
+        [ h1 [ css [ Css.fontSize (px 36) ] ] [ text patch.title ]
         , p [ css [ marginBottom (px 20) ] ] [ text (patch.attributeValues |> String.join " / ") ]
         ]
 
 
-waveAndText : Model -> Patch -> Html Msg
-waveAndText model patch =
-    div [ css [ Css.width (pct 66), float left ] ]
-        [ div [ css [ Css.width (pct 100), Css.height (px 386), marginBottom (px 15) ] ]
-            [ waveformSeeker True patch ]
-        , div [ css [ backgroundColor (hex "c8c8c8"), padding2 (px 35) (px 42) ] ]
-            [ HS.pre
-                [ css
-                    [ Css.fontSize (px 14)
-                    , fontWeight (int 500)
-                    , color (hex "000")
-                    , lineHeight (Css.em 1.29)
-                    , letterSpacing (px 0.5)
-                    ]
+score : Patch -> Html Msg
+score patch =
+    div [ css [ backgroundColor (hex "c8c8c8"), padding2 (px 35) (px 42) ] ]
+        [ HS.pre
+            [ css
+                [ Css.fontSize (px 14)
+                , fontWeight (int 500)
+                , color (hex "000")
+                , lineHeight (Css.em 1.29)
+                , letterSpacing (px 0.5)
                 ]
-                [ text patch.score ]
             ]
+            [ text patch.score ]
+        ]
+
+
+sectionCss : Style
+sectionCss =
+    batch
+        [ flex (int 1)
+        , displayFlex
+        , borderBottom3 (px 2) solid (hex "000000")
+        , borderTop3 (px 2) solid (hex "000000")
+        , paddingTop (px 6)
+        , marginBottom (px 6)
         ]
 
 
 graphical : Model -> Patch -> Html Msg
 graphical model patch =
-    div [ css [ displayFlex, Css.width (pct 100), flex (int 1) ] ]
-        [ graphicControls model patch
+    div [ css [ displayFlex, flexDirection column, Css.width (pct 100), flex (int 1) ] ]
+        [ div [ css [ sectionCss ] ]
+            [ graphicControls "Audio signals" True model patch
+            , pinPanel Audio model patch
+            ]
+        , div [ css [ sectionCss ] ]
+            [ graphicControls "Control voltages" True model patch
+            , pinPanel Control model patch
+            ]
+        , div [ css [ sectionCss ] ]
+            [ graphicControls "Output channels" False model patch
+            , outputChannels model patch
+            ]
         , div
             [ css
-                [ flex (int 2)
+                [ flex (int 1)
+                , displayFlex
+                , borderBottom2 (px 5) double
                 ]
             ]
-            [ pin model patch
-            , outputChannels model patch
+            [ graphicControls "Textual score" False model patch
+            , score patch
             ]
         ]
 
@@ -336,38 +308,80 @@ controlsGraphicalCss =
         , alignSelf flexStart
         , maxWidth (px 390)
         , marginRight (px 55)
-        , position sticky
-        , top (px 18)
+        , paddingTop (px 6)
         ]
 
 
-graphicControls : Model -> Patch -> Html Msg
-graphicControls model patch =
-    let
-        header =
-            if model.scroll < 800 then
-                "Audio signals"
-
-            else if model.scroll < 1300 then
-                "Control voltages"
-
-            else
-                "Output channels"
-    in
+graphicControls : String -> Bool -> Model -> Patch -> Html Msg
+graphicControls header showParameters model patch =
     div [ css [ controlsGraphicalCss ] ]
-        [ waveOrGraph model patch.title
-        , div
+        [ div
             [ css
                 [ Css.height (px 60)
                 , color (hex "000")
                 , borderBottom3 (px 2) solid (hex "000")
                 ]
             ]
-            [ span [ css [ headerCss, display inlineBlock, marginTop (px 18) ] ]
+            [ span [ css [ headerCss, display inlineBlock, marginTop (px 6) ] ]
                 [ text header ]
+            , img [ src "/graphical.svg", css [ marginRight (px 18), float right ] ] []
             ]
+        , soundControls model patch
         , patchMeta patch
-        , parameters model patch
+        , downloadStrip patch
+        , patchNav patch
+        , if showParameters then
+            parameters model patch
+
+          else
+            div [] []
+        ]
+
+
+patchNav : Patch -> Html Msg
+patchNav patch =
+    div
+        [ css
+            [ Css.height (px 60)
+            , borderTop3 (px 1) solid (hex "000000")
+            , borderBottom3 (px 1) solid (hex "000000")
+            , width (pct 100)
+            , maxWidth (px 390)
+            , displayFlex
+            ]
+        ]
+        [ div [ css [ flex (int 5) ] ] [ h2 [] [ text "Patch" ] ]
+        , div [ css [ flex (int 3), marginTop (px 5) ] ]
+            [ prevBttn (MovePatch patch -1)
+            , nextBttn (MovePatch patch 1)
+            ]
+        ]
+
+
+downloadStrip : Patch -> Html Msg
+downloadStrip patch =
+    div
+        [ css
+            [ padding2 (px 18) (px 0)
+            , margin (px 0)
+            , borderTop2 (px 1) solid
+            , borderBottom2 (px 1) solid
+            , displayFlex
+            , alignItems center
+            , marginTop (px 30)
+            , color (hex "000000")
+            ]
+        ]
+        [ downBttn "#ffffff"
+        , a
+            [ href patch.download
+            , download ""
+            , css
+                [ linkUnstyle
+                , paddingLeft (px 15)
+                ]
+            ]
+            [ text "download audio + text" ]
         ]
 
 
@@ -471,33 +485,44 @@ ctrlHldr isVert ctrl =
     div [ css [ dspl, marginRight (px 6), cursor default ] ] [ ctrl ]
 
 
-pin : Model -> Patch -> HS.Html Msg
-pin model patch =
+pinPanel : Panel -> Model -> Patch -> HS.Html Msg
+pinPanel panel model patch =
     let
         ( inModuleText, outModuleText ) =
-            model.synthiSchema
-                |> Maybe.map
-                    (getModulesText model.pinModel)
-                |> Maybe.withDefault ( "", "" )
-
-        ( audioModel, controlModel ) =
-            case model.pinModel.panel of
+            case panel of
                 Audio ->
-                    ( model.pinModel, PinTable.initModel )
+                    model.synthiSchema
+                        |> Maybe.map
+                            (getModulesText model.audioPinModel)
+                        |> Maybe.withDefault ( "", "" )
 
                 Control ->
-                    ( PinTable.initModel, model.pinModel )
+                    model.synthiSchema
+                        |> Maybe.map
+                            (getModulesText model.controlPinModel)
+                        |> Maybe.withDefault ( "", "" )
+
+        ( pinModel, pins, msgMap ) =
+            case panel of
+                Audio ->
+                    ( model.audioPinModel, patch.audioPins, reactToAudioPinEvent panel )
+
+                Control ->
+                    ( model.controlPinModel, patch.controlPins, reactToAudioPinEvent panel )
     in
     div [ css [ Css.width (px 760) ] ]
-        [ div [ css [ Css.height (px 58), position sticky, top (px 0), paddingTop (px 18), paddingLeft (px 10), backgroundColor (hex "9b9b9b") ] ]
+        [ div [ css [ Css.height (px 58), paddingLeft (px 10), backgroundColor (hex "9b9b9b") ] ]
             [ moduleStrip outModuleText (px 40) (px 0)
             , moduleStrip inModuleText (px 0) (px -14)
             ]
-        , div [ css [ marginBottom (px 40) ] ]
-            [ HS.map (reactToAudioPinEvent Audio) (audioPanel patch.audioPins audioModel) ]
-        , div [ css [ marginBottom (px 40) ] ]
-            [ HS.map (reactToAudioPinEvent Control) (audioPanel patch.controlPins controlModel) ]
+        , pinTable msgMap pins pinModel
         ]
+
+
+pinTable : (PinMsg -> Msg) -> List Pin -> PinModel -> Html Msg
+pinTable msgCast pins model =
+    div [ css [ marginBottom (px 40) ] ]
+        [ HS.map msgCast (audioPanel pins model) ]
 
 
 moduleStrip : String -> Px -> Px -> Html Msg
@@ -506,8 +531,7 @@ moduleStrip txt rm tm =
         [ css
             [ Css.height (px 50)
             , Css.width (px 327)
-            , borderBottom3 (px 1) solid (hex "000")
-            , borderTop3 (px 1) solid (hex "000")
+            , borderBottom3 (px 2) solid (hex "000")
             , float left
             , margin4 (px 0) rm (px 0) (px 20)
             , textTransform uppercase
@@ -532,11 +556,12 @@ outputChannels model patch =
                 |> Maybe.withDefault []
     in
     div [ css [ Css.color (hex "000"), fontSize (px 14), fontWeight bold, letterSpacing (px 1.4), marginLeft (px 26) ] ]
-        (div [ css [ Css.height (px 50), Css.width (px 327), borderTop2 (px 1) solid, marginLeft (px 33) ] ]
-            [ span [ css [ display inlineBlock, marginTop (px 16) ] ] [ text "OUTPUT CHANNELS" ]
+        (div [ css [ Css.height (px 50), Css.width (px 327), marginLeft (px 33) ] ]
+            [ span [ css [ display inlineBlock ] ] [ text "OUTPUT CHANNELS" ]
             ]
             :: [ outputPanel channels ]
         )
+        |> HS.map (\kmsg -> OutputKnobEvent kmsg)
 
 
 outputChan : Knob -> HS.Html Msg
@@ -551,7 +576,7 @@ channelTag =
     "output-ch-"
 
 
-getOutputChannels : SS.SynthiSchema -> List ModuleSettings -> List Knob
+getOutputChannels : SS.SynthiSchema -> List ModuleSettings -> List ( Knob, Knob, Knob )
 getOutputChannels ss lms =
     let
         outChans =
@@ -559,7 +584,7 @@ getOutputChannels ss lms =
                 |> List.filterMap
                     (\mod ->
                         if mod.name |> String.startsWith channelTag then
-                            Just (Knob mod.name Nothing)
+                            Just mod
 
                         else
                             Nothing
@@ -570,16 +595,28 @@ getOutputChannels ss lms =
                 |> List.map
                     (\chan ->
                         let
-                            k =
+                            moduleM =
                                 lms |> List.Extra.find (\pm -> pm.name == chan.name)
 
-                            level =
-                                k
+                            ( level, filter, pan ) =
+                                moduleM
                                     |> Maybe.map
-                                        (\kk ->
+                                        (\mdl ->
                                             let
+                                                enabled =
+                                                    mdl.controlValues
+                                                        |> List.Extra.find
+                                                            (\ctrl ->
+                                                                case ctrl of
+                                                                    SwitchVal kkk ->
+                                                                        kkk.name == "enabled"
+
+                                                                    _ ->
+                                                                        False
+                                                            )
+
                                                 lvl =
-                                                    kk.controlValues
+                                                    mdl.controlValues
                                                         |> List.Extra.find
                                                             (\ctrl ->
                                                                 case ctrl of
@@ -589,24 +626,66 @@ getOutputChannels ss lms =
                                                                     _ ->
                                                                         False
                                                             )
-                                            in
-                                            lvl
-                                                |> Maybe.map
-                                                    (\l ->
-                                                        case l of
-                                                            KnobVal lk ->
-                                                                lk.position
+                                                        |> flatMap
+                                                            (\p ->
+                                                                case p of
+                                                                    KnobVal k ->
+                                                                        Just k.position
 
-                                                            _ ->
-                                                                0
-                                                    )
-                                                |> Maybe.withDefault 0
+                                                                    _ ->
+                                                                        Nothing
+                                                            )
+
+                                                fltr =
+                                                    mdl.controlValues
+                                                        |> List.Extra.find
+                                                            (\ctrl ->
+                                                                case ctrl of
+                                                                    KnobVal kkk ->
+                                                                        kkk.name == "filter"
+
+                                                                    _ ->
+                                                                        False
+                                                            )
+                                                        |> flatMap
+                                                            (\p ->
+                                                                case p of
+                                                                    KnobVal k ->
+                                                                        Just k.position
+
+                                                                    _ ->
+                                                                        Nothing
+                                                            )
+
+                                                pn =
+                                                    mdl.controlValues
+                                                        |> List.Extra.find
+                                                            (\ctrl ->
+                                                                case ctrl of
+                                                                    KnobVal kkk ->
+                                                                        kkk.name == "pan"
+
+                                                                    _ ->
+                                                                        False
+                                                            )
+                                                        |> flatMap
+                                                            (\p ->
+                                                                case p of
+                                                                    KnobVal k ->
+                                                                        Just k.position
+
+                                                                    _ ->
+                                                                        Nothing
+                                                            )
+                                            in
+                                            ( lvl, fltr, pn )
                                         )
+                                    |> Maybe.withDefault ( Nothing, Nothing, Nothing )
                         in
-                        Knob chan.name level
+                        ( Knob chan.name level, Knob chan.name filter, Knob chan.name pan )
                     )
     in
-    chansWithValues |> List.sortBy .name
+    chansWithValues |> List.sortBy (\( l, f, p ) -> l.name)
 
 
 reactToAudioPinEvent : PinTable.Panel -> PinTable.PinMsg -> Msg

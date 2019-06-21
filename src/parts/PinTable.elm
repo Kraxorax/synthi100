@@ -1,6 +1,7 @@
 module PinTable exposing (Panel(..), PinModel, PinMsg(..), audioPanel, coordsToPinPos, initModel, pinSvg, pinTable, setActivePin, setHoverPin, update)
 
 import Array
+import Css as Css
 import Html.Attributes exposing (style)
 import Html.Styled exposing (..)
 import List.Extra exposing (find)
@@ -9,7 +10,6 @@ import Patch as P
 import Svg.Styled as Svg exposing (..)
 import Svg.Styled.Attributes as Svg exposing (..)
 import Svg.Styled.Events as Svg exposing (..)
-import Css as Css
 import SynthiSchema as SS
 import Tuple exposing (first, second)
 
@@ -90,12 +90,9 @@ setActivePin panel xy model =
     { model | activePin = xy, panel = panel }
 
 
-setHoverPin : Panel -> ( Int, Int ) -> PinModel -> PinModel
-setHoverPin panel xy model =
-    if panel == model.panel then
-        { model | hoverPin = xy }
-    else
-        { model | hoverPin = xy, activePin = ( -1, -1), panel = panel }
+setHoverPin : ( Int, Int ) -> PinModel -> PinModel
+setHoverPin xy model =
+    { model | hoverPin = xy }
 
 
 pinSvg : ( Int, Int ) -> String -> Maybe String -> PinModel -> Svg PinMsg
@@ -320,4 +317,4 @@ isEven x =
 
 sameCoordinate : ( Int, Int ) -> ( Int, Int ) -> Bool
 sameCoordinate ( x, y ) ( a, b ) =
-    x == a || y == b
+    (x == a && b <= y) || (y == b && a <= x)

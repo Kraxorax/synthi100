@@ -1,4 +1,4 @@
-module Styles exposing (circ, downBttn, linkUnstyle, next, prev, rightBttn, theBlue, vi, xBox)
+module Styles exposing (circ, downBttn, linkUnstyle, next, prev, rightBttn, theBlue, theDarkGray, theDarkGrayString, theGray, theGrayString, vi, xBox)
 
 import Css exposing (..)
 import Svg.Styled as Svg exposing (..)
@@ -12,6 +12,18 @@ theBlue =
 
 theGray =
     hex "9b9b9b"
+
+
+theGrayString =
+    "#9b9b9b"
+
+
+theDarkGray =
+    hex "4a4a4a"
+
+
+theDarkGrayString =
+    "#4a4a4a"
 
 
 theBlueString =
@@ -56,13 +68,13 @@ pnBttnImgCss =
 
 prev =
     svg [ Svg.height "20px", Svg.width "20px", css [ pnBttnImgCss ] ]
-        [ polygon [ points "20,0 20,20 0,10", Svg.fill theBlueString ] []
+        [ polygon [ points "20,0 20,20 0,10", Svg.fill theDarkGrayString ] []
         ]
 
 
 next =
     svg [ Svg.height "20px", Svg.width "20px", css [ pnBttnImgCss ] ]
-        [ polygon [ points "0,0 20,10 0,20", Svg.fill theBlueString ] []
+        [ polygon [ points "0,0 20,10 0,20", Svg.fill theDarkGrayString ] []
         ]
 
 
@@ -90,17 +102,19 @@ linkUnstyle =
         ]
 
 
-downBttn =
+downBttn : String -> Svg msg
+downBttn bgColor =
     svg [ Svg.width "20", Svg.height "20" ]
-        [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill "#9b9b9b" ] []
+        [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill bgColor ] []
         , line [ x1 "4", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2" ] []
         , line [ x1 "16", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2" ] []
         ]
 
 
-rightBttn =
+rightBttn : String -> Svg msg
+rightBttn bgColor =
     svg [ Svg.width "20", Svg.height "20" ]
-        [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill "#9b9b9b" ] []
+        [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill bgColor ] []
         , line [ x1 "6", y1 "4", x2 "13", y2 "10", Svg.stroke "#000", Svg.strokeWidth "2" ] []
         , line [ x1 "6", y1 "16", x2 "13", y2 "10", Svg.stroke "#000", Svg.strokeWidth "2" ] []
         ]

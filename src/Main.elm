@@ -11,8 +11,8 @@ import Debug
 import Header exposing (header)
 import HomePage
 import Html as H
-import Html.Events as HE
 import Html.Attributes as HA
+import Html.Events as HE
 import Html.Styled exposing (Html, audio, node, text)
 import Html.Styled.Attributes exposing (controls, id, type_)
 import Http
@@ -28,10 +28,10 @@ import PatchPage
 import PinTable exposing (..)
 import Ports exposing (..)
 import Routing exposing (Route(..), urlToRoute)
+import Scroll exposing (..)
 import SynthiSchema as SS
 import Url exposing (Url)
 import ViewModel as VM
-import Scroll exposing (..)
 
 
 type alias Flags =
@@ -102,7 +102,7 @@ update msg model =
                     ( model, load href )
 
         Scroll se ->
-            ({model | scroll = se}, Cmd.none)
+            ( { model | scroll = se }, Cmd.none )
 
         MovePatch patch step ->
             let
@@ -202,10 +202,18 @@ update msg model =
                                 ( im, om ) =
                                     pinToModules panel schema patch ( x, y )
                             in
-                            { model
-                                | activeModules = Just ( im, om )
-                                , pinModel = setActivePin panel ( x, y ) model.pinModel
-                            }
+                            case panel of
+                                Audio ->
+                                    { model
+                                        | activeModules = Just ( im, om )
+                                        , audioPinModel = setActivePin panel ( x, y ) model.audioPinModel
+                                    }
+
+                                Control ->
+                                    { model
+                                        | activeModules = Just ( im, om )
+                                        , controlPinModel = setActivePin panel ( x, y ) model.controlPinModel
+                                    }
                         )
                         model.synthiSchema
                         model.patches
@@ -213,23 +221,42 @@ update msg model =
             in
             ( mdl, Cmd.none )
 
-        Msg.PinHover pin ( x, y ) ->
+        Msg.PinHover panel ( x, y ) ->
             let
                 mdl =
                     model.synthiSchema
                         |> Maybe.map
                             (\schema ->
-                                { model
-                                    | pinModel = setHoverPin pin ( x, y ) model.pinModel
-                                }
+                                case panel of
+                                    Audio ->
+                                        { model
+                                            | audioPinModel = setHoverPin ( x, y ) model.audioPinModel
+                                        }
+
+                                    Control ->
+                                        { model
+                                            | controlPinModel = setHoverPin ( x, y ) model.controlPinModel
+                                        }
                             )
                         |> Maybe.withDefault model
             in
             ( mdl, Cmd.none )
 
         Msg.PinOut panel ->
-            ( { model | pinModel = setHoverPin panel ( -1, -1) model.pinModel
-              }
+            let
+                m =
+                    case panel of
+                        Audio ->
+                            { model
+                                | audioPinModel = setHoverPin ( -1, -1 ) model.audioPinModel
+                            }
+
+                        Control ->
+                            { model
+                                | controlPinModel = setHoverPin ( -1, -1 ) model.controlPinModel
+                            }
+            in
+            ( m
             , Cmd.none
             )
 
@@ -581,8 +608,7 @@ globalCSS =
             , height (pct 100)
             ]
         , selector "html"
-            [
-                height (pct 100)
+            [ height (pct 100)
             ]
         ]
 
@@ -600,4 +626,3 @@ fontImport =
             font-weight: bold;
         }
     """ ]
-

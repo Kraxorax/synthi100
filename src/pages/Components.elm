@@ -9,6 +9,7 @@ import Html.Styled.Attributes as HSA exposing (..)
 import Html.Styled.Events as HS exposing (..)
 import Json.Decode as JD exposing (..)
 import Json.Encode as JE
+import Knob exposing (KnobMsg, simpleKnobSvg)
 import Maybe.Extra exposing (isJust)
 import Model exposing (..)
 import Mouse exposing (..)
@@ -109,30 +110,13 @@ volumeIcon muted =
 
 
 waveformSeeker : Bool -> Patch -> Html Msg
-waveformSeeker isBig patch =
+waveformSeeker isBlack patch =
     let
         bgSource =
-            if isBig then
-                patch.waveformBig
-
-            else
-                patch.waveformSmall
+            patch.waveformSmall
 
         seekerColor =
-            hex
-                (if isBig then
-                    "000000"
-
-                 else
-                    "ffffff"
-                )
-
-        bgColorAttribs =
-            if isBig then
-                [ backgroundColor theBlue ]
-
-            else
-                []
+            hex "ffffff"
 
         seekerPosition =
             patch.audioModel
@@ -140,6 +124,13 @@ waveformSeeker isBig patch =
                     (\am ->
                         100 / (patch.duration / am.seekerPosition)
                     )
+
+        color =
+            if isBlack then
+                HSA.style "filter" "brightness(0.01%)"
+
+            else
+                HSA.style "filter" "brightness(100%)"
 
         seeker =
             if seekerPosition |> isJust then
@@ -162,15 +153,13 @@ waveformSeeker isBig patch =
     div
         [ HS.on "click" (JD.map (Seek patch) mouseDecoder)
         , HSA.css
-            ([ Css.width (pct 100)
-             , Css.height (pct 100)
-             , Css.position relative
-             , Css.float left
-             ]
-                ++ bgColorAttribs
-            )
+            [ Css.width (pct 100)
+            , Css.height (pct 100)
+            , Css.position relative
+            , Css.float left
+            ]
         ]
-        [ img [ src bgSource, HSA.css [ Css.width (pct 100), Css.height (pct 100) ] ] []
+        [ img [ src bgSource, color, HSA.css [ Css.width (pct 100), Css.height (pct 100) ] ] []
         , seeker
         ]
 
@@ -229,16 +218,20 @@ cssHaxor =
 chanSwitch : Bool -> Html msg
 chanSwitch on =
     let
-        h =
+        ( h, txt ) =
             if on then
-                "1"
+                ( "8", "on" )
 
             else
-                "15"
+                ( "23", "off" )
     in
     svg [ x "11" ]
-        [ rect [ x "1", y "1", Svg.width "16", Svg.height "30", Svg.stroke "black", Svg.strokeWidth "2px", Svg.fill "none" ] []
-        , rect [ x "0", y h, Svg.width "17", Svg.height "16", Svg.fill "black" ] []
+        [ rect [ x "1", y "1", Svg.width "16", Svg.height "30", Svg.stroke Styles.theDarkGrayString, Svg.strokeWidth "2px", Svg.fill "none" ] []
+        , line [ x1 "0", y1 "16", x2 "17", y2 "16", Svg.stroke Styles.theDarkGrayString, Svg.strokeWidth "2px" ] []
+        , Svg.circle [ cx "9", cy h, r "4", Svg.fill Styles.theDarkGrayString ] []
+
+        -- , rect [ x "0", y h, Svg.width "17", Svg.height "16", Svg.fill "black" ] []
+        , Svg.text_ [ dx "8", dy "47" ] [ Svg.text txt ]
         ]
 
 
@@ -247,23 +240,69 @@ chanHandle =
     rect [ Svg.width "38", Svg.height "9", Svg.fill "black", Svg.strokeWidth "2px", Svg.stroke "#9b9b9b" ] []
 
 
-outputPanel : List Knob -> Html msg
+sfi =
+    String.fromInt
+
+
+outputPanel : List ( Knob, Knob, Knob ) -> Html KnobMsg
 outputPanel knobs =
     let
-        chans =
+        vhStart =
+            310
+
+        rsNumStart =
+            314
+
+        vhOffset =
+            23
+
+        vhEnd =
+            713
+
+        vvBegin =
+            33
+
+        vvStart =
+            52
+
+        vvOffset =
+            92
+
+        vvEnd =
+            564
+
+        knobOffset =
+            60
+
+        switches =
             g [ Svg.color "black" ]
                 (knobs
                     |> List.indexedMap
-                        (\i k ->
+                        (\i ( level, filter, pan ) ->
                             let
                                 swch =
-                                    chanSwitch (k.value |> isJust)
-
-                                val =
-                                    k.value |> Maybe.withDefault 0
+                                    chanSwitch (level.value |> isJust)
 
                                 xp =
-                                    33 + (i * 92) |> String.fromInt
+                                    vvBegin + (i * vvOffset) |> String.fromInt
+                            in
+                            svg [ x xp, y "245" ]
+                                [ swch
+                                ]
+                        )
+                )
+
+        handles =
+            g [ Svg.color "black" ]
+                (knobs
+                    |> List.indexedMap
+                        (\i ( level, filter, pan ) ->
+                            let
+                                val =
+                                    level.value |> Maybe.withDefault 0
+
+                                xp =
+                                    vvBegin + (i * vvOffset) |> String.fromInt
 
                                 hy =
                                     44 + ((10 - val) * 22.7) |> String.fromFloat
@@ -271,64 +310,116 @@ outputPanel knobs =
                                 handle =
                                     svg [ x "0", y hy ] [ chanHandle ]
                             in
-                            svg [ x xp, y "61" ]
-                                [ swch
-                                , handle
+                            svg [ x xp, y "261" ]
+                                [ handle
+                                ]
+                        )
+                )
+
+        filterKnobs =
+            g []
+                (knobs
+                    |> List.indexedMap
+                        (\i ( level, filter, pan ) ->
+                            let
+                                xp =
+                                    vvBegin + (i * vvOffset) |> String.fromInt
+                            in
+                            svg [ x xp, y "90" ]
+                                [ simpleKnobSvg filter
+                                ]
+                        )
+                )
+
+        panKnobs =
+            g []
+                (knobs
+                    |> List.indexedMap
+                        (\i ( level, filter, pan ) ->
+                            let
+                                xp =
+                                    vvBegin + (i * vvOffset) |> String.fromInt
+                            in
+                            svg [ x xp, y "180" ]
+                                [ simpleKnobSvg pan
                                 ]
                         )
                 )
     in
-    svg [ Svg.height "380px", Svg.width "740px", Svg.fontFamily "Metropolis", textAnchor "middle", Svg.fontSize "14px" ]
-        [ line [ x1 "33px", y1 "1px", x2 "713px", y2 "1px", Svg.stroke "black" ] []
-        , line [ x1 "33px", y1 "45px", x2 "713px", y2 "45px", Svg.stroke "black", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "110px", x2 "713px", y2 "110px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "133px", x2 "713px", y2 "133px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "156px", x2 "713px", y2 "156px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "179px", x2 "713px", y2 "179px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "202px", x2 "713px", y2 "202px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "225px", x2 "713px", y2 "225px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "248px", x2 "713px", y2 "248px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "271px", x2 "713px", y2 "271px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "294px", x2 "713px", y2 "294px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "317px", x2 "713px", y2 "317px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "336px", x2 "713px", y2 "336px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-        , line [ x1 "33px", y1 "365px", x2 "713px", y2 "365px", Svg.stroke "black", Svg.strokeWidth "1px" ] []
-        , line [ x1 "52px", y1 "110px", x2 "52px", y2 "364px", Svg.stroke "white", Svg.strokeWidth "4px" ] []
-        , line [ x1 "144px", y1 "110px", x2 "144px", y2 "364px", Svg.stroke "white", Svg.strokeWidth "4px" ] []
-        , line [ x1 "236px", y1 "110px", x2 "236px", y2 "364px", Svg.stroke "white", Svg.strokeWidth "4px" ] []
-        , line [ x1 "328px", y1 "110px", x2 "328px", y2 "364px", Svg.stroke "white", Svg.strokeWidth "4px" ] []
-        , line [ x1 "420px", y1 "110px", x2 "420px", y2 "364px", Svg.stroke "white", Svg.strokeWidth "4px" ] []
-        , line [ x1 "512px", y1 "110px", x2 "512px", y2 "364px", Svg.stroke "white", Svg.strokeWidth "4px" ] []
-        , line [ x1 "604px", y1 "110px", x2 "604px", y2 "364px", Svg.stroke "white", Svg.strokeWidth "4px" ] []
-        , line [ x1 "696px", y1 "110px", x2 "696px", y2 "364px", Svg.stroke "white", Svg.strokeWidth "4px" ] []
+    svg [ Svg.height "600px", Svg.width "740px", Svg.fontFamily "Metropolis", textAnchor "middle", Svg.fontSize "14px" ]
+        [ line [ x1 (sfi vvBegin), y1 "1px", x2 (sfi vhEnd), y2 "1px", Svg.stroke "black" ] []
+
+        -- chennel numbers
         , g
             [ Svg.fontWeight "bold" ]
             [ Svg.text_ [ dx "52px", dy "28px" ] [ Svg.text "1" ]
             , Svg.text_ [ dx "144px", dy "28px" ] [ Svg.text "2" ]
             , Svg.text_ [ dx "236px", dy "28px" ] [ Svg.text "3" ]
+            , Svg.text_ [ dx "696px", dy "28px" ] [ Svg.text "8" ]
             , Svg.text_ [ dx "328px", dy "28px" ] [ Svg.text "4" ]
             , Svg.text_ [ dx "420px", dy "28px" ] [ Svg.text "5" ]
             , Svg.text_ [ dx "512px", dy "28px" ] [ Svg.text "6" ]
             , Svg.text_ [ dx "604px", dy "28px" ] [ Svg.text "7" ]
-            , Svg.text_ [ dx "696px", dy "28px" ] [ Svg.text "8" ]
             ]
+        , line [ x1 (sfi vvBegin), y1 "45px", x2 (sfi vhEnd), y2 "45px", Svg.stroke "black", Svg.strokeWidth "1px" ] []
+
+        -- filter & pan
+        , g [ textAnchor "start", Svg.fill "white" ]
+            [ Svg.text_ [ dx (sfi vvBegin), dy "70px" ] [ Svg.text "filter" ]
+            , line [ x1 (sfi vvBegin), y1 "85px", x2 (sfi vhEnd), y2 "85px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
+            , filterKnobs
+            , line [ x1 (sfi vvBegin), y1 "135px", x2 (sfi vhEnd), y2 "135px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
+            , Svg.text_ [ dx (sfi vvBegin), dy "160px" ] [ Svg.text "pan" ]
+            , line [ x1 (sfi vvBegin), y1 "175px", x2 (sfi vhEnd), y2 "175px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
+            , panKnobs
+            , line [ x1 (sfi vvBegin), y1 "225px", x2 (sfi vhEnd), y2 "225px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
+            ]
+
+        -- switches
+        , switches
+
+        -- volume - horizontal
+        , line [ x1 (sfi vvBegin), y1 (sfi (vhStart + vhOffset * 0)), x2 (sfi vhEnd), y2 (sfi (vhStart + vhOffset * 0)), Svg.stroke "white", Svg.strokeWidth "1px" ] []
+        , line [ x1 (sfi vvBegin), y1 (sfi (vhStart + vhOffset * 1)), x2 (sfi vhEnd), y2 (sfi (vhStart + vhOffset * 1)), Svg.stroke "white", Svg.strokeWidth "1px" ] []
+        , line [ x1 (sfi vvBegin), y1 (sfi (vhStart + vhOffset * 2)), x2 (sfi vhEnd), y2 (sfi (vhStart + vhOffset * 2)), Svg.stroke "white", Svg.strokeWidth "1px" ] []
+        , line [ x1 (sfi vvBegin), y1 (sfi (vhStart + vhOffset * 3)), x2 (sfi vhEnd), y2 (sfi (vhStart + vhOffset * 3)), Svg.stroke "white", Svg.strokeWidth "1px" ] []
+        , line [ x1 (sfi vvBegin), y1 (sfi (vhStart + vhOffset * 4)), x2 (sfi vhEnd), y2 (sfi (vhStart + vhOffset * 4)), Svg.stroke "white", Svg.strokeWidth "1px" ] []
+        , line [ x1 (sfi vvBegin), y1 (sfi (vhStart + vhOffset * 5)), x2 (sfi vhEnd), y2 (sfi (vhStart + vhOffset * 5)), Svg.stroke "white", Svg.strokeWidth "1px" ] []
+        , line [ x1 (sfi vvBegin), y1 (sfi (vhStart + vhOffset * 6)), x2 (sfi vhEnd), y2 (sfi (vhStart + vhOffset * 6)), Svg.stroke "white", Svg.strokeWidth "1px" ] []
+        , line [ x1 (sfi vvBegin), y1 (sfi (vhStart + vhOffset * 7)), x2 (sfi vhEnd), y2 (sfi (vhStart + vhOffset * 7)), Svg.stroke "white", Svg.strokeWidth "1px" ] []
+        , line [ x1 (sfi vvBegin), y1 (sfi (vhStart + vhOffset * 8)), x2 (sfi vhEnd), y2 (sfi (vhStart + vhOffset * 8)), Svg.stroke "white", Svg.strokeWidth "1px" ] []
+        , line [ x1 (sfi vvBegin), y1 (sfi (vhStart + vhOffset * 9)), x2 (sfi vhEnd), y2 (sfi (vhStart + vhOffset * 9)), Svg.stroke "white", Svg.strokeWidth "1px" ] []
+        , line [ x1 (sfi vvBegin), y1 (sfi (vhStart + vhOffset * 10)), x2 (sfi vhEnd), y2 (sfi (vhStart + vhOffset * 10)), Svg.stroke "white", Svg.strokeWidth "1px" ] []
+
+        -- volume - vertical
+        , line [ x1 (sfi (vvStart + vvOffset * 0)), y1 (sfi vhStart), x2 (sfi (vvStart + vvOffset * 0)), y2 (sfi vvEnd), Svg.stroke "white", Svg.strokeWidth "4px" ] []
+        , line [ x1 (sfi (vvStart + vvOffset * 1)), y1 (sfi vhStart), x2 (sfi (vvStart + vvOffset * 1)), y2 (sfi vvEnd), Svg.stroke "white", Svg.strokeWidth "4px" ] []
+        , line [ x1 (sfi (vvStart + vvOffset * 2)), y1 (sfi vhStart), x2 (sfi (vvStart + vvOffset * 2)), y2 (sfi vvEnd), Svg.stroke "white", Svg.strokeWidth "4px" ] []
+        , line [ x1 (sfi (vvStart + vvOffset * 3)), y1 (sfi vhStart), x2 (sfi (vvStart + vvOffset * 3)), y2 (sfi vvEnd), Svg.stroke "white", Svg.strokeWidth "4px" ] []
+        , line [ x1 (sfi (vvStart + vvOffset * 4)), y1 (sfi vhStart), x2 (sfi (vvStart + vvOffset * 4)), y2 (sfi vvEnd), Svg.stroke "white", Svg.strokeWidth "4px" ] []
+        , line [ x1 (sfi (vvStart + vvOffset * 5)), y1 (sfi vhStart), x2 (sfi (vvStart + vvOffset * 5)), y2 (sfi vvEnd), Svg.stroke "white", Svg.strokeWidth "4px" ] []
+        , line [ x1 (sfi (vvStart + vvOffset * 6)), y1 (sfi vhStart), x2 (sfi (vvStart + vvOffset * 6)), y2 (sfi vvEnd), Svg.stroke "white", Svg.strokeWidth "4px" ] []
+        , line [ x1 (sfi (vvStart + vvOffset * 7)), y1 (sfi vhStart), x2 (sfi (vvStart + vvOffset * 7)), y2 (sfi vvEnd), Svg.stroke "white", Svg.strokeWidth "4px" ] []
+
+        -- handles
+        , handles
+
+        -- black - end - line
+        , line [ x1 (sfi vvBegin), y1 (sfi vvEnd), x2 (sfi vhEnd), y2 (sfi vvEnd), Svg.stroke "black", Svg.strokeWidth "1px" ] []
+
+        -- left side numbers
         , g
             [ Svg.fontWeight "500", Svg.fill "#4a4a4a" ]
-            [ Svg.text_ [ dx "16px", dy "114px" ] [ Svg.text "10" ]
-            , Svg.text_ [ dx "16px", dy "137px" ] [ Svg.text "9" ]
-            , Svg.text_ [ dx "16px", dy "160px" ] [ Svg.text "8" ]
-            , Svg.text_ [ dx "16px", dy "183px" ] [ Svg.text "7" ]
-            , Svg.text_ [ dx "16px", dy "206px" ] [ Svg.text "6" ]
-            , Svg.text_ [ dx "16px", dy "229px" ] [ Svg.text "5" ]
-            , Svg.text_ [ dx "16px", dy "252px" ] [ Svg.text "4" ]
-            , Svg.text_ [ dx "16px", dy "275px" ] [ Svg.text "3" ]
-            , Svg.text_ [ dx "16px", dy "298px" ] [ Svg.text "2" ]
-            , Svg.text_ [ dx "16px", dy "321px" ] [ Svg.text "1" ]
-            , Svg.text_ [ dx "16px", dy "340px" ] [ Svg.text "0" ]
-            , Svg.text_ [ dx "103px", dy "93px" ] [ Svg.text "off" ]
-            , Svg.text_ [ dx "287px", dy "93px" ] [ Svg.text "off" ]
-            , Svg.text_ [ dx "471px", dy "93px" ] [ Svg.text "off" ]
-            , Svg.text_ [ dx "655px", dy "93px" ] [ Svg.text "off" ]
+            [ Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 0)) ] [ Svg.text "10" ]
+            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 1)) ] [ Svg.text "9" ]
+            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 2)) ] [ Svg.text "8" ]
+            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 3)) ] [ Svg.text "7" ]
+            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 4)) ] [ Svg.text "6" ]
+            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 5)) ] [ Svg.text "5" ]
+            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 6)) ] [ Svg.text "4" ]
+            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 7)) ] [ Svg.text "3" ]
+            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 8)) ] [ Svg.text "2" ]
+            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 9)) ] [ Svg.text "1" ]
+            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 10)) ] [ Svg.text "0" ]
             ]
-        , chans
         ]
