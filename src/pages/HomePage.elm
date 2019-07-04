@@ -109,15 +109,8 @@ radio val group isChecked =
 patchesList : Model -> Html Msg
 patchesList model =
     let
-        ps =
-            model.patches |> Maybe.withDefault []
-
-        fltrs =
-            model.attributeFilters |> List.concatMap (\f -> f.selected)
-
         patchItems =
-            ps
-                |> filterPatches model.attributeFilters
+            model.filteredPatches
                 |> List.map
                     (\p -> patchItem model p)
     in
@@ -159,48 +152,6 @@ volumeInputCss =
         , Css.height (px 46)
         , Css.maxWidth (pct 50)
         ]
-
-
-filterPatches : List AttrFilter -> List P.Patch -> List P.Patch
-filterPatches afs ps =
-    ps
-        |> List.filter
-            (\p ->
-                let
-                    selTypes =
-                        afs |> List.Extra.find (\a -> a.attrName == "type") |> Maybe.withDefault { attrName = "", selected = [] }
-
-                    selQuality =
-                        afs |> List.Extra.find (\a -> a.attrName == "quality") |> Maybe.withDefault { attrName = "", selected = [] }
-
-                    selRange =
-                        afs |> List.Extra.find (\a -> a.attrName == "range") |> Maybe.withDefault { attrName = "", selected = [] }
-
-                    selComplexity =
-                        afs |> List.Extra.find (\a -> a.attrName == "complexity") |> Maybe.withDefault { attrName = "", selected = [] }
-
-                    passType =
-                        (selTypes.selected |> List.length)
-                            == 0
-                            || (selTypes.selected |> List.Extra.findIndex (\s -> s == p.attributes.type_) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
-
-                    passQuality =
-                        (selQuality.selected |> List.length)
-                            == 0
-                            || (selQuality.selected |> List.Extra.findIndex (\s -> s == p.attributes.quality) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
-
-                    passRange =
-                        (selRange.selected |> List.length)
-                            == 0
-                            || (selRange.selected |> List.Extra.findIndex (\s -> s == p.attributes.range) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
-
-                    passComplexity =
-                        (selComplexity.selected |> List.length)
-                            == 0
-                            || (selComplexity.selected |> List.Extra.findIndex (\s -> s == p.attributes.complexity) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
-                in
-                passType && passQuality && passRange && passComplexity
-            )
 
 
 sortingArrowCss : Style

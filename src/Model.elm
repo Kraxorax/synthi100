@@ -19,6 +19,7 @@ type alias Model =
     , controlPinModel : PinTable.PinModel
     , synthiSchema : Maybe SS.SynthiSchema
     , patches : Maybe (List P.Patch)
+    , filteredPatches : List P.Patch
     , error : Maybe String
     , activeModules : Maybe ( Module, Module )
     , attributeFilters : List AttrFilter
@@ -39,6 +40,7 @@ initModel url key =
     , hoverKnob = ( -1, -1 )
     , synthiSchema = Nothing
     , patches = Nothing
+    , filteredPatches = []
     , error = Nothing
     , activeModules = Nothing
     , attributeFilters = []

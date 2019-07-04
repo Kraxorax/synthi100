@@ -106,30 +106,17 @@ update msg model =
 
         MovePatch patch step ->
             let
+                currIndex =
+                    model.filteredPatches |> List.Extra.findIndex (\p -> p.title == patch.title) |> Maybe.withDefault 0
+
+                nextPos =
+                    currIndex + step
+
+                nextIndex =
+                    nextPos |> (min (List.length model.filteredPatches) >> max 0)
+
                 currPatch =
-                    model.patches
-                        |> Maybe.map
-                            (\patches ->
-                                let
-                                    currIndex =
-                                        patches |> List.Extra.findIndex (\p -> p.title == patch.title) |> Maybe.withDefault 0
-
-                                    nextPos =
-                                        currIndex + step
-
-                                    nextIndex =
-                                        if nextPos < 0 then
-                                            0
-
-                                        else if nextPos >= List.length patches then
-                                            currIndex
-
-                                        else
-                                            nextPos
-                                in
-                                patches |> List.Extra.getAt (currIndex + step) |> Maybe.withDefault patch
-                            )
-                        |> Maybe.withDefault P.noPatch
+                    model.filteredPatches |> List.Extra.getAt nextIndex |> Maybe.withDefault patch
 
                 url =
                     "/patch/" ++ currPatch.title
@@ -182,7 +169,7 @@ update msg model =
                     ( model, Cmd.none )
 
                 Ok ptcs ->
-                    ( { model | patches = Just ptcs }, Cmd.none )
+                    ( { model | patches = Just ptcs, filteredPatches = filterPatches model.attributeFilters ptcs }, Cmd.none )
 
         Msg.PinClick panel ( x, y ) ->
             let
@@ -386,8 +373,11 @@ update msg model =
                                 else
                                     af
                             )
+
+                fltrPtchs =
+                    filterPatches attrFilters (model.patches |> Maybe.withDefault [])
             in
-            ( { model | attributeFilters = attrFilters }, Cmd.none )
+            ( { model | attributeFilters = attrFilters, filteredPatches = fltrPtchs }, Cmd.none )
 
         VolumeChange vol ->
             ( { model | volume = vol / 100 }, Cmd.none )
@@ -549,6 +539,48 @@ patchToControls scs pcs =
                                     VM.SwitchCtrl (VM.Switch sc.name Nothing)
                 in
                 ctrl
+            )
+
+
+filterPatches : List AttrFilter -> List P.Patch -> List P.Patch
+filterPatches afs ps =
+    ps
+        |> List.filter
+            (\p ->
+                let
+                    selTypes =
+                        afs |> List.Extra.find (\a -> a.attrName == "type") |> Maybe.withDefault { attrName = "", selected = [] }
+
+                    selQuality =
+                        afs |> List.Extra.find (\a -> a.attrName == "quality") |> Maybe.withDefault { attrName = "", selected = [] }
+
+                    selRange =
+                        afs |> List.Extra.find (\a -> a.attrName == "range") |> Maybe.withDefault { attrName = "", selected = [] }
+
+                    selComplexity =
+                        afs |> List.Extra.find (\a -> a.attrName == "complexity") |> Maybe.withDefault { attrName = "", selected = [] }
+
+                    passType =
+                        (selTypes.selected |> List.length)
+                            == 0
+                            || (selTypes.selected |> List.Extra.findIndex (\s -> s == p.attributes.type_) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
+
+                    passQuality =
+                        (selQuality.selected |> List.length)
+                            == 0
+                            || (selQuality.selected |> List.Extra.findIndex (\s -> s == p.attributes.quality) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
+
+                    passRange =
+                        (selRange.selected |> List.length)
+                            == 0
+                            || (selRange.selected |> List.Extra.findIndex (\s -> s == p.attributes.range) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
+
+                    passComplexity =
+                        (selComplexity.selected |> List.length)
+                            == 0
+                            || (selComplexity.selected |> List.Extra.findIndex (\s -> s == p.attributes.complexity) |> Maybe.map (\i -> i >= 0) |> Maybe.withDefault False)
+                in
+                passType && passQuality && passRange && passComplexity
             )
 
 
