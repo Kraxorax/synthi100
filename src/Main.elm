@@ -8,6 +8,7 @@ import Browser.Navigation exposing (Key, load, pushUrl)
 import Css exposing (..)
 import Css.Global exposing (body, global, selector)
 import Debug
+import Footer exposing (footer)
 import Header exposing (header)
 import HomePage
 import Html as H
@@ -29,6 +30,7 @@ import PinTable exposing (..)
 import Ports exposing (..)
 import Routing exposing (Route(..), urlToRoute)
 import Scroll exposing (..)
+import Styles exposing (theDarkGray)
 import SynthiSchema as SS
 import Url exposing (Url)
 import ViewModel as VM
@@ -250,8 +252,7 @@ update msg model =
         Play patch ->
             let
                 ps =
-                    model.patches
-                        |> Maybe.withDefault []
+                    model.filteredPatches
                         |> List.map
                             (\p ->
                                 let
@@ -273,13 +274,12 @@ update msg model =
                 cmds =
                     play patch.title
             in
-            ( { model | patches = Just ps }, cmds )
+            ( { model | filteredPatches = ps }, cmds )
 
         Pause patch ->
             let
                 ps =
-                    model.patches
-                        |> Maybe.withDefault []
+                    model.filteredPatches
                         |> List.map
                             (\p ->
                                 case p.audioModel of
@@ -294,23 +294,21 @@ update msg model =
                                         { p | audioModel = Nothing }
                             )
             in
-            ( { model | patches = Just ps }, pause patch.title )
+            ( { model | filteredPatches = ps }, pause patch.title )
 
         Ended patch ->
             let
                 ps =
-                    model.patches
-                        |> Maybe.withDefault []
+                    model.filteredPatches
                         |> List.map
                             (\p -> { p | audioModel = Nothing })
             in
-            ( { model | patches = Just ps }, Cmd.none )
+            ( { model | filteredPatches = ps }, Cmd.none )
 
         TimeUpdate patch seekerPosition ->
             let
                 ps =
-                    model.patches
-                        |> Maybe.withDefault []
+                    model.filteredPatches
                         |> List.map
                             (\p ->
                                 case p.audioModel of
@@ -325,7 +323,7 @@ update msg model =
                                         p
                             )
             in
-            ( { model | patches = Just ps }, Cmd.none )
+            ( { model | filteredPatches = ps }, Cmd.none )
 
         Seek patch mouseData ->
             let
@@ -344,8 +342,7 @@ update msg model =
                             Nothing
 
                 ps =
-                    model.patches
-                        |> Maybe.withDefault []
+                    model.filteredPatches
                         |> List.map
                             (\p ->
                                 if p.title == patch.title then
@@ -355,7 +352,7 @@ update msg model =
                                     p
                             )
             in
-            ( { model | patches = Just ps }, setCurrentTime ( patch.title, newTime ) )
+            ( { model | filteredPatches = ps }, setCurrentTime ( patch.title, newTime ) )
 
         Filter group value ->
             let
@@ -385,34 +382,26 @@ update msg model =
         SortBy sortBy ->
             let
                 sortedPatches =
-                    model.patches
-                        |> Maybe.map
-                            (\patches ->
-                                case model.sortOrder of
-                                    Ascending ->
-                                        patches |> sortAscendingBy sortBy
+                    case model.sortOrder of
+                        Ascending ->
+                            model.filteredPatches |> sortAscendingBy sortBy
 
-                                    Descending ->
-                                        patches |> sortDescendingBy sortBy
-                            )
+                        Descending ->
+                            model.filteredPatches |> sortDescendingBy sortBy
             in
-            ( { model | patches = sortedPatches, sortBy = sortBy }, Cmd.none )
+            ( { model | filteredPatches = sortedPatches, sortBy = sortBy }, Cmd.none )
 
         Sort direction ->
             let
                 sortedPatches =
-                    model.patches
-                        |> Maybe.map
-                            (\patches ->
-                                case direction of
-                                    Ascending ->
-                                        patches |> sortAscendingBy model.sortBy
+                    case direction of
+                        Ascending ->
+                            model.filteredPatches |> sortAscendingBy model.sortBy
 
-                                    Descending ->
-                                        patches |> sortDescendingBy model.sortBy
-                            )
+                        Descending ->
+                            model.filteredPatches |> sortDescendingBy model.sortBy
             in
-            ( { model | patches = sortedPatches, sortOrder = direction }, Cmd.none )
+            ( { model | filteredPatches = sortedPatches, sortOrder = direction }, Cmd.none )
 
 
 getPatchTitle route =
@@ -620,6 +609,7 @@ view model =
         , fontImport
         , header
         , page
+        , footer
         ]
             |> List.map Html.Styled.toUnstyled
     }

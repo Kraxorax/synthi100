@@ -14,12 +14,12 @@ theGray =
     hex "9b9b9b"
 
 
-theGrayString =
-    "#9b9b9b"
-
-
 theDarkGray =
     hex "4a4a4a"
+
+
+theGrayString =
+    "#9b9b9b"
 
 
 theDarkGrayString =

@@ -3,10 +3,12 @@ module Components exposing (audioNode, cssHaxor, outputPanel, playButton, volume
 import AudioModel exposing (..)
 import Css as Css exposing (..)
 import Events exposing (..)
+import Html
 import Html.Attributes.Extra as HAE
 import Html.Styled as HS exposing (..)
 import Html.Styled.Attributes as HSA exposing (..)
 import Html.Styled.Events as HS exposing (..)
+import Html.Styled.Lazy exposing (..)
 import Json.Decode as JD exposing (..)
 import Json.Encode as JE
 import Knob exposing (KnobMsg, simpleKnobSvg)

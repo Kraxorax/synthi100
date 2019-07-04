@@ -53,7 +53,7 @@ filterList model =
     div [ css [ paddingLeft (px 31), maxWidth (px 390) ] ]
         [ div [ css [ filterHeaderStyle ] ]
             [ text "filters" ]
-        , div []
+        , div [ css [ marginBottom (px 20) ] ]
             (attrs
                 |> List.map
                     (\a ->
@@ -81,7 +81,7 @@ filterSubheaderStyle =
 
 filterGroup : AttrFilter -> Attribute -> Html Msg
 filterGroup filter attr =
-    div []
+    div [ css [ lastChild [ borderBottom3 (px 1) solid theBlue ] ] ]
         [ div [ css [ filterSubheaderStyle ] ]
             [ text attr.name ]
         , ul [ css [ Css.listStyle none, paddingLeft (px 10) ] ]
@@ -255,7 +255,8 @@ patchMetaCss =
         ]
 
 
-patchTitleCss =
+patchTitleCss : Color -> Style
+patchTitleCss titleColor =
     batch
         [ flex (num 1)
         , minWidth (px 150)
@@ -264,6 +265,7 @@ patchTitleCss =
         , marginRight (px 10)
         , Css.height (pct 100)
         , marginTop (px 32)
+        , color titleColor
         ]
 
 
@@ -293,6 +295,9 @@ patchItemCss =
         , fontWeight bold
         , borderTop2 (px 1) solid
         , borderColor (hex "ffffff")
+        , lastChild
+            [ borderBottom2 (px 1) solid
+            ]
         ]
 
 
@@ -306,8 +311,19 @@ patchItem model patch =
 
 patchMedia : Model -> P.Patch -> Html Msg
 patchMedia model patch =
+    let
+        am =
+            patch.audioModel |> Maybe.withDefault noPlayingAudioModel
+
+        titleColor =
+            if am.playing then
+                hex "ffffff"
+
+            else
+                theBlue
+    in
     div [ css [ patchMediaCss ] ]
-        [ div [ css [ patchTitleCss ] ]
+        [ div [ css [ patchTitleCss titleColor ] ]
             [ text patch.title ]
         , div
             [ css [ Css.width (px 64), Css.height (px 64) ] ]
