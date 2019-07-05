@@ -2,7 +2,7 @@ module Footer exposing (footer)
 
 import Css exposing (..)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes exposing (css, src)
 import Styles exposing (theBlue, theDarkGray)
 
 
@@ -18,5 +18,5 @@ footer =
                 , borderLeft3 (px 1) solid theBlue
                 ]
             ]
-            []
+            [ img [ src "/footer-logo.png", css [ maxWidth (px 360), padding2 (px 30) (px 20) ] ] [] ]
         ]

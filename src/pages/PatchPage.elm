@@ -127,7 +127,7 @@ muteBttn isMute =
 headerCss : Style
 headerCss =
     batch
-        [ fontSize (px 24)
+        [ fontSize (px 20)
         , fontWeight bold
         , letterSpacing (px 0.5)
         ]
@@ -281,15 +281,15 @@ graphical : Model -> Patch -> Html Msg
 graphical model patch =
     div [ css [ displayFlex, flexDirection column, Css.width (pct 100), flex (int 1) ] ]
         [ div [ css [ sectionCss ] ]
-            [ graphicControls model.audioPinModel.activeModules "Audio signals" True model patch
+            [ graphicControls model.audioPinModel.activeModules "Audio signals" "/icon-audio.png" True model patch
             , pinPanel Audio model patch
             ]
         , div [ css [ sectionCss ] ]
-            [ graphicControls model.controlPinModel.activeModules "Control voltages" True model patch
+            [ graphicControls model.controlPinModel.activeModules "Control voltages" "/icon-control.png" True model patch
             , pinPanel Control model patch
             ]
         , div [ css [ sectionCss, borderBottom (px 0) ] ]
-            [ graphicControls Nothing "Output channels" False model patch
+            [ graphicControls Nothing "Output channels" "/icon-channels.png" False model patch
             , outputChannels model patch
             ]
         , div
@@ -299,7 +299,7 @@ graphical model patch =
                 , marginBottom (px 70)
                 ]
             ]
-            [ graphicControls Nothing "Textual score" False model patch
+            [ graphicControls Nothing "Textual score" "/icon-score.png" False model patch
             , score patch
             ]
         ]
@@ -320,19 +320,20 @@ controlsGraphicalCss =
         ]
 
 
-graphicControls : Maybe ( Module, Module ) -> String -> Bool -> Model -> Patch -> Html Msg
-graphicControls mModules header showParameters model patch =
+graphicControls : Maybe ( Module, Module ) -> String -> String -> Bool -> Model -> Patch -> Html Msg
+graphicControls mModules header iconUrl showParameters model patch =
     div [ css [ controlsGraphicalCss ] ]
         [ div
             [ css
                 [ Css.height (px 60)
                 , color (hex "000")
                 , borderBottom3 (px 2) solid (hex "000")
+                , padding2 (px 5) (px 0)
                 ]
             ]
             [ span [ css [ headerCss, display inlineBlock, marginTop (px 6) ] ]
                 [ text header ]
-            , img [ src "/graphical.svg", css [ marginRight (px 18), float right ] ] []
+            , img [ src iconUrl, css [ marginRight (px 18), float right, maxWidth (px 90) ] ] []
             ]
         , soundControls model patch
         , patchMeta patch
