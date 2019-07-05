@@ -584,7 +584,7 @@ channelTag =
     "output-ch-"
 
 
-getOutputChannels : SS.SynthiSchema -> List ModuleSettings -> List ( Knob, Knob, Knob )
+getOutputChannels : SS.SynthiSchema -> List ModuleSettings -> List OutputChanValues
 getOutputChannels ss lms =
     let
         outChans =
@@ -606,12 +606,12 @@ getOutputChannels ss lms =
                             moduleM =
                                 lms |> List.Extra.find (\pm -> pm.name == chan.name)
 
-                            ( level, filter, pan ) =
+                            chanValues =
                                 moduleM
                                     |> Maybe.map
                                         (\mdl ->
                                             let
-                                                enabled =
+                                                isOn =
                                                     mdl.controlValues
                                                         |> List.Extra.find
                                                             (\ctrl ->
@@ -622,6 +622,16 @@ getOutputChannels ss lms =
                                                                     _ ->
                                                                         False
                                                             )
+                                                        |> Maybe.map
+                                                            (\ctrl ->
+                                                                case ctrl of
+                                                                    SwitchVal enbld ->
+                                                                        enbld.case_ == "on"
+
+                                                                    _ ->
+                                                                        False
+                                                            )
+                                                        |> Maybe.withDefault False
 
                                                 lvl =
                                                     mdl.controlValues
@@ -686,14 +696,14 @@ getOutputChannels ss lms =
                                                                         Nothing
                                                             )
                                             in
-                                            ( lvl, fltr, pn )
+                                            OutputChanValues (Knob chan.name lvl) (Knob chan.name fltr) (Knob chan.name pn) isOn
                                         )
-                                    |> Maybe.withDefault ( Nothing, Nothing, Nothing )
+                                    |> Maybe.withDefault (OutputChanValues (Knob chan.name Nothing) (Knob chan.name Nothing) (Knob chan.name Nothing) False)
                         in
-                        ( Knob chan.name level, Knob chan.name filter, Knob chan.name pan )
+                        chanValues
                     )
     in
-    chansWithValues |> List.sortBy (\( l, f, p ) -> l.name)
+    chansWithValues |> List.sortBy (\cv -> cv.level.name)
 
 
 reactToAudioPinEvent : PinTable.Panel -> PinTable.PinMsg -> Msg

@@ -1,4 +1,4 @@
-module Components exposing (audioNode, cssHaxor, outputPanel, playButton, volumeIcon, volumeInput, volumeSlider, waveformSeeker)
+module Components exposing (OutputChanValues, audioNode, cssHaxor, outputPanel, playButton, volumeIcon, volumeInput, volumeSlider, waveformSeeker)
 
 import AudioModel exposing (..)
 import Css as Css exposing (..)
@@ -246,8 +246,16 @@ sfi =
     String.fromInt
 
 
-outputPanel : List ( Knob, Knob, Knob ) -> Html KnobMsg
-outputPanel knobs =
+type alias OutputChanValues =
+    { level : Knob
+    , filter : Knob
+    , pan : Knob
+    , on : Bool
+    }
+
+
+outputPanel : List OutputChanValues -> Html KnobMsg
+outputPanel chanVals =
     let
         vhStart =
             310
@@ -278,12 +286,13 @@ outputPanel knobs =
 
         switches =
             g [ Svg.color "black" ]
-                (knobs
+                (chanVals
                     |> List.indexedMap
-                        (\i ( level, filter, pan ) ->
+                        (\i cv ->
+                            --( level, filter, pan ) ->
                             let
                                 swch =
-                                    chanSwitch (level.value |> isJust)
+                                    chanSwitch cv.on
 
                                 xp =
                                     vvBegin + (i * vvOffset) |> String.fromInt
@@ -296,12 +305,12 @@ outputPanel knobs =
 
         handles =
             g [ Svg.color "black" ]
-                (knobs
+                (chanVals
                     |> List.indexedMap
-                        (\i ( level, filter, pan ) ->
+                        (\i cv ->
                             let
                                 val =
-                                    level.value |> Maybe.withDefault 0
+                                    cv.level.value |> Maybe.withDefault 0
 
                                 xp =
                                     vvBegin + (i * vvOffset) |> String.fromInt
@@ -320,30 +329,30 @@ outputPanel knobs =
 
         filterKnobs =
             g []
-                (knobs
+                (chanVals
                     |> List.indexedMap
-                        (\i ( level, filter, pan ) ->
+                        (\i cv ->
                             let
                                 xp =
                                     vvBegin + (i * vvOffset) |> String.fromInt
                             in
                             svg [ x xp, y "90" ]
-                                [ simpleKnobSvg filter
+                                [ simpleKnobSvg cv.filter
                                 ]
                         )
                 )
 
         panKnobs =
             g []
-                (knobs
+                (chanVals
                     |> List.indexedMap
-                        (\i ( level, filter, pan ) ->
+                        (\i cv ->
                             let
                                 xp =
                                     vvBegin + (i * vvOffset) |> String.fromInt
                             in
                             svg [ x xp, y "180" ]
-                                [ simpleKnobSvg pan
+                                [ simpleKnobSvg cv.pan
                                 ]
                         )
                 )
