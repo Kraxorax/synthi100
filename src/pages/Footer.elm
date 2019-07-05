@@ -8,7 +8,7 @@ import Styles exposing (theBlue, theDarkGray)
 
 footer : Html msg
 footer =
-    div [ css [ width (pct 100), height (px 135), backgroundColor theDarkGray, displayFlex ] ]
+    div [ css [ width (pct 100), minHeight (px 135), backgroundColor theDarkGray, displayFlex ] ]
         [ div [ css [ flex (int 2) ] ] []
         , div
             [ css

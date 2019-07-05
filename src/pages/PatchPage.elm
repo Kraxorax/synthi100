@@ -27,8 +27,8 @@ page : Bool -> String -> Model -> Html Msg
 page showGraphical patchTitle model =
     let
         patch =
-            model.patches
-                |> Maybe.map (find (\p -> p.title == patchTitle) >> Maybe.withDefault noPatch)
+            model.filteredPatches
+                |> find (\p -> p.title == patchTitle)
                 |> Maybe.withDefault noPatch
 
         ( view, bgColor ) =
@@ -243,7 +243,15 @@ patchMeta patch =
 
 score : Patch -> Html Msg
 score patch =
-    div [ css [ backgroundColor (hex "c8c8c8"), padding2 (px 35) (px 42) ] ]
+    div
+        [ css
+            [ backgroundColor (hex "c8c8c8")
+            , padding2 (px 35) (px 42)
+            , minWidth (px 622)
+            , maxWidth (px 740)
+            , marginLeft (px 35)
+            ]
+        ]
         [ HS.pre
             [ css
                 [ Css.fontSize (px 14)
@@ -280,7 +288,7 @@ graphical model patch =
             [ graphicControls "Control voltages" True model patch
             , pinPanel Control model patch
             ]
-        , div [ css [ sectionCss ] ]
+        , div [ css [ sectionCss, borderBottom (px 0) ] ]
             [ graphicControls "Output channels" False model patch
             , outputChannels model patch
             ]
@@ -288,7 +296,7 @@ graphical model patch =
             [ css
                 [ flex (int 1)
                 , displayFlex
-                , borderBottom2 (px 5) double
+                , marginBottom (px 70)
                 ]
             ]
             [ graphicControls "Textual score" False model patch
@@ -557,7 +565,7 @@ outputChannels model patch =
     in
     div [ css [ Css.color (hex "000"), fontSize (px 14), fontWeight bold, letterSpacing (px 1.4), marginLeft (px 26) ] ]
         (div [ css [ Css.height (px 50), Css.width (px 327), marginLeft (px 33) ] ]
-            [ span [ css [ display inlineBlock ] ] [ text "OUTPUT CHANNELS" ]
+            [ span [ css [ display inlineBlock, paddingTop (px 15) ] ] [ text "OUTPUT CHANNELS" ]
             ]
             :: [ outputPanel channels ]
         )
