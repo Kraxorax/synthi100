@@ -21,7 +21,6 @@ type alias Model =
     , patches : Maybe (List P.Patch)
     , filteredPatches : List P.Patch
     , error : Maybe String
-    , activeModules : Maybe ( Module, Module )
     , attributeFilters : List AttrFilter
     , activeControl : ( Maybe String, Maybe String )
     , volume : Float
@@ -42,7 +41,6 @@ initModel url key =
     , patches = Nothing
     , filteredPatches = []
     , error = Nothing
-    , activeModules = Nothing
     , attributeFilters = []
     , activeControl = ( Nothing, Nothing )
     , volume = 0.5

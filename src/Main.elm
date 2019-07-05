@@ -194,14 +194,12 @@ update msg model =
                             case panel of
                                 Audio ->
                                     { model
-                                        | activeModules = Just ( im, om )
-                                        , audioPinModel = setActivePin panel ( x, y ) model.audioPinModel
+                                        | audioPinModel = setActivePin panel ( x, y ) (Just ( im, om )) model.audioPinModel
                                     }
 
                                 Control ->
                                     { model
-                                        | activeModules = Just ( im, om )
-                                        , controlPinModel = setActivePin panel ( x, y ) model.controlPinModel
+                                        | controlPinModel = setActivePin panel ( x, y ) (Just ( im, om )) model.controlPinModel
                                     }
                         )
                         model.synthiSchema

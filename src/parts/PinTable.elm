@@ -12,6 +12,7 @@ import Svg.Styled.Attributes as Svg exposing (..)
 import Svg.Styled.Events as Svg exposing (..)
 import SynthiSchema as SS
 import Tuple exposing (first, second)
+import ViewModel exposing (Module)
 
 
 color =
@@ -61,6 +62,7 @@ type alias PinModel =
     { hoverPin : ( Int, Int )
     , activePin : ( Int, Int )
     , panel : Panel
+    , activeModules : Maybe ( Module, Module )
     }
 
 
@@ -69,6 +71,7 @@ initModel =
     { hoverPin = ( -1, -1 )
     , activePin = ( -1, -1 )
     , panel = Audio
+    , activeModules = Nothing
     }
 
 
@@ -85,9 +88,9 @@ update msg model =
             { model | activePin = ( x, y ) }
 
 
-setActivePin : Panel -> ( Int, Int ) -> PinModel -> PinModel
-setActivePin panel xy model =
-    { model | activePin = xy, panel = panel }
+setActivePin : Panel -> ( Int, Int ) -> Maybe ( Module, Module ) -> PinModel -> PinModel
+setActivePin panel xy actMods model =
+    { model | activePin = xy, panel = panel, activeModules = actMods }
 
 
 setHoverPin : ( Int, Int ) -> PinModel -> PinModel

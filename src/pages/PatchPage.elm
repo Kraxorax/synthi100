@@ -281,15 +281,15 @@ graphical : Model -> Patch -> Html Msg
 graphical model patch =
     div [ css [ displayFlex, flexDirection column, Css.width (pct 100), flex (int 1) ] ]
         [ div [ css [ sectionCss ] ]
-            [ graphicControls "Audio signals" True model patch
+            [ graphicControls model.audioPinModel.activeModules "Audio signals" True model patch
             , pinPanel Audio model patch
             ]
         , div [ css [ sectionCss ] ]
-            [ graphicControls "Control voltages" True model patch
+            [ graphicControls model.controlPinModel.activeModules "Control voltages" True model patch
             , pinPanel Control model patch
             ]
         , div [ css [ sectionCss, borderBottom (px 0) ] ]
-            [ graphicControls "Output channels" False model patch
+            [ graphicControls Nothing "Output channels" False model patch
             , outputChannels model patch
             ]
         , div
@@ -299,7 +299,7 @@ graphical model patch =
                 , marginBottom (px 70)
                 ]
             ]
-            [ graphicControls "Textual score" False model patch
+            [ graphicControls Nothing "Textual score" False model patch
             , score patch
             ]
         ]
@@ -320,8 +320,8 @@ controlsGraphicalCss =
         ]
 
 
-graphicControls : String -> Bool -> Model -> Patch -> Html Msg
-graphicControls header showParameters model patch =
+graphicControls : Maybe ( Module, Module ) -> String -> Bool -> Model -> Patch -> Html Msg
+graphicControls mModules header showParameters model patch =
     div [ css [ controlsGraphicalCss ] ]
         [ div
             [ css
@@ -339,7 +339,7 @@ graphicControls header showParameters model patch =
         , downloadStrip patch
         , patchNav patch
         , if showParameters then
-            parameters model patch
+            parameters mModules model patch
 
           else
             div [] []
@@ -393,8 +393,8 @@ downloadStrip patch =
         ]
 
 
-parameters : Model -> Patch -> Html Msg
-parameters model patch =
+parameters : Maybe ( Module, Module ) -> Model -> Patch -> Html Msg
+parameters mModules model patch =
     div []
         [ div
             [ css
@@ -405,7 +405,7 @@ parameters model patch =
                 ]
             ]
             [ span [ css [ headerCss, display inlineBlock, marginTop (px 18) ] ] [ text "Parameters" ] ]
-        , knob model patch
+        , knob mModules model patch
         ]
 
 
@@ -418,11 +418,11 @@ knobInfoStyle =
         ]
 
 
-knob : Model -> Patch -> Html Msg
-knob model patch =
+knob : Maybe ( Module, Module ) -> Model -> Patch -> Html Msg
+knob mModules model patch =
     let
         ( im, om ) =
-            model.activeModules |> Maybe.withDefault ( Module " " [], Module " " [] )
+            mModules |> Maybe.withDefault ( Module " " [], Module " " [] )
 
         ( iac, oac ) =
             model.activeControl
