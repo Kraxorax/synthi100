@@ -10,6 +10,10 @@ import Url exposing (Url)
 import ViewModel exposing (..)
 
 
+type alias A =
+    { x : Int, y : String, f : Bool, d : Int }
+
+
 type alias Model =
     { navKey : Key
     , currentRoute : Route

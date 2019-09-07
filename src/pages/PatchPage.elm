@@ -147,8 +147,6 @@ soundControls model patch =
             [ waveformSeeker True patch ]
         , div [ css [ flex (int 1) ] ]
             [ text (durationToTime patch.duration) ]
-        , div [ css [ flex (int 1), height (pct 100) ] ]
-            [ ppVolumeInput model ]
         , div [] [ audioNode model patch ]
         ]
 
@@ -233,11 +231,15 @@ nextBttn msg =
         ]
 
 
-patchMeta : Patch -> Html Msg
-patchMeta patch =
-    div []
-        [ h1 [ css [ Css.fontSize (px 36) ] ] [ text patch.title ]
-        , p [ css [ marginBottom (px 20) ] ] [ text (patch.attributeValues |> String.join " / ") ]
+patchMeta : Patch -> Model -> Html Msg
+patchMeta patch model =
+    div [ css [ displayFlex, flexDirection row ] ]
+        [ div [ css [ flex (int 6) ] ]
+            [ h1 [ css [ Css.fontSize (px 36), width (pct 50) ] ] [ text patch.title ]
+            , p [ css [ marginBottom (px 20) ] ] [ text (patch.attributeValues |> String.join " / ") ]
+            ]
+        , div [ css [ flex (int 1), height (pct 100) ] ]
+            [ ppVolumeInput model ]
         ]
 
 
@@ -336,7 +338,7 @@ graphicControls mModules header iconUrl showParameters model patch =
             , img [ src iconUrl, css [ marginRight (px 18), float right, maxWidth (px 90) ] ] []
             ]
         , soundControls model patch
-        , patchMeta patch
+        , patchMeta patch model
         , downloadStrip patch
         , patchNav patch
         , if showParameters then

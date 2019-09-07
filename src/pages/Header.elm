@@ -26,6 +26,7 @@ headerFlexCss =
         , boxSizing borderBox
         , justifyContent spaceBetween
         , marginBottom (px 40)
+        , marginTop (px 16)
         ]
 
 
@@ -93,7 +94,7 @@ header =
             ]
             [ div
                 [ css [ flex (num 1), paddingLeft (px 31), marginBottom (px 1) ] ]
-                [ a[href "/database"][img [ src "/synthi-logo.svg" ] []] ]
+                [ a [ href "/database" ] [ img [ src "/synthi-logo.svg" ] [] ] ]
             , div
                 [ css [ synthiTitleFlexCss ] ]
                 [ div [ css [ headerLineCss ] ] []

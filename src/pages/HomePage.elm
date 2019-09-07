@@ -22,17 +22,19 @@ import SynthiSchema exposing (Attribute)
 
 page : Model -> Html Msg
 page model =
-    div [ css [ displayFlex ] ]
-        [ div [ css [ flex (num 1) ] ] [ filterList model ]
-        , div [ css [ flex (num 2) ] ] [ patchesList model ]
+    div []
+        [ div [ css [ color (hex "ffffff"), fontSize (px 36), marginBottom (px 10), marginLeft (px 31), borderBottom3 (px 1) solid theBlue ] ] [ text "DATABASE" ]
+        , div [ css [ displayFlex ] ]
+            [ div [ css [ flex (num 1) ] ] [ filterList model ]
+            , div [ css [ flex (num 2) ] ] [ patchesList model ]
+            ]
         ]
 
 
 filterHeaderStyle : Style
 filterHeaderStyle =
     batch
-        [ borderTop2 (px 1) solid
-        , padding2 (px 10) (px 0)
+        [ padding2 (px 12.5) (px 0)
         , fontSize (px 20)
         , fontWeight bold
         , letterSpacing (px 0.5)
@@ -116,8 +118,7 @@ patchesList model =
     in
     div
         [ css
-            [ marginTop (px 18)
-            , letterSpacing (px 0.5)
+            [ letterSpacing (px 0.5)
             , fontSize (px 20)
             ]
         ]
@@ -207,7 +208,6 @@ sortInput model =
             [ displayFlex
             , alignItems center
             , fontWeight bold
-            , borderTop2 (px 1) solid
             , fontSize (px 20)
             , maxWidth (pct 50)
             , Css.height (px 46)
@@ -264,7 +264,8 @@ patchTitleCss titleColor =
         , letterSpacing (px 0)
         , marginRight (px 10)
         , Css.height (pct 100)
-        , marginTop (px 32)
+
+        -- , marginTop (px 32)
         , color titleColor
         ]
 
@@ -323,15 +324,23 @@ patchMedia model patch =
                 theBlue
     in
     div [ css [ patchMediaCss ] ]
-        [ div [ css [ patchTitleCss titleColor ] ]
-            [ text patch.title ]
-        , div
-            [ css [ Css.width (px 64), Css.height (px 64) ] ]
-            [ playButton patch ]
-        , div
-            [ css [ Css.width auto, Css.height (px 90), marginLeft (px 9) ] ]
-            [ waveformSeeker False patch ]
-        , audioNode model patch
+        [ div [ css [ displayFlex, flexDirection column ] ]
+            [ div [ css [ displayFlex, patchTitleCss titleColor, borderBottom3 (px 1) solid (hex "ffffff"), flexDirection row ] ]
+                [ div [ css [ flex (num 5), color (hex "ffffff") ] ] [ text patch.title ]
+                , div [ css [ color (hex "ffffff"), fontSize (px 12) ] ]
+                    [ text (P.durationToTime patch.duration) ]
+                ]
+            , div
+                [ css [ displayFlex, flexDirection row ] ]
+                [ div
+                    [ css [ Css.width (px 64), Css.height (px 64) ] ]
+                    [ playButton patch ]
+                , div
+                    [ css [ Css.width auto, Css.height (px 90), marginLeft (px 9) ] ]
+                    [ waveformSeeker False patch ]
+                , audioNode model patch
+                ]
+            ]
         ]
 
 
@@ -349,17 +358,17 @@ patchMeta p =
     in
     div [ css [ patchMetaCss ] ]
         [ div [ css [ patchInfoCss ] ]
-            [ div [ css [ displayFlex, marginTop (px 8), borderBottom3 (px 1) solid (hex "333") ] ]
-                [ div [ css [ lineHeight (num 1.2), minWidth (px 45), margin4 (px 0) (px 10) (px 7) (px 0), padding4 (px 5) (px 10) (px 0) (px 0), borderRight3 (px 2) solid theBlue ] ]
-                    [ text durationText ]
-                , div [ css [ lineHeight (num 1.2), marginBottom (px 10), paddingTop (px 5) ] ]
-                    [ text attribs ]
-                ]
-            , div [ css [ displayFlex, marginTop (px 13) ] ]
+            [ div [ css [ displayFlex, marginTop (px 13) ] ]
                 [ div [ css [ flex (num 1), displayFlex, alignItems center, cursor pointer ] ]
                     [ downBttn "#9b9b9b", span [ css [ marginLeft (px 10) ] ] [ text "download audio" ] ]
                 , a [ href patchUrl, css [ linkUnstyle, flex (num 1), displayFlex, alignItems center ] ]
                     [ rightBttn "#9b9b9b", span [ css [ marginLeft (px 10) ] ] [ text "score" ] ]
+                ]
+            , div [ css [ displayFlex, marginTop (px 8), borderBottom3 (px 1) solid (hex "333") ] ]
+                [ div [ css [ lineHeight (num 1.2), minWidth (px 45), margin4 (px 0) (px 10) (px 7) (px 0), padding4 (px 5) (px 10) (px 0) (px 0), borderRight3 (px 2) solid theBlue ] ]
+                    [ text durationText ]
+                , div [ css [ lineHeight (num 1.2), marginBottom (px 10), paddingTop (px 5) ] ]
+                    [ text attribs ]
                 ]
             ]
         ]
