@@ -183,6 +183,7 @@ audioNode model patch =
             , src patch.soundUrl
             , HAE.volume model.volume |> HSA.fromUnstyled
             , onEnded (Ended patch) |> HSA.fromUnstyled
+            , HSA.loop model.loop
             , onTimeUpdate (TimeUpdate patch) |> HSA.fromUnstyled
             ]
             []

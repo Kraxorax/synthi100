@@ -303,6 +303,13 @@ update msg model =
             in
             ( { model | filteredPatches = ps }, Cmd.none )
 
+        Loop ->
+            let
+                newLoop =
+                    not model.loop
+            in
+            ( { model | loop = newLoop }, loop newLoop )
+
         TimeUpdate patch seekerPosition ->
             let
                 ps =
@@ -400,6 +407,9 @@ update msg model =
                             model.filteredPatches |> sortDescendingBy model.sortBy
             in
             ( { model | filteredPatches = sortedPatches, sortOrder = direction }, Cmd.none )
+
+        ToTop ->
+            ( model, Ports.toTop () )
 
 
 getPatchTitle route =

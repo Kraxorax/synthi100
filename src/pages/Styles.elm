@@ -1,4 +1,4 @@
-module Styles exposing (circ, downBttn, linkUnstyle, next, prev, rightBttn, theBlue, theDarkGray, theDarkGrayString, theGray, theGrayString, vi, xBox)
+module Styles exposing (circ, downBttn, linkUnstyle, next, prev, rightBttn, theBlue, theDarkGray, theDarkGrayString, theGray, theGrayString, theLightGray, upBttn, vi, xBox)
 
 import Css exposing (..)
 import Svg.Styled as Svg exposing (..)
@@ -16,6 +16,10 @@ theGray =
 
 theDarkGray =
     hex "4a4a4a"
+
+
+theLightGray =
+    hex "d8d8d8\n"
 
 
 theGrayString =
@@ -52,6 +56,7 @@ xBox isCheck =
             , Svg.width "18px"
             , Svg.height "18px"
             , Svg.stroke "white"
+            , Svg.fillOpacity "0"
             ]
             []
             :: c
@@ -108,6 +113,15 @@ downBttn bgColor =
         [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill bgColor ] []
         , line [ x1 "4", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2" ] []
         , line [ x1 "16", y1 "6", x2 "10", y2 "13", Svg.stroke "#000", Svg.strokeWidth "2" ] []
+        ]
+
+
+upBttn : String -> Svg msg
+upBttn bgColor =
+    svg [ Svg.width "20", Svg.height "20" ]
+        [ rect [ x "0", y "0", Svg.width "20", Svg.height "20", Svg.fill bgColor ] []
+        , line [ x1 "4", y1 "13", x2 "10", y2 "6", Svg.stroke "#000", Svg.strokeWidth "2" ] []
+        , line [ x1 "16", y1 "13", x2 "10", y2 "6", Svg.stroke "#000", Svg.strokeWidth "2" ] []
         ]
 
 

@@ -4,7 +4,7 @@ import Components exposing (..)
 import Css exposing (..)
 import Css.Global exposing (body, global)
 import Html.Styled as HS exposing (..)
-import Html.Styled.Attributes exposing (css, download, href, src, type_)
+import Html.Styled.Attributes as HSA exposing (css, download, href, src, type_)
 import Html.Styled.Events exposing (..)
 import Knob exposing (..)
 import List.Extra exposing (find)
@@ -43,6 +43,7 @@ page showGraphical patchTitle model =
             , backgroundClip paddingBox
             , displayFlex
             , flex (int 1)
+            , position Css.relative
             ]
         ]
         view
@@ -80,9 +81,9 @@ ppVICss : Style
 ppVICss =
     batch
         [ Css.property "-webkit-appearance" "none"
-        , width (px 80)
+        , width (px 126)
         , height (px 3)
-        , margin2 (px 46) (px 0)
+        , margin2 (px 6) (px 0)
         ]
 
 
@@ -105,16 +106,21 @@ ppVolumeInput model =
         isMute =
             model.volume == 0
     in
-    div [ css [ displayFlex, flexDirection row, alignItems center, height (pct 100) ] ]
+    div [ css [ displayFlex, flexDirection row, alignItems center, borderBottom3 (px 1) solid (hex "000000"), padding2 (px 10) (px 0) ] ]
         [ div [ css [ flex (int 1) ] ]
             [ muteBttn (model.volume == 0) ]
-        , div [ css [ flex (int 4) ] ]
+        , div [ css [ flex (int 8) ] ]
             [ input
                 [ type_ "range"
                 , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
-                , css [ ppVICss, ppVIThumbCss ]
+                , css [ ppVICss, ppVIThumbCss, cursor pointer ]
                 ]
                 []
+            ]
+        , label [ css [ displayFlex, alignItems center, cursor pointer ] ]
+            [ xBox model.loop
+            , input [ type_ "checkbox", HSA.checked model.loop, onInput (\_ -> Loop), css [ display none ] ] []
+            , span [ css [ margin2 (px 0) (px 6) ] ] [ text "loop" ]
             ]
         ]
 
@@ -132,7 +138,7 @@ muteBttn isMute =
     img
         [ src url
         , css [ height (px 20) ]
-        , Html.Styled.Attributes.style "filter" "brightness(1000%)"
+        , HSA.style "filter" "brightness(1000%)"
         ]
         []
 
@@ -148,7 +154,7 @@ headerCss =
 
 audioControlsCss : Style
 audioControlsCss =
-    batch [ displayFlex, alignItems center, height (px 120), position Css.relative ]
+    batch [ displayFlex, alignItems center, height (px 120), position Css.relative, borderBottom3 (px 1) solid (hex "000000") ]
 
 
 soundControls : Model -> Patch -> Html Msg
@@ -161,36 +167,6 @@ soundControls model patch =
         , div [ css [ position Css.absolute, right (px 0), top (px 0) ] ]
             [ text (durationToTime patch.duration) ]
         , div [] [ audioNode model patch ]
-        ]
-
-
-controls : Model -> Patch -> Html Msg
-controls model patch =
-    div
-        [ css [ controlsCss ] ]
-        [ soundControls model patch
-        , div
-            [ css
-                [ padding2 (px 18) (px 0)
-                , margin (px 0)
-                , borderTop2 (px 1) solid
-                , borderBottom2 (px 1) solid
-                , displayFlex
-                , alignItems center
-                , marginTop (px 30)
-                ]
-            ]
-            [ downBttn "#ffffff"
-            , a
-                [ href patch.download
-                , download ""
-                , css
-                    [ linkUnstyle
-                    , paddingLeft (px 15)
-                    ]
-                ]
-                [ text "download audio + text" ]
-            ]
         ]
 
 
@@ -247,6 +223,7 @@ score patch =
             , minWidth (px 622)
             , maxWidth (px 740)
             , marginLeft (px 35)
+            , position Css.relative
             ]
         ]
         [ HS.pre
@@ -259,6 +236,18 @@ score patch =
                 ]
             ]
             [ text patch.score ]
+        , toTop
+        ]
+
+
+toTop : Html Msg
+toTop =
+    div
+        [ css [ position Css.absolute, right (px -60), bottom (px 0), displayFlex, alignItems center, cursor pointer ]
+        , onClick ToTop
+        ]
+        [ upBttn "#ffffff"
+        , span [ css [ paddingLeft (px 6) ] ] [ text "top" ]
         ]
 
 
@@ -267,9 +256,10 @@ sectionCss =
     batch
         [ flex (int 1)
         , displayFlex
-        , borderBottom3 (px 2) solid (hex "000000")
+        , borderBottom3 (px 7) double (hex "000000")
         , paddingTop (px 6)
         , marginBottom (px 6)
+        , maxWidth (px 1200)
         ]
 
 
@@ -319,16 +309,33 @@ controlsGraphicalCss =
 
 graphicControls : Maybe ( Module, Module ) -> String -> String -> Bool -> Model -> Patch -> Html Msg
 graphicControls mModules header iconUrl showParameters model patch =
-    div [ css [ controlsGraphicalCss ] ]
-        [ soundControls model patch
-        , ppVolumeInput model
-        , downloadStrip patch
-        , if showParameters then
-            parameters mModules model patch
+    let
+        ctrls =
+            case header of
+                "Audio signals" ->
+                    [ soundControls model patch
+                    , ppVolumeInput model
+                    , downloadStrip patch
+                    , pageMap header
+                    , parameters mModules model patch
+                    ]
 
-          else
-            div [] []
-        ]
+                "Control voltages" ->
+                    [ pageMap header
+                    , parameters mModules model patch
+                    ]
+
+                "Output channels" ->
+                    [ pageMap header ]
+
+                "Textual score" ->
+                    [ pageMap header ]
+
+                _ ->
+                    []
+    in
+    div [ css [ controlsGraphicalCss ] ]
+        ctrls
 
 
 patchNav : Patch -> Html Msg
@@ -355,13 +362,10 @@ downloadStrip : Patch -> Html Msg
 downloadStrip patch =
     div
         [ css
-            [ padding2 (px 18) (px 0)
-            , margin (px 0)
-            , borderTop2 (px 1) solid
-            , borderBottom2 (px 1) solid
+            [ padding2 (px 10) (px 0)
+            , borderBottom2 (px 3) solid
             , displayFlex
             , alignItems center
-            , marginTop (px 30)
             , color (hex "000000")
             ]
         ]
@@ -374,8 +378,31 @@ downloadStrip patch =
                 , paddingLeft (px 15)
                 ]
             ]
-            [ text "download audio + text" ]
+            [ text "download" ]
         ]
+
+
+pageMap : String -> Html msg
+pageMap header =
+    let
+        sections =
+            [ "Audio signals", "Control voltages", "Output channels", "Textual score" ]
+    in
+    div [ css [ color theLightGray, fontSize (px 20), padding2 (px 5) (px 0), borderBottom3 (px 2) solid (hex "000000") ] ]
+        (sections
+            |> List.map
+                (\s ->
+                    let
+                        color =
+                            if s == header then
+                                hex "000000"
+
+                            else
+                                theLightGray
+                    in
+                    div [ css [ Css.color color, padding2 (px 3) (px 0) ] ] [ text s ]
+                )
+        )
 
 
 parameters : Maybe ( Module, Module ) -> Model -> Patch -> Html Msg

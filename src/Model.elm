@@ -28,6 +28,7 @@ type alias Model =
     , attributeFilters : List AttrFilter
     , activeControl : ( Maybe String, Maybe String )
     , volume : Float
+    , loop : Bool
     , sortOrder : SortDirection
     , sortBy : String
     }
@@ -48,6 +49,7 @@ initModel url key =
     , attributeFilters = []
     , activeControl = ( Nothing, Nothing )
     , volume = 0.5
+    , loop = True
     , sortOrder = Ascending
     , sortBy = "title"
     }

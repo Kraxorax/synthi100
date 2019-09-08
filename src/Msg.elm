@@ -27,6 +27,7 @@ type Msg
     | Play P.Patch
     | Pause P.Patch
     | Ended P.Patch
+    | Loop
     | TimeUpdate P.Patch Float
     | Seek P.Patch MouseData
     | VolumeChange Float
@@ -34,3 +35,4 @@ type Msg
     | SortBy String
     | Sort SortDirection
     | MovePatch P.Patch Int
+    | ToTop
