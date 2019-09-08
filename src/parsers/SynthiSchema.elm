@@ -24,6 +24,16 @@ type alias Connection =
     }
 
 
+gc : Connection
+gc =
+    { name = "a", module_ = "b" }
+
+
+gc1 : Connection
+gc1 =
+    Connection "a" "b"
+
+
 type alias Module =
     { name : String
     , controls : List Control

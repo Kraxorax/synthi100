@@ -6,6 +6,10 @@ import Html.Styled.Attributes exposing (css, src)
 import Styles exposing (theBlue, theDarkGray)
 
 
+type alias A =
+    { x : Int, y : Int, z : Bool }
+
+
 footer : Html msg
 footer =
     div [ css [ width (pct 100), minHeight (px 135), backgroundColor theDarkGray, displayFlex ] ]

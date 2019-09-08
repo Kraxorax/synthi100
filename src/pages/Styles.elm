@@ -67,14 +67,14 @@ pnBttnImgCss =
 
 
 prev =
-    svg [ Svg.height "20px", Svg.width "20px", css [ pnBttnImgCss ] ]
-        [ polygon [ points "20,0 20,20 0,10", Svg.fill theDarkGrayString ] []
+    svg [ Svg.height "15px", Svg.width "15px", css [ pnBttnImgCss ] ]
+        [ polygon [ points "15,0 15,15 0,7.5", Svg.fill theDarkGrayString ] []
         ]
 
 
 next =
-    svg [ Svg.height "20px", Svg.width "20px", css [ pnBttnImgCss ] ]
-        [ polygon [ points "0,0 20,10 0,20", Svg.fill theDarkGrayString ] []
+    svg [ Svg.height "15px", Svg.width "15px", css [ pnBttnImgCss ] ]
+        [ polygon [ points "0,0 15,7.5 0,15", Svg.fill theDarkGrayString ] []
         ]
 
 

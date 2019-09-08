@@ -31,3 +31,13 @@ route =
         , map Patch (s "patch" </> string)
         , map About (s "about")
         ]
+
+
+l : List String
+l =
+    [ "a", "b", "c" ]
+
+
+l1 : List String
+l1 =
+    "a" :: "b" :: [ "c" ]

@@ -48,6 +48,20 @@ page showGraphical patchTitle model =
         view
 
 
+mainStrip : Patch -> Html Msg
+mainStrip patch =
+    div [ css [ displayFlex, height (px 50), maxWidth (px 1200), borderBottom3 (px 1) solid (hex "000000") ] ]
+        [ div [ css [ flex (num 1), displayFlex, alignItems baseline, maxWidth (px 390), marginRight (px 55) ] ]
+            [ div [ css [ fontSize (px 36), fontWeight bold, flex (num 6) ] ] [ text "SCORE" ]
+            , prevNext patch
+            ]
+        , div [ css [ width (px 720), paddingLeft (px 25), displayFlex, flexDirection row, alignItems baseline ] ]
+            [ div [ css [ flex (num 3), fontSize (px 36), fontWeight bold ] ] [ text patch.title ]
+            , div [ css [] ] [ text (patch.attributeValues |> String.join " / ") ]
+            ]
+        ]
+
+
 controlsCss : Style
 controlsCss =
     batch
@@ -69,7 +83,6 @@ ppVICss =
         , width (px 80)
         , height (px 3)
         , margin2 (px 46) (px 0)
-        , transform (rotate (deg -90))
         ]
 
 
@@ -92,8 +105,10 @@ ppVolumeInput model =
         isMute =
             model.volume == 0
     in
-    div [ css [ displayFlex, flexDirection column, alignItems center, height (pct 100) ] ]
-        [ div [ css [ flex (int 4) ] ]
+    div [ css [ displayFlex, flexDirection row, alignItems center, height (pct 100) ] ]
+        [ div [ css [ flex (int 1) ] ]
+            [ muteBttn (model.volume == 0) ]
+        , div [ css [ flex (int 4) ] ]
             [ input
                 [ type_ "range"
                 , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
@@ -101,8 +116,6 @@ ppVolumeInput model =
                 ]
                 []
             ]
-        , div [ css [ flex (int 1) ] ]
-            [ muteBttn (model.volume == 0) ]
         ]
 
 
@@ -135,7 +148,7 @@ headerCss =
 
 audioControlsCss : Style
 audioControlsCss =
-    batch [ displayFlex, alignItems center, height (px 120) ]
+    batch [ displayFlex, alignItems center, height (px 120), position Css.relative ]
 
 
 soundControls : Model -> Patch -> Html Msg
@@ -143,9 +156,9 @@ soundControls model patch =
     div [ css [ audioControlsCss ] ]
         [ div [ css [ flex (int 1) ] ]
             [ playButton patch ]
-        , div [ css [ flex (int 3), height (pct 100) ] ]
+        , div [ css [ flex (int 5), height (pct 100) ] ]
             [ waveformSeeker True patch ]
-        , div [ css [ flex (int 1) ] ]
+        , div [ css [ position Css.absolute, right (px 0), top (px 0) ] ]
             [ text (durationToTime patch.duration) ]
         , div [] [ audioNode model patch ]
         ]
@@ -178,56 +191,38 @@ controls model patch =
                 ]
                 [ text "download audio + text" ]
             ]
-        , div
-            [ css
-                [ Css.height (px 60)
-                , borderTop2 (px 1) solid
-                , borderBottom2 (px 1) solid
-                , maxWidth (px 390)
-                , Css.width (pct 33)
-                , position fixed
-                , bottom (px 30)
-                ]
-            ]
-            [ div [ css [ width (pct 50), float left ] ] [ h1 [] [ text "Patch" ] ]
-            , div [ css [ float right, display inlineBlock, marginTop (px 5) ] ]
-                [ prevBttn (MovePatch patch -1)
-                , nextBttn (MovePatch patch 1)
-                ]
-            ]
         ]
 
 
-pnBttnDivCss : Style
-pnBttnDivCss =
+prevNext : Patch -> Html Msg
+prevNext patch =
+    div [ css [ displayFlex, flexDirection row, flex (num 2), alignItems center ] ]
+        [ div [ css [ marginRight (px 20) ] ]
+            [ span [ css [ fontSize (px 18), fontWeight bold ] ] [ text "Patch" ] ]
+        , prevBttn (MovePatch patch -1)
+        , nextBttn (MovePatch patch 1)
+        ]
+
+
+prevNextBttnCss : Style
+prevNextBttnCss =
     batch
-        [ display inlineBlock
-        , margin2 (px 5) (px 10)
+        [ margin2 (px 0) (px 6)
         , cursor pointer
-        ]
-
-
-pnBttnSpanCss : Style
-pnBttnSpanCss =
-    batch
-        [ display inlineBlock
-        , marginTop (px 6)
         ]
 
 
 prevBttn : msg -> Html msg
 prevBttn msg =
-    div [ onClick msg, css [ pnBttnDivCss ] ]
+    div [ onClick msg, css [ prevNextBttnCss ] ]
         [ prev
-        , span [ css [ pnBttnSpanCss ] ] [ text "previous" ]
         ]
 
 
 nextBttn : msg -> Html msg
 nextBttn msg =
-    div [ onClick msg, css [ pnBttnDivCss ] ]
+    div [ onClick msg, css [ prevNextBttnCss ] ]
         [ next
-        , span [ css [ pnBttnSpanCss ] ] [ text "next" ]
         ]
 
 
@@ -273,7 +268,6 @@ sectionCss =
         [ flex (int 1)
         , displayFlex
         , borderBottom3 (px 2) solid (hex "000000")
-        , borderTop3 (px 2) solid (hex "000000")
         , paddingTop (px 6)
         , marginBottom (px 6)
         ]
@@ -282,7 +276,8 @@ sectionCss =
 graphical : Model -> Patch -> Html Msg
 graphical model patch =
     div [ css [ displayFlex, flexDirection column, Css.width (pct 100), flex (int 1) ] ]
-        [ div [ css [ sectionCss ] ]
+        [ mainStrip patch
+        , div [ css [ sectionCss ] ]
             [ graphicControls model.audioPinModel.activeModules "Audio signals" "/icon-audio.png" True model patch
             , pinPanel Audio model patch
             ]
@@ -325,22 +320,9 @@ controlsGraphicalCss =
 graphicControls : Maybe ( Module, Module ) -> String -> String -> Bool -> Model -> Patch -> Html Msg
 graphicControls mModules header iconUrl showParameters model patch =
     div [ css [ controlsGraphicalCss ] ]
-        [ div
-            [ css
-                [ Css.height (px 60)
-                , color (hex "000")
-                , borderBottom3 (px 2) solid (hex "000")
-                , padding2 (px 5) (px 0)
-                ]
-            ]
-            [ span [ css [ headerCss, display inlineBlock, marginTop (px 6) ] ]
-                [ text header ]
-            , img [ src iconUrl, css [ marginRight (px 18), float right, maxWidth (px 90) ] ] []
-            ]
-        , soundControls model patch
-        , patchMeta patch model
+        [ soundControls model patch
+        , ppVolumeInput model
         , downloadStrip patch
-        , patchNav patch
         , if showParameters then
             parameters mModules model patch
 
