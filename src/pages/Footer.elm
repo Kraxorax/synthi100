@@ -12,7 +12,7 @@ type alias A =
 
 footer : Html msg
 footer =
-    div [ css [ width (pct 100), minHeight (px 135), backgroundColor theDarkGray, displayFlex ] ]
+    div [ css [ width (pct 100), minHeight (px 135), backgroundColor (hex "000000"), displayFlex ] ]
         [ div [ css [ flex (int 2) ] ] []
         , div
             [ css

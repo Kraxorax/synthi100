@@ -4,6 +4,7 @@ const AUIDIO_ID = 'elm-audio-file'
 
 const root = document.getElementsByTagName('body');
 
+
 const app = Elm.Main.init({
   node: root,
   flags: {}
@@ -42,6 +43,21 @@ app.ports.pause.subscribe((id) => {
   audio.pause();
 });
 
+// Subscribe to loop messages
+app.ports.loop.subscribe((loop) => {
+  const allAudio = document.getElementsByTagName("audio")
+  for (let audio of allAudio) {
+    if (loop) {
+      audio.setAttribute("loop", "loop");
+    } else {
+      audio.removeAttribute("loop");
+    }
+  }
+})
+
+app.ports.toTop.subscribe(() => {
+  document.documentElement.scrollTop = 0;
+})
 
 window.onscroll = function(e) {
   app.ports.scrollPort.send(e.target.scrollingElement.scrollTop)
