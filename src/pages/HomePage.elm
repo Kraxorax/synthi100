@@ -164,7 +164,7 @@ sortingArrowCss =
         , backgroundColor transparent
         , backgroundRepeat noRepeat
         , Css.width (px 33)
-        , Css.margin4 (px 0) (px 6) (px 0) (px 6)
+        , Css.margin4 (px 0) (px 0) (px 0) (px 0)
         , Css.minWidth (px 33)
         , Css.height (px 17)
         , outline none
@@ -186,7 +186,7 @@ sortingSelectCss =
         , Css.fontFamily inherit
         , Css.height (px 23)
         , paddingLeft (px 6)
-        , margin4 (px 0) (px 12) (px 0) (px 12)
+        , margin4 (px 0) (px 0) (px 0) (px 0)
         , Css.letterSpacing (px 0.5)
         , Css.width (px 116)
         , Css.minWidth (px 88)
@@ -246,11 +246,11 @@ sortInput model =
 patchMetaCss =
     batch
         [ displayFlex
+        , alignItems left
         , flex (num 1)
-        , paddingLeft (px 14)
+        , paddingLeft (px 0)
         , textDecoration none
         , color inherit
-        , alignItems baseline
         , justifyContent spaceBetween
         ]
 
@@ -264,9 +264,9 @@ patchTitleCss titleColor =
         , letterSpacing (px 0)
         , marginRight (px 10)
         , Css.height (pct 100)
-
-        -- , marginTop (px 32)
+        , marginTop (px 10)
         , color titleColor
+        , marginBottom (px 10)
         ]
 
 
@@ -281,10 +281,11 @@ patchMediaCss =
 
 patchInfoCss =
     batch
-        [ flex (num 2)
+        [ flex (num 1)
         , fontSize (px 14)
         , displayFlex
         , flexDirection column
+        , alignItems center
         ]
 
 
@@ -325,18 +326,18 @@ patchMedia model patch =
     in
     div [ css [ patchMediaCss ] ]
         [ div [ css [ displayFlex, flexDirection column ] ]
-            [ div [ css [ displayFlex, patchTitleCss titleColor, borderBottom3 (px 1) solid (hex "ffffff"), flexDirection row ] ]
+            [ div [ css [ displayFlex, patchTitleCss titleColor, alignItems center, borderBottom3 (px 1) solid (hex "ffffff"), flexDirection row ] ]
                 [ div [ css [ flex (num 5), color (hex "ffffff") ] ] [ text patch.title ]
                 , div [ css [ color (hex "ffffff"), fontSize (px 12) ] ]
                     [ text (P.durationToTime patch.duration) ]
                 ]
             , div
-                [ css [ displayFlex, flexDirection row ] ]
+                [ css [ displayFlex, alignItems center, flexDirection row ] ]
                 [ div
                     [ css [ Css.width (px 64), Css.height (px 64) ] ]
                     [ playButton patch ]
                 , div
-                    [ css [ Css.width auto, Css.height (px 90), marginLeft (px 9) ] ]
+                    [ css [ displayFlex, alignItems center, Css.width auto, Css.height (px 90), marginLeft (px 9) ] ]
                     [ waveformSeeker False patch ]
                 , audioNode model patch
                 ]
@@ -356,19 +357,17 @@ patchMeta p =
         patchUrl =
             "patch/" ++ p.title
     in
-    div [ css [ patchMetaCss ] ]
-        [ div [ css [ patchInfoCss ] ]
-            [ div [ css [ displayFlex, marginTop (px 13) ] ]
-                [ div [ css [ flex (num 1), displayFlex, alignItems center, cursor pointer ] ]
-                    [ downBttn "#9b9b9b", span [ css [ marginLeft (px 10) ] ] [ text "download audio" ] ]
-                , a [ href patchUrl, css [ linkUnstyle, flex (num 1), displayFlex, alignItems center ] ]
-                    [ rightBttn "#9b9b9b", span [ css [ marginLeft (px 10) ] ] [ text "score" ] ]
+    div [ css [ patchMetaCss, patchInfoCss ] ]
+        [ div [ css [ displayFlex, alignItems left, marginTop (px 8), Css.width (pct 100), borderBottom3 (px 1) solid (hex "333") ] ]
+            [ div [ css [ lineHeight (num 1.2), marginBottom (px 6.2), paddingTop (px 0) ] ]
+                [ text attribs ]
+            ]
+        , div [ css [ displayFlex, alignItems center, flex (num 1), Css.width (pct 100), marginTop (px 0) ] ]
+            [ div [ css [ flex (num 1), displayFlex, Css.width (pct 100), alignItems center, cursor pointer ] ]
+                [ downBttn "#9b9b9b"
+                , span [ css [ marginLeft (px 0), marginLeft (px 4) ] ] [ text "download" ]
                 ]
-            , div [ css [ displayFlex, marginTop (px 8), borderBottom3 (px 1) solid (hex "333") ] ]
-                [ div [ css [ lineHeight (num 1.2), minWidth (px 45), margin4 (px 0) (px 10) (px 7) (px 0), padding4 (px 5) (px 10) (px 0) (px 0), borderRight3 (px 2) solid theBlue ] ]
-                    [ text durationText ]
-                , div [ css [ lineHeight (num 1.2), marginBottom (px 10), paddingTop (px 5) ] ]
-                    [ text attribs ]
-                ]
+            , a [ href patchUrl, css [ linkUnstyle, flex (num 1), displayFlex ] ]
+                [ rightBttn "#9b9b9b", span [ css [ marginLeft (px 4) ] ] [ text "score" ] ]
             ]
         ]
