@@ -23,7 +23,17 @@ import SynthiSchema exposing (Attribute)
 page : Model -> Html Msg
 page model =
     div []
-        [ div [ css [ color (hex "ffffff"), fontSize (px 36), marginBottom (px 10), marginLeft (px 31), borderBottom3 (px 1) solid theBlue ] ] [ text "DATABASE" ]
+        [ div
+            [ css
+                [ color (hex "ffffff")
+                , fontSize (px 36)
+                , paddingBottom (px 14)
+                , marginLeft (px 31)
+                , borderBottom3 (px 1) solid theBlue
+                , fontWeight bold
+                ]
+            ]
+            [ text "DATABASE" ]
         , div [ css [ displayFlex ] ]
             [ div [ css [ flex (num 1) ] ] [ filterList model ]
             , div [ css [ flex (num 2) ] ] [ patchesList model ]
@@ -168,6 +178,7 @@ sortingArrowCss =
         , Css.minWidth (px 33)
         , Css.height (px 17)
         , outline none
+        , margin2 (px 0) (px 4)
         , Css.checked [ backgroundImage (url "/sort_arrow_down_selected.svg") ]
         ]
 
@@ -186,7 +197,7 @@ sortingSelectCss =
         , Css.fontFamily inherit
         , Css.height (px 23)
         , paddingLeft (px 6)
-        , margin4 (px 0) (px 0) (px 0) (px 0)
+        , margin4 (px 0) (px 60) (px 0) (px 0)
         , Css.letterSpacing (px 0.5)
         , Css.width (px 116)
         , Css.minWidth (px 88)
@@ -327,7 +338,8 @@ patchMedia model patch =
     div [ css [ patchMediaCss ] ]
         [ div [ css [ displayFlex, flexDirection column ] ]
             [ div [ css [ displayFlex, patchTitleCss titleColor, alignItems center, borderBottom3 (px 1) solid (hex "ffffff"), flexDirection row ] ]
-                [ div [ css [ flex (num 5), color (hex "ffffff") ] ] [ text patch.title ]
+                [ div [ css [ flex (num 5), color (hex "ffffff") ] ]
+                    [ text patch.title ]
                 , div [ css [ color (hex "ffffff"), fontSize (px 12) ] ]
                     [ text (P.durationToTime patch.duration) ]
                 ]
