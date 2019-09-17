@@ -197,8 +197,8 @@ audioNode model patch =
             []
 
 
-playButton : Patch -> Html Msg
-playButton patch =
+playButton : Patch -> Int -> Html Msg
+playButton patch size =
     let
         audioModel =
             patch.audioModel |> Maybe.withDefault noPlayingAudioModel
@@ -210,7 +210,7 @@ playButton patch =
             else
                 ( Play patch, "/play.svg" )
     in
-    img [ src bttnUrl, HS.onClick hndlClck ] []
+    img [ src bttnUrl, HS.onClick hndlClck, HSA.width size, HSA.height size ] []
 
 
 cssHaxor : Html msg

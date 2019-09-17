@@ -161,7 +161,7 @@ soundControls : Model -> Patch -> Html Msg
 soundControls model patch =
     div [ css [ audioControlsCss ] ]
         [ div [ css [ flex (int 1) ] ]
-            [ playButton patch ]
+            [ playButton patch 64 ]
         , div [ css [ flex (int 5), height (pct 100) ] ]
             [ waveformSeeker True patch ]
         , div [ css [ position Css.absolute, right (px 0), top (px 0) ] ]

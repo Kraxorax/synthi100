@@ -161,7 +161,7 @@ volumeInputCss =
         , Css.fontSize (px 20)
         , borderTop2 (px 1) solid
         , Css.height (px 46)
-        , Css.maxWidth (pct 50)
+        , Css.maxWidth (pct 48)
         ]
 
 
@@ -274,10 +274,8 @@ patchTitleCss titleColor =
         , whiteSpace noWrap
         , letterSpacing (px 0)
         , marginRight (px 10)
-        , Css.height (pct 100)
-        , marginTop (px 10)
         , color titleColor
-        , marginBottom (px 10)
+        , padding2 (px 8) (px 0)
         ]
 
 
@@ -285,8 +283,8 @@ patchMediaCss =
     batch
         [ displayFlex
         , flex (num 1)
+        , flexDirection column
         , paddingRight (px 14)
-        , alignItems center
         ]
 
 
@@ -336,23 +334,21 @@ patchMedia model patch =
                 theBlue
     in
     div [ css [ patchMediaCss ] ]
-        [ div [ css [ displayFlex, flexDirection column ] ]
-            [ div [ css [ displayFlex, patchTitleCss titleColor, alignItems center, borderBottom3 (px 1) solid (hex "ffffff"), flexDirection row ] ]
-                [ div [ css [ flex (num 5), color (hex "ffffff") ] ]
-                    [ text patch.title ]
-                , div [ css [ color (hex "ffffff"), fontSize (px 12) ] ]
-                    [ text (P.durationToTime patch.duration) ]
-                ]
+        [ div [ css [ Css.height (px 36), displayFlex, patchTitleCss titleColor, alignItems center, borderBottom3 (px 1) solid (hex "333"), flexDirection row ] ]
+            [ div [ css [ flex (num 5), color (hex "ffffff") ] ]
+                [ text patch.title ]
+            , div [ css [ color (hex "ffffff"), fontSize (px 14) ] ]
+                [ text (P.durationToTime patch.duration) ]
+            ]
+        , div
+            [ css [ Css.height (px 72), displayFlex, alignItems center, flexDirection row ] ]
+            [ div
+                [ css [] ]
+                [ playButton patch 48 ]
             , div
-                [ css [ displayFlex, alignItems center, flexDirection row ] ]
-                [ div
-                    [ css [ Css.width (px 64), Css.height (px 64) ] ]
-                    [ playButton patch ]
-                , div
-                    [ css [ displayFlex, alignItems center, Css.width auto, Css.height (px 90), marginLeft (px 9) ] ]
-                    [ waveformSeeker False patch ]
-                , audioNode model patch
-                ]
+                [ css [ flex (num 5), Css.height (pct 100) ] ]
+                [ waveformSeeker False patch ]
+            , audioNode model patch
             ]
         ]
 
@@ -370,8 +366,8 @@ patchMeta p =
             "patch/" ++ p.title
     in
     div [ css [ patchMetaCss, patchInfoCss ] ]
-        [ div [ css [ displayFlex, alignItems left, marginTop (px 8), Css.width (pct 100), borderBottom3 (px 1) solid (hex "333") ] ]
-            [ div [ css [ lineHeight (num 1.2), marginBottom (px 6.2), paddingTop (px 0) ] ]
+        [ div [ css [ Css.height (px 36), displayFlex, alignItems left, Css.width (pct 100), borderBottom3 (px 1) solid (hex "333") ] ]
+            [ div [ css [ lineHeight (num 1.2), paddingTop (px 8) ] ]
                 [ text attribs ]
             ]
         , div [ css [ displayFlex, alignItems center, flex (num 1), Css.width (pct 100), marginTop (px 0) ] ]
