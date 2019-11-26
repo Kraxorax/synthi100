@@ -374,7 +374,7 @@ patchMeta p =
                 [ text attribs ]
             ]
         , div [ css [ displayFlex, alignItems center, flex (num 1), Css.width (pct 100), marginTop (px 0) ] ]
-            [ div [ css [ flex (num 1), displayFlex, Css.width (pct 100), alignItems center, cursor pointer ] ]
+            [ a [ href p.download, css [ linkUnstyle, flex (num 1), displayFlex, Css.width (pct 100), alignItems center, cursor pointer ] ]
                 [ downBttn "#9b9b9b"
                 , span [ css [ marginLeft (px 4) ] ] [ text "download" ]
                 ]
