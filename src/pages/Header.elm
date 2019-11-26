@@ -19,8 +19,7 @@ headerTitleCss =
 headerFlexCss : Style
 headerFlexCss =
     batch
-        [ height (px 111)
-        , maxWidth (px 1440)
+        [ maxWidth (px 1440)
         , displayFlex
         , alignItems flexEnd
         , boxSizing borderBox

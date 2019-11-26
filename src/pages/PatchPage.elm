@@ -335,7 +335,9 @@ graphicControls mModules header iconUrl showParameters model patch =
                     []
     in
     div [ css [ controlsGraphicalCss ] ]
-        ctrls
+        (a [ HSA.name (header |> String.replace " " "_") ] []
+            :: ctrls
+        )
 
 
 patchNav : Patch -> Html Msg
@@ -400,7 +402,8 @@ pageMap header =
                             else
                                 theLightGray
                     in
-                    div [ css [ Css.color color, padding2 (px 3) (px 0) ] ] [ text s ]
+                    div [ css [ padding2 (px 3) (px 0) ] ]
+                        [ a [ href ("#" ++ s |> String.replace " " "_"), css [ linkUnstyle, Css.color color ] ] [ text s ] ]
                 )
         )
 

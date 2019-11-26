@@ -98,7 +98,7 @@ update msg model =
         RequestedUrl urlReq ->
             case urlReq of
                 Browser.Internal url ->
-                    ( model, pushUrl model.navKey (Url.toString url) )
+                    ( model, load (Url.toString url) )
 
                 Browser.External href ->
                     ( model, load href )

@@ -332,11 +332,14 @@ patchMedia model patch =
 
             else
                 theBlue
+
+        patchUrl =
+            "patch/" ++ patch.title
     in
     div [ css [ patchMediaCss ] ]
         [ div [ css [ Css.height (px 36), displayFlex, patchTitleCss titleColor, alignItems center, borderBottom3 (px 1) solid (hex "333"), flexDirection row ] ]
             [ div [ css [ flex (num 5), color (hex "ffffff") ] ]
-                [ text patch.title ]
+                [ a [ href patchUrl, css [ linkUnstyle ] ] [ text patch.title ] ]
             , div [ css [ color (hex "ffffff"), fontSize (px 14) ] ]
                 [ text (P.durationToTime patch.duration) ]
             ]
@@ -373,9 +376,11 @@ patchMeta p =
         , div [ css [ displayFlex, alignItems center, flex (num 1), Css.width (pct 100), marginTop (px 0) ] ]
             [ div [ css [ flex (num 1), displayFlex, Css.width (pct 100), alignItems center, cursor pointer ] ]
                 [ downBttn "#9b9b9b"
-                , span [ css [ marginLeft (px 0), marginLeft (px 4) ] ] [ text "download" ]
+                , span [ css [ marginLeft (px 4) ] ] [ text "download" ]
                 ]
             , a [ href patchUrl, css [ linkUnstyle, flex (num 1), displayFlex ] ]
-                [ rightBttn "#9b9b9b", span [ css [ marginLeft (px 4) ] ] [ text "score" ] ]
+                [ rightBttn "#9b9b9b"
+                , span [ css [ marginLeft (px 4), marginTop (px 2) ] ] [ text "score" ]
+                ]
             ]
         ]

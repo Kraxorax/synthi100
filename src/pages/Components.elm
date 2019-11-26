@@ -232,9 +232,7 @@ chanSwitch on =
         [ rect [ x "1", y "1", Svg.width "16", Svg.height "30", Svg.stroke Styles.theDarkGrayString, Svg.strokeWidth "2px", Svg.fill "none" ] []
         , line [ x1 "0", y1 "16", x2 "17", y2 "16", Svg.stroke Styles.theDarkGrayString, Svg.strokeWidth "2px" ] []
         , Svg.circle [ cx "9", cy h, r "4", Svg.fill Styles.theDarkGrayString ] []
-
-        -- , rect [ x "0", y h, Svg.width "17", Svg.height "16", Svg.fill "black" ] []
-        , Svg.text_ [ dx "8", dy "47" ] [ Svg.text txt ]
+        , Svg.text_ [ dx "9", dy "47" ] [ Svg.text txt ]
         ]
 
 
@@ -290,7 +288,6 @@ outputPanel chanVals =
                 (chanVals
                     |> List.indexedMap
                         (\i cv ->
-                            --( level, filter, pan ) ->
                             let
                                 swch =
                                     chanSwitch cv.on
