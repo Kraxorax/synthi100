@@ -639,6 +639,8 @@ globalCSS =
             ]
         , selector "html"
             [ height (pct 100)
+              -- fix jumpy initial loading
+            , marginLeft (calc (vw 100) minus (pct 100))
             ]
         ]
 
