@@ -228,7 +228,7 @@ chanSwitch on =
             else
                 ( "23", "off" )
     in
-    svg [ x "11" ]
+    svg [ x "11", Svg.css [Css.overflow auto]] -- unhide partially hidden text
         [ rect [ x "1", y "1", Svg.width "16", Svg.height "30", Svg.stroke Styles.theDarkGrayString, Svg.strokeWidth "2px", Svg.fill "none" ] []
         , line [ x1 "0", y1 "16", x2 "17", y2 "16", Svg.stroke Styles.theDarkGrayString, Svg.strokeWidth "2px" ] []
         , Svg.circle [ cx "9", cy h, r "4", Svg.fill Styles.theDarkGrayString ] []
