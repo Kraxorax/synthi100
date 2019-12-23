@@ -57,29 +57,6 @@ headerNavigationCss =
         , letterSpacing (px 1.4)
         ]
 
-
-synthiTitleFlexCss : Style
-synthiTitleFlexCss =
-    batch
-        [ displayFlex
-        , flexDirection column
-        , paddingLeft (px 31)
-        , minHeight (px 78)
-        , headerTitleCss
-        , flex (num 2)
-        , justifyContent spaceBetween
-        ]
-
-
-headerLineCss : Style
-headerLineCss =
-    batch
-        [ width (px 100)
-        , height (px 3)
-        , backgroundColor (hex "4a90e2")
-        ]
-
-
 header : Html Msg
 header =
     div
@@ -95,9 +72,8 @@ header =
                 [ css [ flex (num 1), paddingLeft (px 31), marginBottom (px 1) ] ]
                 [ a [ href "/database" ] [ img [ src "/synthi-logo.svg" ] [] ] ]
             , div
-                [ css [ synthiTitleFlexCss ] ]
-                [ div [ css [ headerLineCss ] ] []
-                , div
+                [ css [ paddingLeft (px 31), headerTitleCss, flex (num 2) ] ]
+                [ div
                     [ css [ maxWidth (px 230) ] ]
                     [ text "EMS SYNTHI 100 on the Web" ]
                 ]
