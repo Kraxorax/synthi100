@@ -9,6 +9,7 @@ type alias SynthiSchema =
     , audioPanel : List Connection
     , controlPanel : List Connection
     , modules : List Module
+    , userInfo : Maybe String
     }
 
 
@@ -54,6 +55,7 @@ schemaDecoder =
         |> required "audio_panel" (list connectionDecoder)
         |> required "control_panel" (list connectionDecoder)
         |> required "modules" (list moduleDecoder)
+        |> optional "user_info" (nullable string) Nothing
 
 
 connectionDecoder : Decoder Connection

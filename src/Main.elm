@@ -174,7 +174,9 @@ update msg model =
                                 |> List.map
                                     (\attr -> AttrFilter attr.name [])
                     in
-                    ( { model | synthiSchema = Just schema, attributeFilters = filters }, Cmd.none )
+                    ( { model | synthiSchema = Just schema
+                              , attributeFilters = filters
+                              , userInfo = schema.userInfo }, Cmd.none )
 
         GotPatches patches ->
             case patches of
@@ -422,6 +424,8 @@ update msg model =
         ToTop ->
             ( model, Ports.toTop () )
 
+        Logout ->
+            ( model, load "/saml/logout" )
 
 getPatchTitle route =
     case route of
@@ -622,6 +626,7 @@ view model =
 
                 About ->
                     AboutPage.page model
+
     in
     { title = "Synthi100"
     , body =
@@ -631,7 +636,7 @@ view model =
         else
            [ globalCSS
            , fontImport
-           , header
+           , header model
            , page
            , footer
            , downloader

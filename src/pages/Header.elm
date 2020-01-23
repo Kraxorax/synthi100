@@ -1,9 +1,11 @@
 module Header exposing (header)
 
 import Css exposing (..)
+import Model exposing (..)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, href, src)
 import Msg exposing (Msg)
+import Html.Styled.Events exposing (onClick)
 
 
 headerTitleCss : Style
@@ -57,8 +59,8 @@ headerNavigationCss =
         , letterSpacing (px 1.4)
         ]
 
-header : Html Msg
-header =
+header : Model -> Html Msg
+header model =
     div
         [ css [ headerFlexCss ] ]
         [ div
@@ -86,7 +88,7 @@ header =
             ]
         , div
             [ css [ headerNavigationCss ] ]
-            navigation
+            (navigation model)
         ]
 
 
@@ -98,9 +100,28 @@ navLink css_ href_ text_ =
         ]
         [ text text_ ]
 
+logOutLink : Html Msg
+logOutLink =
+    a
+        [ css [
+                navigationLinkCss
+              , textAlign right
+              , display Css.block
+              , marginBottom (px 20)
+              , fontWeight normal
+              ]
+        , href "/saml/logout"
+        , onClick Msg.Logout
+        ]
+        [ text "[logout]" ]
 
-navigation : List (Html Msg)
-navigation =
-    [ navLink [ textAlign center ] "/database" "database"
-    , navLink [ textAlign left ] "/about" "about / credits"
+
+navigation : Model -> List (Html Msg)
+navigation model =
+    [ navLink [ textAlign center, flex (num 2) ] "/database" "database"
+    , div [css [ flex (num 1) ] ] [
+            if model.userInfo == Nothing then text "" else logOutLink
+          , navLink [ whiteSpace noWrap ] "/about" "about / credits"
+          ]
+    , div [css [ flex (num 1) ] ] [] -- filler
     ]

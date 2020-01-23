@@ -32,6 +32,7 @@ type alias Model =
     , sortOrder : SortDirection
     , sortBy : String
     , downloadFile : Maybe String
+    , userInfo : Maybe String
     }
 
 
@@ -54,6 +55,7 @@ initModel url key =
     , sortOrder = Ascending
     , sortBy = "title"
     , downloadFile = extractDownloadParam url
+    , userInfo = Nothing
     }
 
 
