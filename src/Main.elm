@@ -1,21 +1,23 @@
 module Main exposing (init, main, subs, update, view)
 
 import AboutPage
+import String
 import Array
 import AudioModel exposing (emptyAudioModel)
 import Browser
-import Browser.Navigation exposing (Key, load, pushUrl)
+import Browser.Navigation exposing (Key, load, pushUrl, replaceUrl)
 import Css exposing (..)
 import Css.Global exposing (body, global, selector)
 import Debug
 import Footer exposing (footer)
 import Header exposing (header)
+import HiddenDownloader exposing (hiddenDownloader)
 import HomePage
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
-import Html.Styled exposing (Html, audio, node, text)
-import Html.Styled.Attributes exposing (controls, id, type_)
+import Html.Styled exposing (Html, audio, node, text, iframe)
+import Html.Styled.Attributes exposing (controls, id, type_, css, src)
 import Http
 import Json.Decode as JD
 import Knob exposing (KnobMsg(..), simpleKnobSvg, simpleSwitchSvg)
@@ -52,6 +54,8 @@ init _ url key =
             Cmd.batch
                 [ getSchema
                 , getPatches
+                -- remove query parameters if redirected back from SSO
+                , replaceUrl key url.path
                 ]
     in
     ( mdl, cmd )
@@ -100,7 +104,12 @@ update msg model =
         RequestedUrl urlReq ->
             case urlReq of
                 Browser.Internal url ->
-                    ( model, load (Url.toString url) )
+                    -- hacky way to prevent whole page load if clicking
+                    -- on '#' anchors or trying to download a file
+                    if url.fragment /= Nothing || String.endsWith ".zip" url.path  then
+                        ( model, load (Url.toString url))
+                    else
+                        ( model, pushUrl model.navKey (Url.toString url) )
 
                 Browser.External href ->
                     ( model, load href )
@@ -599,6 +608,7 @@ emptyControls scs =
 view : Model -> Browser.Document Msg
 view model =
     let
+        downloader = hiddenDownloader model.downloadFile
         page =
             case model.currentRoute of
                 Database ->
@@ -615,13 +625,18 @@ view model =
     in
     { title = "Synthi100"
     , body =
-        [ globalCSS
-        , fontImport
-        , header
-        , page
-        , footer
-        ]
-            |> List.map Html.Styled.toUnstyled
+        -- show content only if API responded with all data
+        if model.synthiSchema == Nothing || model.patches == Nothing then
+           []
+        else
+           [ globalCSS
+           , fontImport
+           , header
+           , page
+           , footer
+           , downloader
+           ]
+           |> List.map Html.Styled.toUnstyled
     }
 
 

@@ -4,7 +4,7 @@ import AudioModel exposing (AudioModel)
 import Browser.Navigation exposing (Key)
 import Patch as P
 import PinTable
-import Routing exposing (Route(..), urlToRoute)
+import Routing exposing (Route(..), urlToRoute, extractDownloadParam)
 import SynthiSchema as SS
 import Url exposing (Url)
 import ViewModel exposing (..)
@@ -31,6 +31,7 @@ type alias Model =
     , loop : Bool
     , sortOrder : SortDirection
     , sortBy : String
+    , downloadFile : Maybe String
     }
 
 
@@ -52,6 +53,7 @@ initModel url key =
     , loop = True
     , sortOrder = Ascending
     , sortBy = "title"
+    , downloadFile = extractDownloadParam url
     }
 
 
