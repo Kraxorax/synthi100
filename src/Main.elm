@@ -75,7 +75,9 @@ getPatches =
 
 subs : Model -> Sub Msg
 subs model =
-    scrollPort Scroll
+    -- currently unused
+    -- scrollPort Scroll
+    Sub.none
 
 
 main =
