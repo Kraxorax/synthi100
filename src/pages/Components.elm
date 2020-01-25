@@ -43,10 +43,8 @@ volumeSliderCss =
     batch
         [ Css.property "-webkit-appearance" "none"
         , Css.property "-moz-appearance" "none"
-        , Css.width (px 102)
+        , Css.maxWidth (px 70)
         , Css.height (px 2)
-        , minWidth (px 88)
-        , marginRight (px 80)
         , pseudoElement "-moz-range-thumb" [ volumeThumbCss ]
         , pseudoElement "-webkit-slider-thumb" [ volumeThumbCss ]
         ]
@@ -58,9 +56,10 @@ muteButtonCss =
         [ Css.property "-webkit-appearance" "none"
         , Css.property "-moz-appearance" "none"
         , backgroundRepeat noRepeat
-        , Css.height (px 28)
-        , minWidth (px 33)
-        , margin (px 2)
+        , Css.height (px 22)
+        , Css.width (px 25)
+        , backgroundSize (px 25)
+        , margin (px 0)
         , Css.checked [ backgroundImage (url "/unmute.svg") ]
         , backgroundImage (url "/mute.svg")
         ]
@@ -69,8 +68,7 @@ muteButtonCss =
 volumeInputCss : Style
 volumeInputCss =
     batch
-        [ boxSizing borderBox
-        , padding4 (px 0) (pct 8) (px 0) (px 0)
+        [ padding4 (px 0) (pct 8) (px 0) (px 0)
         , displayFlex
         , justifyContent flexEnd
         , alignItems center
@@ -85,7 +83,7 @@ volumeInputCss =
 volumeInput : Bool -> Html Msg
 volumeInput muted =
     div [ HSA.css [ volumeInputCss ] ]
-        [ span [ HSA.css [ marginRight auto ] ] [ HS.text "volume" ]
+        [ span [ HSA.css [ flex (num 3), marginRight auto ] ] [ HS.text "volume" ]
         , volumeSlider
         , volumeIcon muted
         ]
@@ -94,7 +92,8 @@ volumeInput muted =
 volumeSlider : Html Msg
 volumeSlider =
     input
-        [ HSA.css [ volumeSliderCss ]
+        [ HSA.id "volumeSlider"
+        , HSA.css [ volumeSliderCss ]
         , HSA.type_ "range"
         , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
         ]

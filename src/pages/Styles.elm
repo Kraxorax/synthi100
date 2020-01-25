@@ -13,7 +13,6 @@ theBlue =
 theGray =
     hex "9b9b9b"
 
-
 theDarkGray =
     hex "4a4a4a"
 
@@ -102,7 +101,7 @@ vi pos =
 linkUnstyle : Style
 linkUnstyle =
     batch
-        [ Css.color (hex "fff")
+        [ Css.color inherit
         , Css.textDecoration none
         ]
 

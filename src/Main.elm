@@ -653,12 +653,25 @@ globalCSS =
             , color (hex "4A90E2")
             , margin (px 0)
             , fontFamilies [ "Metropolis" ]
-            , maxWidth (px 1440)
+            , maxWidth (px 1280)
             , margin auto
-            , displayFlex
-            , flexDirection column
+            , paddingTop (px 30)
             , height (pct 100)
             ]
+        , Css.Global.h2
+            [ all unset
+            , display block
+            , margin2 (px 11) (px 0)
+            , letterSpacing (px 0.5)
+            , fontSize (px 18)
+            , fontWeight bold
+            ]
+        , selector "#about p:first-child"
+            [ marginTop (px 0) ]
+        , selector "#about p"
+            [ margin2 (px 10) (px 0) ]
+        , selector "#credits p"
+            [ margin2 (px 0) (px 0)]
         , selector "html"
             [ height (pct 100)
               -- fix jumpy initial loading
@@ -678,5 +691,10 @@ fontImport =
             font-family: "Metropolis";
             src: url(/Metropolis-Bold.woff);
             font-weight: bold;
+        }
+        @font-face {
+            font-family: "Metropolis";
+            src: url(/Metropolis-SemiBold.woff);
+            font-weight: 600;
         }
     """ ]

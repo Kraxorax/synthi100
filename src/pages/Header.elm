@@ -5,6 +5,7 @@ import Model exposing (..)
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (css, href, src)
 import Msg exposing (Msg)
+import Styles exposing (theBlue)
 import Html.Styled.Events exposing (onClick)
 
 
@@ -12,22 +13,30 @@ headerTitleCss : Style
 headerTitleCss =
     batch
         [ letterSpacing (px 0.5)
-        , lineHeight (num 1.2)
         , fontSize (px 24)
         , fontWeight bold
         ]
 
+headerColumnCss : Style
+headerColumnCss =
+    batch
+        [ flex (pct (100/3.0))
+        , borderWidth (px 10)
+        , borderStyle solid
+        , borderColor (hex "000000")
+        , boxSizing borderBox
+        ]
 
 headerFlexCss : Style
 headerFlexCss =
     batch
-        [ maxWidth (px 1440)
+        [ maxWidth (px 1280)
+        , height (px 90)
         , displayFlex
+        , lineHeight (px 27)
         , alignItems flexEnd
-        , boxSizing borderBox
-        , justifyContent spaceBetween
-        , marginBottom (px 40)
-        , marginTop (px 16)
+        , padding2 (px 0) (px 10)
+        , marginBottom (px 30)
         ]
 
 
@@ -36,8 +45,8 @@ navigationLinkCss =
     batch
         [ flex (num 1)
         , textDecoration none
-        , color (hex "FFFFFF")
-        , visited [ color (hex "FFFFFF") ]
+        , color (hex "ffffff")
+        , visited [ color (hex "ffffff") ]
         ]
 
 
@@ -45,49 +54,64 @@ headerNavigationCss : Style
 headerNavigationCss =
     batch
         [ justifyContent spaceAround
-        , borderLeftStyle solid
-        , borderLeftWidth (px 2)
-        , height (px 73)
-        , color (hex "4a90e2")
         , displayFlex
-        , flex (num 1)
         , flexDirection row
-        , paddingBottom (px 2)
         , alignItems flexEnd
         , fontSize (px 14)
         , fontWeight bold
         , letterSpacing (px 1.4)
         ]
 
+
 header : Model -> Html Msg
 header model =
     div
         [ css [ headerFlexCss ] ]
+        -- title column
         [ div
-            [ css
-                [ flex (num 1)
-                , displayFlex
-                , alignItems flexEnd
-                ]
+            [ css [ headerColumnCss
+                  , displayFlex
+                  , alignItems flexEnd
+                  ]
             ]
+            -- synthi logo
             [ div
-                [ css [ flex (num 1), paddingLeft (px 31), marginBottom (px 1) ] ]
-                [ a [ href "/database" ] [ img [ src "/synthi-logo.svg" ] [] ] ]
-            , div
-                [ css [ paddingLeft (px 31), headerTitleCss, flex (num 2) ] ]
-                [ div
-                    [ css [ maxWidth (px 230) ] ]
-                    [ text "EMS SYNTHI 100 on the Web" ]
+                [ css [ marginLeft (px 17)
+                      , boxSizing borderBox
+                      , marginRight (px 30)
+                      , height (px 73)
+                      , width (px 119)
+                      , marginBottom (px 1)
+                      ]
                 ]
+                [ a
+                    [ href "/database" ]
+                    [ img [ src "/synthi-logo.svg" ] [] ]
+                ]
+            -- title
+            , div
+                [ css [ headerTitleCss ] ]
+                [ text "EMS SYNTHI 100 on the Web" ]
             ]
+        -- radio belgrade column
         , div
-            [ css [ headerTitleCss, flex (num 1), marginLeft (px -1) ] ]
+            [ css [ headerColumnCss
+                  , headerTitleCss
+                  ,  fontSize (px 20) ]
+                  ]
             [ text "Elektronski studio Radio Beograda"
             , br [] []
             , text "Radio Belgrade — Electronic Studio"
             ]
+        -- vertical blue line
         , div
-            [ css [ headerNavigationCss ] ]
+            [ css [ width (px 1)
+            , height (px 73)
+            , backgroundColor theBlue ] ]
+            []
+        -- navigation column
+        , div
+            [ css [ headerColumnCss, headerNavigationCss ] ]
             (navigation model)
         ]
 
