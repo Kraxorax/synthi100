@@ -36,3 +36,4 @@ type Msg
     | Sort SortDirection
     | MovePatch P.Patch Int
     | ToTop
+    | Logout

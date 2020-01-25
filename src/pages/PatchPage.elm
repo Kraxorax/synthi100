@@ -374,7 +374,6 @@ downloadStrip patch =
         [ downBttn "#ffffff"
         , a
             [ href patch.download
-            , download ""
             , css
                 [ linkUnstyle
                 , paddingLeft (px 15)

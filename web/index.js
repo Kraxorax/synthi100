@@ -60,5 +60,6 @@ app.ports.toTop.subscribe(() => {
 })
 
 window.onscroll = function(e) {
-  app.ports.scrollPort.send(e.target.scrollingElement.scrollTop)
+  // not used at the moment
+  //app.ports.scrollPort.send(e.target.scrollingElement.scrollTop)
 }

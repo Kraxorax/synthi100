@@ -1,9 +1,10 @@
-module Routing exposing (Route(..), urlToRoute)
+module Routing exposing (Route(..), urlToRoute, extractDownloadParam)
 
 import Browser
 import Url exposing (Url)
 import Url.Builder exposing (absolute)
-import Url.Parser exposing ((</>), Parser, int, map, oneOf, parse, s, string, top)
+import Url.Parser exposing ((</>), Parser, int, map, oneOf, parse, s, string, top, query)
+import Url.Parser.Query as Query
 
 
 type Route
@@ -16,6 +17,15 @@ type Route
 urlToRoute : Url -> Route
 urlToRoute =
     parseRoute >> Maybe.withDefault Database
+
+extractDownloadParam : Url -> Maybe String
+extractDownloadParam url =
+    case parse (query (Query.string "download")) { url | path = ""} of
+        Just (Just path) -> if String.startsWith "/" path
+                               && String.endsWith ".zip" path
+                            then (Just path)
+                            else Nothing
+        _ -> Nothing
 
 
 parseRoute : Url -> Maybe Route
