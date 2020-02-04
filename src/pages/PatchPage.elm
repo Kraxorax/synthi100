@@ -32,35 +32,19 @@ page showGraphical patchTitle model =
                 |> Maybe.withDefault noPatch
 
         ( view, bgColor ) =
-            ( [ graphical model patch ], "9b9b9b" )
+            ( graphical model patch, "9b9b9b" )
     in
     div
         [ css
-            [ Css.color (hex "ffffff")
-            , Css.paddingLeft (px 31)
-            , Css.paddingTop (px 18)
-            , backgroundColor (hex bgColor)
+            [ backgroundColor (hex bgColor)
+            , Css.color (hex "ffffff")
             , backgroundClip paddingBox
-            , displayFlex
-            , flex (int 1)
-            , position Css.relative
+            , maxWidth (px 1280)
             ]
         ]
         view
 
 
-mainStrip : Patch -> Html Msg
-mainStrip patch =
-    div [ css [ displayFlex, height (px 50), maxWidth (px 1200), borderBottom3 (px 1) solid (hex "000000") ] ]
-        [ div [ css [ flex (num 1), displayFlex, alignItems baseline, maxWidth (px 390), marginRight (px 55) ] ]
-            [ div [ css [ fontSize (px 36), fontWeight bold, flex (num 6) ] ] [ text "SCORE" ]
-            , prevNext patch
-            ]
-        , div [ css [ width (px 720), paddingLeft (px 25), displayFlex, flexDirection row, alignItems baseline ] ]
-            [ div [ css [ flex (num 3), fontSize (px 36), fontWeight bold ] ] [ text patch.title ]
-            , div [ css [] ] [ text (patch.attributeValues |> String.join " / ") ]
-            ]
-        ]
 
 
 controlsCss : Style
@@ -106,14 +90,13 @@ ppVolumeInput model =
         isMute =
             model.volume == 0
     in
-    div [ css [ displayFlex, flexDirection row, alignItems center, borderBottom3 (px 1) solid (hex "000000"), padding2 (px 10) (px 0) ] ]
-        [ div [ css [ flex (int 1) ] ]
-            [ muteBttn (model.volume == 0) ]
-        , div [ css [ flex (int 8) ] ]
-            [ input
+    div [ css [ displayFlex, justifyContent (spaceBetween), alignItems center, borderBottom3 (px 1) solid (hex "000000"), padding2 (px 12) (px 0) ] ]
+        [ div [ css [ displayFlex, alignItems center ] ]
+            [ muteBttn (model.volume == 0)
+            , input
                 [ type_ "range"
                 , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
-                , css [ ppVICss, ppVIThumbCss, cursor pointer ]
+                , css [ marginLeft (px 30), ppVICss, ppVIThumbCss, cursor pointer ]
                 ]
                 []
             ]
@@ -137,7 +120,7 @@ muteBttn isMute =
     in
     img
         [ src url
-        , css [ height (px 20) ]
+        , css [ height (px 20), width (px 25), marginRight (px 8) ]
         , HSA.style "filter" "brightness(1000%)"
         ]
         []
@@ -146,7 +129,7 @@ muteBttn isMute =
 headerCss : Style
 headerCss =
     batch
-        [ fontSize (px 20)
+        [ fontSize (px 18)
         , fontWeight bold
         , letterSpacing (px 0.5)
         ]
@@ -154,25 +137,26 @@ headerCss =
 
 audioControlsCss : Style
 audioControlsCss =
-    batch [ displayFlex, alignItems center, height (px 120), position Css.relative, borderBottom3 (px 1) solid (hex "000000") ]
+    batch [ displayFlex, position Css.relative, alignItems center,  height (px 85), borderBottom3 (px 1) solid (hex "000000") ]
 
 
 soundControls : Model -> Patch -> Html Msg
 soundControls model patch =
     div [ css [ audioControlsCss ] ]
-        [ div [ css [ flex (int 1) ] ]
-            [ playButton patch 64 ]
-        , div [ css [ flex (int 5), height (pct 100) ] ]
+        [ 
+          div [ css [ position Css.absolute, right (px 5), top (px 0) ] ]
+                    [ text (durationToTime patch.duration) ]
+        , div [ ]
+            [ playButton patch 48 ]
+        , div [ css [ height (pct 100) ] ]
             [ waveformSeeker True patch ]
-        , div [ css [ position Css.absolute, right (px 0), top (px 0) ] ]
-            [ text (durationToTime patch.duration) ]
         , div [] [ audioNode model patch ]
         ]
 
 
 prevNext : Patch -> Html Msg
 prevNext patch =
-    div [ css [ displayFlex, flexDirection row, flex (num 2), alignItems center ] ]
+    div [ css [ displayFlex, flexDirection row, alignItems center ] ]
         [ div [ css [ marginRight (px 20) ] ]
             [ span [ css [ fontSize (px 18), fontWeight bold ] ] [ text "Patch" ] ]
         , prevBttn (MovePatch patch -1)
@@ -216,34 +200,29 @@ patchMeta patch model =
 
 score : Patch -> Html Msg
 score patch =
-    div
+    HS.pre
         [ css
             [ backgroundColor (hex "c8c8c8")
-            , padding2 (px 35) (px 42)
-            , minWidth (px 622)
-            , maxWidth (px 740)
-            , marginLeft (px 35)
-            , position Css.relative
+            , minHeight (px 400)
+            , maxWidth (px 657)
+            , fontFamilies ["Metropolis"]
+            , minWidth (px 660)
+            , padding (px 40)
+            , Css.fontSize (px 14)
+            , fontWeight (int 600)
+            , overflow auto
+            , color (hex "000")
+            , lineHeight (px 18)
+            , letterSpacing (px 0.5)
             ]
         ]
-        [ HS.pre
-            [ css
-                [ Css.fontSize (px 14)
-                , fontWeight (int 500)
-                , color (hex "000")
-                , lineHeight (Css.em 1.29)
-                , letterSpacing (px 0.5)
-                ]
-            ]
-            [ text patch.score ]
-        , toTop
-        ]
+        [ text patch.score ]
 
 
 toTop : Html Msg
 toTop =
     div
-        [ css [ position Css.absolute, right (px -60), bottom (px 0), displayFlex, alignItems center, cursor pointer ]
+        [ css [ position Css.absolute, right (px -60), bottom (px 15), displayFlex, alignItems center, cursor pointer ]
         , onClick ToTop
         ]
         [ upBttn "#ffffff"
@@ -251,45 +230,83 @@ toTop =
         ]
 
 
-sectionCss : Style
-sectionCss =
+
+patchSectionCss : Style
+patchSectionCss =
     batch
-        [ flex (int 1)
-        , displayFlex
-        , borderBottom3 (px 7) double (hex "000000")
-        , paddingTop (px 6)
-        , marginBottom (px 6)
-        , maxWidth (px 1200)
+        [ displayFlex
+        , justifyContent spaceBetween
+        , marginLeft (px 40)
+        , maxWidth (px 1165)
+        , boxSizing borderBox
         ]
 
+doubleSpacer : Html Msg
+doubleSpacer =
+    div
+        [ css
+            [ borderBottom3 (px 1) solid (hex "000")
+            , borderTop3 (px 1) solid (hex "000")
+            , minWidth (px 1005)
+            , maxWidth (px 1165)
+            , backgroundColor theGray
+            , height (px 5)
+            , marginLeft (px 40)]
+        ] 
+        []
 
-graphical : Model -> Patch -> Html Msg
+leftColumnCss : Style
+leftColumnCss =
+    batch
+        [ paddingRight (px 10)
+        , boxSizing borderBox
+        , minWidth (px 260)
+        , width (px 390)
+        , maxWidth (px 390)
+        ]
+
+graphical : Model -> Patch -> List (Html Msg)
 graphical model patch =
-    div [ css [ displayFlex, flexDirection column, Css.width (pct 100), flex (int 1) ] ]
-        [ mainStrip patch
-        , div [ css [ sectionCss ] ]
-            [ graphicControls model.audioPinModel.activeModules "Audio signals" "/icon-audio.png" True model patch
-            , pinPanel Audio model patch
-            ]
-        , div [ css [ sectionCss ] ]
-            [ graphicControls model.controlPinModel.activeModules "Control voltages" "/icon-control.png" True model patch
-            , pinPanel Control model patch
-            ]
-        , div [ css [ sectionCss, borderBottom (px 0) ] ]
-            [ graphicControls Nothing "Output channels" "/icon-channels.png" False model patch
-            , outputChannels model patch
-            ]
-        , div
-            [ css
-                [ flex (int 1)
-                , displayFlex
-                , marginBottom (px 70)
-                ]
-            ]
-            [ graphicControls Nothing "Textual score" "/icon-score.png" False model patch
-            , score patch
+    [ div
+         [ css [ patchSectionCss, borderBottom3 (px 1) solid (hex "000"),  height (px 60), alignItems center, backgroundColor theGray, minWidth (px 1005) ] ]
+         [ div [ css [ leftColumnCss, displayFlex, justifyContent spaceBetween, alignItems baseline ] ]
+              [ div [ css [ fontSize (px 36), fontWeight bold, letterSpacing (px 0.5)  ] ] [ text "SCORE" ]
+              , prevNext patch
+              ]
+        , div [ css [  alignItems baseline, backgroundColor theGray, displayFlex, boxSizing borderBox, width (px 745), justifyContent spaceBetween, minWidth (px 745)  ] ]
+            [ div [ css [ fontSize (px 36), paddingLeft (px 30), letterSpacing (px 0.5), fontWeight bold ] ] [ text patch.title ]
+            , div [ css [fontSize (px 14), letterSpacing (px 0.2), fontWeight bold ] ]
+                    [ text (patch.attributeValues |> String.join " / ") ]
             ]
         ]
+    , div [ css [ patchSectionCss ] ]
+        [ div [ css [ leftColumnCss ] ]
+              [ graphicControls model.audioPinModel.activeModules "Audio signals" "/icon-audio.png" True model patch ]
+        , div [ css [  backgroundColor theGray  ] ]
+              [ pinPanel Audio model patch ]
+        ]
+    , doubleSpacer
+    , div [ css [ patchSectionCss ] ]
+        [ div [ css [ leftColumnCss ] ]
+              [ graphicControls model.controlPinModel.activeModules "Control voltages" "/icon-control.png" True model patch ]
+        , div [ css [  backgroundColor theGray  ] ]
+              [ pinPanel Control model patch ]
+        ]
+    , doubleSpacer
+    , div [ css [ patchSectionCss, paddingBottom (px 15) ] ]
+        [ div [ css [ leftColumnCss ] ]
+              [ graphicControls Nothing "Output channels" "/icon-channels.png" False model patch ]
+        , div [ css [  backgroundColor theGray  ] ]
+              [ outputChannels model patch ]
+        ]
+    , doubleSpacer
+    , div [ css [ patchSectionCss, paddingBottom (px 30) ] ]
+        [ div [ css [ leftColumnCss ] ]
+              [ graphicControls Nothing "Textual score" "/icon-score.png" False model patch ]
+        , div [ css [ position Css.relative, backgroundColor theGray  ] ]
+              [ score patch, toTop ]
+        ]
+    ]
 
 
 controlsGraphicalCss : Style
@@ -297,13 +314,9 @@ controlsGraphicalCss =
     batch
         [ fontSize (px 14)
         , fontWeight bold
+        , paddingTop (px 7)
         , letterSpacing (px 0.5)
         , color (hex "fff")
-        , flex (int 1)
-        , alignSelf flexStart
-        , maxWidth (px 390)
-        , marginRight (px 55)
-        , paddingTop (px 6)
         ]
 
 
@@ -376,7 +389,10 @@ downloadStrip patch =
             [ href patch.download
             , css
                 [ linkUnstyle
-                , paddingLeft (px 15)
+                , color (hex "fff")
+                , fontWeight (int 600)
+                , letterSpacing (px 0.5)
+                , marginLeft (px 15)
                 ]
             ]
             [ text "download" ]
@@ -389,7 +405,7 @@ pageMap header =
         sections =
             [ "Audio signals", "Control voltages", "Output channels", "Textual score" ]
     in
-    div [ css [ color theLightGray, fontSize (px 20), padding2 (px 5) (px 0), borderBottom3 (px 2) solid (hex "000000") ] ]
+    div [ css [ color theLightGray, fontSize (px 18), padding2 (px 7) (px 0), letterSpacing (px 0.5), borderBottom3 (px 3) solid (hex "000000") ] ]
         (sections
             |> List.map
                 (\s ->
@@ -412,13 +428,14 @@ parameters mModules model patch =
     div []
         [ div
             [ css
-                [ Css.height (px 60)
+                [ Css.height (px 50)
+                , displayFlex
+                , alignItems center
                 , color (hex "000")
-                , borderBottom3 (px 2) solid (hex "000")
-                , borderTop3 (px 2) solid (hex "000")
+                , borderBottom3 (px 1) solid (hex "000")
                 ]
             ]
-            [ span [ css [ headerCss, display inlineBlock, marginTop (px 18) ] ] [ text "Parameters" ] ]
+            [ span [ css [ headerCss ] ] [ text "Parameters" ] ]
         , knob mModules model patch
         ]
 
@@ -427,8 +444,9 @@ knobInfoStyle : Style
 knobInfoStyle =
     batch
         [ borderBottom3 (px 1) solid (hex "d8d8d8")
-        , paddingBottom (px 10)
-        , height (px 15)
+        , height (px 33)
+        , displayFlex
+        , alignItems center
         ]
 
 
@@ -452,28 +470,26 @@ knob mModules model patch =
         [ div
             [ css
                 [ Css.width (pct 100)
-                , margin2 (px 15) (px 0)
                 ]
             ]
             [ div [ css [ knobInfoStyle ] ]
                 [ span [] [ text im.name ] ]
-            , div [ css [ knobInfoStyle, paddingTop (px 10) ] ]
+            , div [ css [ knobInfoStyle ] ]
                 [ span [] [ text (iac |> Maybe.withDefault " ") ] ]
             ]
-        , div [ css [ marginBottom (px 22), height (px 43) ] ]
+        , div [ css [ padding2 (px 8) (px 0), displayFlex, alignItems center, boxSizing borderBox, minHeight (px 64) ] ]
             [ HS.map (\kmsg -> InputKnobEvent kmsg) (controlsToKnobSvg False im.controls) ]
         , div
             [ css
                 [ Css.width (pct 100)
-                , margin2 (px 15) (px 0)
                 ]
             ]
-            [ div [ css [ knobInfoStyle, borderTop3 (px 1) solid (hex "d8d8d8"), paddingTop (px 10) ] ]
+            [ div [ css [ knobInfoStyle, borderTop3 (px 1) solid (hex "d8d8d8") ] ]
                 [ span [] [ text om.name ] ]
-            , div [ css [ knobInfoStyle, paddingTop (px 10) ] ]
+            , div [ css [ knobInfoStyle ] ]
                 [ span [] [ text (oac |> Maybe.withDefault "") ] ]
             ]
-        , div [ css [ height (px 43) ] ]
+        , div [ css [  padding2 (px 8) (px 0), displayFlex, alignItems center, boxSizing borderBox, minHeight (px 64) ] ]
             [ HS.map (\kmsg -> OutputKnobEvent kmsg) (controlsToKnobSvg False om.controls) ]
         ]
 
@@ -504,7 +520,7 @@ ctrlHldr isVert ctrl =
             else
                 display inlineBlock
     in
-    div [ css [ dspl, marginRight (px 6), cursor default ] ] [ ctrl ]
+    div [ css [ dspl, marginRight (px 4), cursor default ] ] [ ctrl ]
 
 
 pinPanel : Panel -> Model -> Patch -> HS.Html Msg
@@ -532,10 +548,10 @@ pinPanel panel model patch =
                 Control ->
                     ( model.controlPinModel, patch.controlPins, reactToAudioPinEvent panel )
     in
-    div [ css [ Css.width (px 760) ] ]
-        [ div [ css [ Css.height (px 58), paddingLeft (px 10), backgroundColor (hex "9b9b9b") ] ]
-            [ moduleStrip outModuleText (px 40) (px 0)
-            , moduleStrip inModuleText (px 0) (px -14)
+    div [ css [ Css.width (px 745)  ] ]
+        [ div [ css [ displayFlex, paddingLeft (px 30), width (pct 100), boxSizing borderBox, justifyContent spaceBetween ] ]
+            [ span [ css [moduleStripCss, marginRight (px 20)]] [text  outModuleText]
+            , span [ css [moduleStripCss, marginLeft (px 20)]] [text  inModuleText]
             ]
         , pinTable msgMap pins pinModel
         ]
@@ -543,26 +559,22 @@ pinPanel panel model patch =
 
 pinTable : (PinMsg -> Msg) -> List Pin -> PinModel -> Html Msg
 pinTable msgCast pins model =
-    div [ css [ marginBottom (px 40) ] ]
+    div [ css [ marginBottom (px 40), backgroundColor theGray ] ]
         [ HS.map msgCast (audioPanel pins model) ]
 
 
-moduleStrip : String -> Px -> Px -> Html Msg
-moduleStrip txt rm tm =
-    div
-        [ css
-            [ Css.height (px 50)
-            , Css.width (px 327)
-            , borderBottom3 (px 2) solid (hex "000")
-            , float left
-            , margin4 (px 0) rm (px 0) (px 20)
-            , textTransform uppercase
-            , fontSize (px 10)
-            , fontWeight bold
-            , letterSpacing (px 1.4)
-            ]
-        ]
-        [ span [ css [ display inlineBlock, margin2 (px 23) (px 0), float left ] ] [ text txt ]
+moduleStripCss : Style
+moduleStripCss =
+    batch
+        [ borderBottom3 (px 2) solid (hex "000")
+        , Css.height (px 50)
+        , displayFlex
+        , flex (num 1)
+        , alignItems center
+        , textTransform uppercase
+        , fontSize (px 10)
+        , fontWeight bold
+        , letterSpacing (px 1.4)
         ]
 
 
@@ -577,7 +589,7 @@ outputChannels model patch =
                     )
                 |> Maybe.withDefault []
     in
-    div [ css [ Css.color (hex "000"), fontSize (px 14), fontWeight bold, letterSpacing (px 1.4), marginLeft (px 26) ] ]
+    div [ css [ Css.color (hex "000"), fontSize (px 14), fontWeight bold, letterSpacing (px 1.4) ] ]
         (div [ css [ Css.height (px 50), Css.width (px 327), marginLeft (px 33) ] ]
             [ span [ css [ display inlineBlock, paddingTop (px 15) ] ] [ text "OUTPUT CHANNELS" ]
             ]
