@@ -12,12 +12,13 @@ import Html.Styled.Lazy exposing (..)
 import Json.Decode as JD exposing (..)
 import Json.Encode as JE
 import Knob exposing (KnobMsg, simpleKnobSvg)
+import List
 import Maybe.Extra exposing (isJust)
 import Model exposing (..)
 import Mouse exposing (..)
 import Msg exposing (..)
 import Patch exposing (..)
-import Styles exposing (theBlue)
+import Styles exposing (theBlue, theLightGrayString)
 import Svg.Styled as Svg exposing (..)
 import Svg.Styled.Attributes as Svg exposing (..)
 import Svg.Styled.Events as Svg exposing (..)
@@ -43,10 +44,8 @@ volumeSliderCss =
     batch
         [ Css.property "-webkit-appearance" "none"
         , Css.property "-moz-appearance" "none"
-        , Css.width (px 102)
+        , Css.maxWidth (px 70)
         , Css.height (px 2)
-        , minWidth (px 88)
-        , marginRight (px 80)
         , pseudoElement "-moz-range-thumb" [ volumeThumbCss ]
         , pseudoElement "-webkit-slider-thumb" [ volumeThumbCss ]
         ]
@@ -58,9 +57,10 @@ muteButtonCss =
         [ Css.property "-webkit-appearance" "none"
         , Css.property "-moz-appearance" "none"
         , backgroundRepeat noRepeat
-        , Css.height (px 28)
-        , minWidth (px 33)
-        , margin (px 2)
+        , Css.height (px 22)
+        , Css.width (px 25)
+        , backgroundSize (px 25)
+        , margin (px 0)
         , Css.checked [ backgroundImage (url "/unmute.svg") ]
         , backgroundImage (url "/mute.svg")
         ]
@@ -69,8 +69,7 @@ muteButtonCss =
 volumeInputCss : Style
 volumeInputCss =
     batch
-        [ boxSizing borderBox
-        , padding4 (px 0) (pct 8) (px 0) (px 0)
+        [ padding4 (px 0) (pct 8) (px 0) (px 0)
         , displayFlex
         , justifyContent flexEnd
         , alignItems center
@@ -85,7 +84,7 @@ volumeInputCss =
 volumeInput : Bool -> Html Msg
 volumeInput muted =
     div [ HSA.css [ volumeInputCss ] ]
-        [ span [ HSA.css [ marginRight auto ] ] [ HS.text "volume" ]
+        [ span [ HSA.css [ flex (num 3), marginRight auto ] ] [ HS.text "volume" ]
         , volumeSlider
         , volumeIcon muted
         ]
@@ -94,7 +93,8 @@ volumeInput muted =
 volumeSlider : Html Msg
 volumeSlider =
     input
-        [ HSA.css [ volumeSliderCss ]
+        [ HSA.id "volumeSlider"
+        , HSA.css [ volumeSliderCss ]
         , HSA.type_ "range"
         , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
         ]
@@ -257,16 +257,16 @@ outputPanel : List OutputChanValues -> Html KnobMsg
 outputPanel chanVals =
     let
         vhStart =
-            310
+            327
 
         rsNumStart =
-            314
+            332
 
         vhOffset =
-            23
+            24
 
         vhEnd =
-            713
+            750
 
         vvBegin =
             33
@@ -275,10 +275,10 @@ outputPanel chanVals =
             52
 
         vvOffset =
-            92
+            96
 
         vvEnd =
-            564
+            593
 
         knobOffset =
             60
@@ -295,7 +295,7 @@ outputPanel chanVals =
                                 xp =
                                     vvBegin + (i * vvOffset) |> String.fromInt
                             in
-                            svg [ x xp, y "245" ]
+                            svg [ x xp, y "267" ]
                                 [ swch
                                 ]
                         )
@@ -314,7 +314,7 @@ outputPanel chanVals =
                                     vvBegin + (i * vvOffset) |> String.fromInt
 
                                 hy =
-                                    44 + ((10 - val) * 22.7) |> String.fromFloat
+                                    63 + ((10 - val) * 24) |> String.fromFloat
 
                                 handle =
                                     svg [ x "0", y hy ] [ chanHandle ]
@@ -334,7 +334,7 @@ outputPanel chanVals =
                                 xp =
                                     vvBegin + (i * vvOffset) |> String.fromInt
                             in
-                            svg [ x xp, y "90" ]
+                            svg [ x xp, y "95" ]
                                 [ simpleKnobSvg cv.filter
                                 ]
                         )
@@ -349,39 +349,32 @@ outputPanel chanVals =
                                 xp =
                                     vvBegin + (i * vvOffset) |> String.fromInt
                             in
-                            svg [ x xp, y "180" ]
+                            svg [ x xp, y "194" ]
                                 [ simpleKnobSvg cv.pan
                                 ]
                         )
                 )
     in
-    svg [ Svg.height "600px", Svg.width "740px", Svg.fontFamily "Metropolis", textAnchor "middle", Svg.fontSize "14px" ]
+    svg [ Svg.height "615px", Svg.width "750px", Svg.fontFamily "Metropolis", textAnchor "middle", Svg.fontSize "14px" ]
         [ line [ x1 (sfi vvBegin), y1 "1px", x2 (sfi vhEnd), y2 "1px", Svg.stroke "black" ] []
 
         -- chennel numbers
         , g
             [ Svg.fontWeight "bold" ]
-            [ Svg.text_ [ dx "52px", dy "28px" ] [ Svg.text "1" ]
-            , Svg.text_ [ dx "144px", dy "28px" ] [ Svg.text "2" ]
-            , Svg.text_ [ dx "236px", dy "28px" ] [ Svg.text "3" ]
-            , Svg.text_ [ dx "696px", dy "28px" ] [ Svg.text "8" ]
-            , Svg.text_ [ dx "328px", dy "28px" ] [ Svg.text "4" ]
-            , Svg.text_ [ dx "420px", dy "28px" ] [ Svg.text "5" ]
-            , Svg.text_ [ dx "512px", dy "28px" ] [ Svg.text "6" ]
-            , Svg.text_ [ dx "604px", dy "28px" ] [ Svg.text "7" ]
-            ]
-        , line [ x1 (sfi vvBegin), y1 "45px", x2 (sfi vhEnd), y2 "45px", Svg.stroke "black", Svg.strokeWidth "1px" ] []
+            (List.map (\i -> Svg.text_ [ dx (sfi (52 + vvOffset * i)), dy "28px" ] [ Svg.text (sfi (i+1)) ]) (List.range 0 7))
+
+        , line [ x1 (sfi vvBegin), y1 "46px", x2 (sfi vhEnd), y2 "46px", Svg.stroke "black", Svg.strokeWidth "1px" ] []
 
         -- filter & pan
         , g [ textAnchor "start", Svg.fill "white" ]
-            [ Svg.text_ [ dx (sfi vvBegin), dy "70px" ] [ Svg.text "filter" ]
-            , line [ x1 (sfi vvBegin), y1 "85px", x2 (sfi vhEnd), y2 "85px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
+            [ Svg.text_ [ dx (sfi vvBegin), dy "70px", Svg.fontWeight "600", Svg.fill theLightGrayString ] [ Svg.text "filter" ]
+            , line [ x1 (sfi vvBegin), y1 "84px", x2 (sfi vhEnd), y2 "84px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
             , filterKnobs
-            , line [ x1 (sfi vvBegin), y1 "135px", x2 (sfi vhEnd), y2 "135px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
-            , Svg.text_ [ dx (sfi vvBegin), dy "160px" ] [ Svg.text "pan" ]
-            , line [ x1 (sfi vvBegin), y1 "175px", x2 (sfi vhEnd), y2 "175px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
+            , line [ x1 (sfi vvBegin), y1 "147px", x2 (sfi vhEnd), y2 "147px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
+            , Svg.text_ [ dx (sfi vvBegin), dy "168px", Svg.fill theLightGrayString, Svg.fontWeight "600" ] [ Svg.text "pan" ]
+            , line [ x1 (sfi vvBegin), y1 "184px", x2 (sfi vhEnd), y2 "184px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
             , panKnobs
-            , line [ x1 (sfi vvBegin), y1 "225px", x2 (sfi vhEnd), y2 "225px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
+            , line [ x1 (sfi vvBegin), y1 "247px", x2 (sfi vhEnd), y2 "247px", Svg.stroke "white", Svg.strokeWidth "1px" ] []
             ]
 
         -- switches
@@ -419,16 +412,5 @@ outputPanel chanVals =
         -- left side numbers
         , g
             [ Svg.fontWeight "500", Svg.fill "#4a4a4a" ]
-            [ Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 0)) ] [ Svg.text "10" ]
-            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 1)) ] [ Svg.text "9" ]
-            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 2)) ] [ Svg.text "8" ]
-            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 3)) ] [ Svg.text "7" ]
-            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 4)) ] [ Svg.text "6" ]
-            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 5)) ] [ Svg.text "5" ]
-            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 6)) ] [ Svg.text "4" ]
-            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 7)) ] [ Svg.text "3" ]
-            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 8)) ] [ Svg.text "2" ]
-            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 9)) ] [ Svg.text "1" ]
-            , Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * 10)) ] [ Svg.text "0" ]
-            ]
+            (List.map (\i -> Svg.text_ [ dx "16px", dy (sfi (rsNumStart + vhOffset * i)) ] [ Svg.text (sfi (10 - i)) ]) (List.range 0 10))
         ]
