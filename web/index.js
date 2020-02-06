@@ -1,5 +1,20 @@
 // Elm Setup
 
+import { Elm } from '../src/Main.elm';
+import metropolisBold from './Metropolis-Bold.woff';
+import metropolisMedium from './Metropolis-Medium.woff';
+import metropolisSemiBold from './Metropolis-SemiBold.woff';
+import mute from './mute.svg';
+import unmute from './unmute.svg';
+import pause from './pause.svg';
+import play from './play.svg';
+import selectArrowDown from './select_arrow_down.svg';
+import sortArrowDown from './sort_arrow_down.svg';
+import sortArrowDownSelected from './sort_arrow_down_selected.svg';
+import synthiLogo from './synthi-logo.svg';
+import footerLogo from './footer-logo.png';
+
+
 const AUIDIO_ID = 'elm-audio-file'
 
 const root = document.getElementsByTagName('body');
@@ -7,7 +22,26 @@ const root = document.getElementsByTagName('body');
 
 const app = Elm.Main.init({
   node: root,
-  flags: {}
+  flags: {
+    woff: {
+      metropolisBold,
+      metropolisMedium,
+      metropolisSemiBold
+      },
+    svg: {
+      mute,
+      unmute,
+      pause,
+      play,
+      selectArrowDown,
+      sortArrowDown,
+      sortArrowDownSelected
+    },
+    png: {
+      synthiLogo,
+      footerLogo
+    }
+  }
 });
 
 /**

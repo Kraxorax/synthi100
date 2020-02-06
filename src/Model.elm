@@ -1,4 +1,4 @@
-module Model exposing (AttrFilter, Model, PinConnection, SortDirection(..), initModel)
+module Model exposing (AttrFilter, Model, PinConnection, SortDirection(..), initModel, AssetFlags)
 
 import AudioModel exposing (AudioModel)
 import Browser.Navigation exposing (Key)
@@ -12,6 +12,27 @@ import ViewModel exposing (..)
 
 type alias A =
     { x : Int, y : String, f : Bool, d : Int }
+
+type alias AssetFlags =
+    { woff :
+        { metropolisBold : String
+        , metropolisMedium : String
+        , metropolisSemiBold : String
+        }
+    , svg :
+        { mute : String
+        , unmute : String
+        , pause : String
+        , play : String
+        , selectArrowDown : String
+        , sortArrowDown : String
+        , sortArrowDownSelected : String
+        }
+    , png :
+        { synthiLogo : String
+        , footerLogo : String
+        }
+    }
 
 
 type alias Model =
@@ -33,11 +54,12 @@ type alias Model =
     , sortBy : String
     , downloadFile : Maybe String
     , userInfo : Maybe String
+    , assets : AssetFlags
     }
 
 
-initModel : Url -> Key -> Model
-initModel url key =
+initModel : Url -> Key -> AssetFlags ->  Model
+initModel url key flags =
     { navKey = key
     , currentRoute = urlToRoute url
     , scroll = 0
@@ -56,6 +78,7 @@ initModel url key =
     , sortBy = "title"
     , downloadFile = extractDownloadParam url
     , userInfo = Nothing
+    , assets = flags
     }
 
 

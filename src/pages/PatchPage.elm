@@ -9,7 +9,7 @@ import Html.Styled.Events exposing (..)
 import Knob exposing (..)
 import List.Extra exposing (find)
 import Maybe.FlatMap exposing (flatMap)
-import Model exposing (Model)
+import Model exposing (Model, AssetFlags)
 import Msg exposing (..)
 import Patch exposing (..)
 import PinTable exposing (..)
@@ -92,7 +92,7 @@ ppVolumeInput model =
     in
     div [ css [ displayFlex, justifyContent (spaceBetween), alignItems center, borderBottom3 (px 1) solid (hex "000000"), padding2 (px 12) (px 0) ] ]
         [ div [ css [ displayFlex, alignItems center ] ]
-            [ muteBttn (model.volume == 0)
+            [ muteBttn (model.volume == 0) model.assets
             , input
                 [ type_ "range"
                 , onInput (String.toFloat >> Maybe.withDefault 0.5 >> VolumeChange)
@@ -108,15 +108,15 @@ ppVolumeInput model =
         ]
 
 
-muteBttn : Bool -> Html Msg
-muteBttn isMute =
+muteBttn : Bool -> AssetFlags -> Html Msg
+muteBttn isMute assets =
     let
         url =
             if isMute then
-                "/mute.svg"
+                assets.svg.mute
 
             else
-                "/unmute.svg"
+                assets.svg.unmute
     in
     img
         [ src url
@@ -149,7 +149,7 @@ soundControls model patch =
             ]
             [ text (durationToTime patch.duration) ]
         , div [ ]
-            [ playButton patch 48 ]
+            [ playButton patch 48 model.assets ]
         , div [ css [ height (pct 100) ] ]
             [ waveformSeeker True patch ]
         , div [] [ audioNode model patch ]

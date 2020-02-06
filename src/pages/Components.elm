@@ -1,4 +1,4 @@
-module Components exposing (OutputChanValues, audioNode, cssHaxor, outputPanel, playButton, volumeIcon, volumeInput, volumeSlider, waveformSeeker)
+module Components exposing (OutputChanValues, audioNode, cssHaxor, outputPanel, playButton, volumeIcon, volumeSlider, waveformSeeker)
 
 import AudioModel exposing (..)
 import Css as Css exposing (..)
@@ -51,8 +51,8 @@ volumeSliderCss =
         ]
 
 
-muteButtonCss : Style
-muteButtonCss =
+muteButtonCss : AssetFlags -> Style
+muteButtonCss assets =
     batch
         [ Css.property "-webkit-appearance" "none"
         , Css.property "-moz-appearance" "none"
@@ -61,8 +61,8 @@ muteButtonCss =
         , Css.width (px 25)
         , backgroundSize (px 25)
         , margin (px 0)
-        , Css.checked [ backgroundImage (url "/unmute.svg") ]
-        , backgroundImage (url "/mute.svg")
+        , Css.checked [ backgroundImage (url assets.svg.unmute) ]
+        , backgroundImage (url assets.svg.mute)
         ]
 
 
@@ -81,14 +81,6 @@ volumeInputCss =
         ]
 
 
-volumeInput : Bool -> Html Msg
-volumeInput muted =
-    div [ HSA.css [ volumeInputCss ] ]
-        [ span [ HSA.css [ flex (num 3), marginRight auto ] ] [ HS.text "volume" ]
-        , volumeSlider
-        , volumeIcon muted
-        ]
-
 
 volumeSlider : Html Msg
 volumeSlider =
@@ -101,12 +93,12 @@ volumeSlider =
         []
 
 
-volumeIcon : Bool -> Html Msg
-volumeIcon muted =
+volumeIcon : Model -> Html Msg
+volumeIcon model =
     input
-        [ HSA.css [ muteButtonCss ]
+        [ HSA.css [ muteButtonCss model.assets ]
         , HSA.type_ "checkbox"
-        , HSA.checked (not muted)
+        , HSA.checked (not (model.volume == 0))
         ]
         []
 
@@ -197,18 +189,18 @@ audioNode model patch =
             []
 
 
-playButton : Patch -> Int -> Html Msg
-playButton patch size =
+playButton : Patch -> Int -> AssetFlags -> Html Msg
+playButton patch size assets =
     let
         audioModel =
             patch.audioModel |> Maybe.withDefault noPlayingAudioModel
 
         ( hndlClck, bttnUrl ) =
             if audioModel.playing then
-                ( Pause patch, "/pause.svg" )
+                ( Pause patch, assets.svg.pause )
 
             else
-                ( Play patch, "/play.svg" )
+                ( Play patch, assets.svg.pause )
     in
     img [ src bttnUrl, HS.onClick hndlClck, HSA.width size, HSA.height size ] []
 
