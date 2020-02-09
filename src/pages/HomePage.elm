@@ -154,12 +154,12 @@ patchesList model =
                 |> List.map
                     (\p -> patchItem model p)
     in sortInput model ::
-       volume (model.volume == 0) ::
+       volume model ::
        patchItems
 
 
-volume : Bool -> Html Msg
-volume muted =
+volume : Model -> Html Msg
+volume model =
     div [ css [ volumeInputCss ] ]
         [ label
             [ for "volumeSlider"
@@ -178,7 +178,7 @@ volume muted =
                       , Css.height (px 22)
                       ]
                 ]
-                [ volumeIcon muted ]
+                [ volumeIcon model ]
             , div
                 [ css [ marginLeft (px 12)
                       , marginBottom (px 10)
@@ -204,12 +204,12 @@ volumeInputCss =
         ]
 
 
-sortingArrowCss : Style
-sortingArrowCss =
+sortingArrowCss : AssetFlags -> Style
+sortingArrowCss assets =
     batch
         [ Css.property "-webkit-appearance" "none"
         , Css.property "-moz-appearance" "none"
-        , backgroundImage (url "/sort_arrow_down.svg")
+        , backgroundImage (url assets.svg.sortArrowDown)
         , backgroundColor (hex "00000000")
         , backgroundColor transparent
         , backgroundRepeat noRepeat
@@ -219,18 +219,18 @@ sortingArrowCss =
         , Css.height (px 13)
         , outline none
         , margin2 (px 0) (px 4)
-        , Css.checked [ backgroundImage (url "/sort_arrow_down_selected.svg") ]
+        , Css.checked [ backgroundImage (url assets.svg.sortArrowDownSelected ) ]
         ]
 
 
-sortingSelectCss : Style
-sortingSelectCss =
+sortingSelectCss : AssetFlags -> Style
+sortingSelectCss assets =
     batch
         [ Css.property "-moz-appearance" "none"
         , Css.property "-webkit-appearance" "none"
         , border3 (px 1) solid (hex "ffffff")
         , boxSizing (borderBox)
-        , backgroundImage (url "/select_arrow_down.svg")
+        , backgroundImage (url assets.svg.selectArrowDown)
         , backgroundColor (hex "000000")
         , Css.color (hex "#ffffff")
         , backgroundRepeat noRepeat
@@ -283,7 +283,7 @@ sortInput model =
             [ onInput SortBy
             , id "sortSelect"
             , css
-                [ sortingSelectCss
+                [ sortingSelectCss model.assets
                 , maxWidth (px 116)
                 , flex (pct 30)
                 ]
@@ -307,7 +307,7 @@ sortInput model =
                 , name "sort"
                 , HSA.checked isAscending
                 , onClick (Sort Ascending)
-                , css [ sortingArrowCss ]
+                , css [ sortingArrowCss model.assets ]
                 ]
                 []
             , input
@@ -315,7 +315,7 @@ sortInput model =
                 , name "sort"
                 , onClick (Sort Descending)
                 , HSA.checked (not isAscending)
-                , css [ sortingArrowCss
+                , css [ sortingArrowCss model.assets
                       , Css.property "-webkit-transform" "rotate(180deg)"
                       ]
                 ]
@@ -460,7 +460,7 @@ patchMedia model patch =
                 [ displayFlex, alignItems center, flexDirection row ] ]
             [ div
                 [ css [] ]
-                [ playButton patch 48 ]
+                [ playButton patch 48 model.assets]
             , div
                 [ css [ flex (num 5), Css.height (px 77) ] ]
                 [ waveformSeeker False patch ]

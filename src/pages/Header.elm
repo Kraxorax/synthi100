@@ -86,7 +86,7 @@ header model =
                 ]
                 [ a
                     [ href "/database" ]
-                    [ img [ src "/synthi-logo.svg" ] [] ]
+                    [ img [ src model.assets.png.synthiLogo ] [] ]
                 ]
             -- title
             , div

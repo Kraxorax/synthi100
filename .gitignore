@@ -4,4 +4,7 @@ ws.code-workspace
 elm-stuff
 # elm-repl generated files
 repl-temp-*
-web/main.js
+node_modules/
+# parcel
+dist/
+.cache/

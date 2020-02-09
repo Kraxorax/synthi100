@@ -43,12 +43,11 @@ type alias Flags =
     , patches : JD.Value
     }
 
-
-init : () -> Url -> Key -> ( Model, Cmd Msg )
-init _ url key =
+init : Model.AssetFlags -> Url -> Key -> ( Model, Cmd Msg )
+init flags url key =
     let
         mdl =
-            Model.initModel url key
+            Model.initModel url key flags
 
         cmd =
             Cmd.batch
@@ -636,10 +635,10 @@ view model =
            []
         else
            [ globalCSS
-           , fontImport
+           , fontImport model.assets
            , header model
            , page
-           , footer
+           , footer model.assets
            , downloader
            ]
            |> List.map Html.Styled.toUnstyled
@@ -681,21 +680,11 @@ globalCSS =
         ]
 
 
-fontImport : Html Msg
-fontImport =
-    node "style" [ type_ "text/css" ] [ text """
-        @font-face {
-            font-family: "Metropolis";
-            src: url(/Metropolis-Medium.woff);
-        }
-        @font-face {
-            font-family: "Metropolis";
-            src: url(/Metropolis-Bold.woff);
-            font-weight: bold;
-        }
-        @font-face {
-            font-family: "Metropolis";
-            src: url(/Metropolis-SemiBold.woff);
-            font-weight: 600;
-        }
-    """ ]
+fontImport : AssetFlags -> Html Msg
+fontImport assets =
+    node "style" [ type_ "text/css" ] [ text
+      (   ("@font-face { font-family: \"Metropolis\"; src: url(" ++ assets.woff.metropolisMedium ++ "); font-weight: normal }")
+       ++ ("@font-face { font-family: \"Metropolis\"; src: url(" ++ assets.woff.metropolisBold ++ "); font-weight: bold }")
+       ++ ("@font-face { font-family: \"Metropolis\"; src: url(" ++ assets.woff.metropolisSemiBold ++ "); font-weight: 600 }")
+      )
+    ]
