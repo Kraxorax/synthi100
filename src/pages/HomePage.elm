@@ -3,7 +3,6 @@ module HomePage exposing (page)
 import AudioModel exposing (AudioModel, noPlayingAudioModel)
 import Components exposing (..)
 import Css as Css exposing (..)
-import Css.Global exposing (body, global)
 import Events exposing (..)
 import Html.Attributes.Extra as HAE
 import Html.Styled exposing (..)
@@ -22,34 +21,46 @@ import SynthiSchema exposing (Attribute)
 
 page : Model -> Html Msg
 page model =
-    div []
-        [ div
-            [ css
-                [ color (hex "ffffff")
-                , fontSize (px 36)
-                , paddingBottom (px 14)
-                , marginLeft (px 31)
-                , borderBottom3 (px 1) solid theBlue
-                , fontWeight bold
+    div
+        [ css [ padding2 (px 0) (px 10) ] ]
+        [ div [ ]
+            [  div
+                [ css
+                    [ Css.height (px 46)
+                    , marginLeft (px 30)
+                    , marginRight (px 10)
+                    , borderBottom3 (px 1) solid theBlue
+                    , fontSize (px 36)
+                    , letterSpacing (px 1)
+                    , fontWeight bold
+                    ]
                 ]
+                [ text "DATABASE"  ]
             ]
-            [ text "DATABASE" ]
-        , div [ css [ displayFlex ] ]
-            [ div [ css [ flex (num 1) ] ] [ filterList model ]
-            , div [ css [ flex (num 2) ] ] [ patchesList model ]
-            ]
+            , div
+                [ css [ displayFlex ] ]
+                [ div
+                    [ css
+                        [ padding2 (px 0) (px 20)
+                        , borderStyle solid
+                        , borderColor (hex "#000")
+                        , boxSizing borderBox
+                        , flex (pct (100/3.0))
+                        , borderWidth2 (px 0) (px 10)
+                        ]
+                    ]
+                    [ filterList model ]
+               , div
+                   [ css [ borderStyle solid
+                         , borderColor (hex "#000000")
+                         , boxSizing borderBox
+                         , flex (pct (200/3.0))
+                         , borderWidth2 (px 0) (px 10)
+                         ]
+                   ]
+                   (patchesList model)
+              ]
         ]
-
-
-filterHeaderStyle : Style
-filterHeaderStyle =
-    batch
-        [ padding2 (px 12.5) (px 0)
-        , fontSize (px 20)
-        , fontWeight bold
-        , letterSpacing (px 0.5)
-        ]
-
 
 filterList : Model -> Html Msg
 filterList model =
@@ -62,9 +73,8 @@ filterList model =
                 Nothing ->
                     []
     in
-    div [ css [ paddingLeft (px 31), maxWidth (px 390) ] ]
-        [ div [ css [ filterHeaderStyle ] ]
-            [ text "filters" ]
+    section []
+        [ h2 [] [ text "filters" ]
         , div [ css [ marginBottom (px 20) ] ]
             (attrs
                 |> List.map
@@ -78,16 +88,18 @@ filterList model =
             )
         ]
 
-
 filterSubheaderStyle : Style
 filterSubheaderStyle =
     batch
         [ borderTop3 (px 1) solid theBlue
         , borderBottom3 (px 1) solid theBlue
-        , padding2 (px 10) (px 20)
         , color (hex "fff")
-        , fontSize (px 20)
-        , fontWeight (int 500)
+        , fontSize (px 18)
+        , Css.height (px 42)
+        , alignItems center
+        , letterSpacing (px 0.5)
+        , displayFlex
+        , paddingLeft (px 17)
         ]
 
 
@@ -96,7 +108,7 @@ filterGroup filter attr =
     div [ css [ lastChild [ borderBottom3 (px 1) solid theBlue ] ] ]
         [ div [ css [ filterSubheaderStyle ] ]
             [ text attr.name ]
-        , ul [ css [ Css.listStyle none, paddingLeft (px 10) ] ]
+        , ul [ css [ Css.listStyle none, paddingLeft (px 0) ] ]
             [ div []
                 (attr.values
                     |> List.map
@@ -113,38 +125,66 @@ radio : String -> String -> Bool -> Html Msg
 radio val group isChecked =
     label []
         [ xBox isChecked
-        , input [ type_ "checkbox", id val, onInput (Filter group), HSA.checked isChecked, value val, css [ Css.display none ] ] []
-        , span [ css [ color (hex "fff"), fontSize (px 14), paddingLeft (px 12) ] ] [ text val ]
+        , input
+            [ type_ "checkbox"
+            , id val
+            , onInput (Filter group)
+            , HSA.checked isChecked
+            , value val
+            , css [ Css.display none ]
+            ]
+            []
+        , span
+            [ css
+                [ letterSpacing (px 0.5)
+                , color (hex "fff")
+                , fontSize (px 14)
+                , marginLeft (px 20)
+                ]
+            ]
+            [ text val ]
         ]
 
 
-patchesList : Model -> Html Msg
+patchesList : Model -> List (Html Msg)
 patchesList model =
     let
         patchItems =
             model.filteredPatches
                 |> List.map
                     (\p -> patchItem model p)
-    in
-    div
-        [ css
-            [ letterSpacing (px 0.5)
-            , fontSize (px 20)
-            ]
-        ]
-        (sortInput model
-            :: volume (model.volume == 0)
-            :: patchItems
-        )
+    in sortInput model ::
+       volume (model.volume == 0) ::
+       patchItems
 
 
 volume : Bool -> Html Msg
 volume muted =
-    div [ HSA.css [ volumeInputCss ] ]
-        [ div [ HSA.css [ flex (num 1) ] ] [ text "volume" ]
-        , div [ HSA.css [ displayFlex, flex (num 1) ] ]
-            [ div [ HSA.css [ marginRight (px 16) ] ] [ volumeIcon muted ]
-            , div [ HSA.css [ paddingTop (px 4) ] ] [ volumeSlider ]
+    div [ css [ volumeInputCss ] ]
+        [ label
+            [ for "volumeSlider"
+            , css [ labelCss ]
+            ]
+            [ text "volume" ]
+        , div
+            [ css [ displayFlex
+                  , alignItems center
+                  , flex (pct 60)
+                  , paddingLeft (px 5)
+                  ]
+            ]
+            [ div
+                [ css [ Css.width (px 25)
+                      , Css.height (px 22)
+                      ]
+                ]
+                [ volumeIcon muted ]
+            , div
+                [ css [ marginLeft (px 12)
+                      , marginBottom (px 10)
+                      ]
+                ]
+                [ volumeSlider ]
             ]
         ]
 
@@ -153,15 +193,14 @@ volumeInputCss : Style
 volumeInputCss =
     batch
         [ boxSizing borderBox
-        , padding4 (px 0) (pct 8) (px 0) (px 0)
         , displayFlex
         , justifyContent flexEnd
         , alignItems center
         , Css.fontWeight bold
         , Css.fontSize (px 20)
         , borderTop2 (px 1) solid
-        , Css.height (px 46)
-        , Css.maxWidth (pct 48)
+        , Css.height (px 40)
+        , Css.width (pct (100*400 / 820))
         ]
 
 
@@ -171,12 +210,13 @@ sortingArrowCss =
         [ Css.property "-webkit-appearance" "none"
         , Css.property "-moz-appearance" "none"
         , backgroundImage (url "/sort_arrow_down.svg")
+        , backgroundColor (hex "00000000")
         , backgroundColor transparent
         , backgroundRepeat noRepeat
-        , Css.width (px 33)
+        , Css.width (px 25)
         , Css.margin4 (px 0) (px 0) (px 0) (px 0)
-        , Css.minWidth (px 33)
-        , Css.height (px 17)
+        , Css.minWidth (px 25)
+        , Css.height (px 13)
         , outline none
         , margin2 (px 0) (px 4)
         , Css.checked [ backgroundImage (url "/sort_arrow_down_selected.svg") ]
@@ -189,6 +229,7 @@ sortingSelectCss =
         [ Css.property "-moz-appearance" "none"
         , Css.property "-webkit-appearance" "none"
         , border3 (px 1) solid (hex "ffffff")
+        , boxSizing (borderBox)
         , backgroundImage (url "/select_arrow_down.svg")
         , backgroundColor (hex "000000")
         , Css.color (hex "#ffffff")
@@ -196,14 +237,23 @@ sortingSelectCss =
         , Css.property "background-position" "right 5px center"
         , Css.fontFamily inherit
         , Css.height (px 23)
-        , paddingLeft (px 6)
-        , margin4 (px 0) (px 60) (px 0) (px 0)
+        , paddingLeft (px 10)
         , Css.letterSpacing (px 0.5)
-        , Css.width (px 116)
         , Css.minWidth (px 88)
         , Css.fontSize (px 14)
         ]
 
+labelCss : Style
+labelCss =
+    batch
+        [ paddingRight (px 10)
+        , boxSizing borderBox
+        , whiteSpace noWrap
+        , flex (pct 40)
+        , letterSpacing (px 0.5)
+        , fontWeight bold
+        , fontSize (px 18)
+        ]
 
 sortInput : Model -> Html Msg
 sortInput model =
@@ -218,39 +268,59 @@ sortInput model =
         [ css
             [ displayFlex
             , alignItems center
-            , fontWeight bold
-            , fontSize (px 20)
-            , maxWidth (pct 50)
-            , Css.height (px 46)
-            , justifyContent flexEnd
+            , paddingRight (px 10)
             , boxSizing borderBox
-            , padding4 (px 0) (pct 8) (px 4) (px 0)
+            , Css.width (pct 50)
+            , Css.height (px 40)
             ]
         ]
-        [ span [ css [ marginRight auto, whiteSpace noWrap ] ] [ text "sort by" ]
-        , select [ onInput SortBy, css [ sortingSelectCss ] ]
-            [ option [ value "duration", selected (sortedBy "duration") ] [ text "duration" ]
-            , option [ value "title", selected (sortedBy "title") ] [ text "title" ]
+        [ label
+            [ for "sortSelect"
+            , css [ labelCss ]
             ]
-        , input
-            [ type_ "radio"
-            , name "sort"
-            , HSA.checked isAscending
-            , onClick (Sort Ascending)
-            , css [ sortingArrowCss ]
-            ]
-            []
-        , input
-            [ type_ "radio"
-            , name "sort"
-            , onClick (Sort Descending)
-            , HSA.checked (not isAscending)
+            [text "sort by"]
+        , select
+            [ onInput SortBy
+            , id "sortSelect"
             , css
-                [ sortingArrowCss
-                , Css.property "-webkit-transform" "rotate(180deg)"
+                [ sortingSelectCss
+                , maxWidth (px 116)
+                , flex (pct 30)
                 ]
             ]
-            []
+            [ option
+                [ value "duration", selected (sortedBy "duration") ]
+                [ text "duration" ]
+            , option
+                [ value "title", selected (sortedBy "title") ]
+                [ text "title" ]
+            ]
+        , div
+            [ css
+                [ flex (pct 30)
+                , textAlign center
+                , whiteSpace noWrap
+                ]
+            ]
+            [ input
+                [ type_ "radio"
+                , name "sort"
+                , HSA.checked isAscending
+                , onClick (Sort Ascending)
+                , css [ sortingArrowCss ]
+                ]
+                []
+            , input
+                [ type_ "radio"
+                , name "sort"
+                , onClick (Sort Descending)
+                , HSA.checked (not isAscending)
+                , css [ sortingArrowCss
+                      , Css.property "-webkit-transform" "rotate(180deg)"
+                      ]
+                ]
+                []
+            ]
         ]
 
 
@@ -269,24 +339,14 @@ patchMetaCss =
 patchTitleCss : Color -> Style
 patchTitleCss titleColor =
     batch
-        [ flex (num 1)
-        , minWidth (px 150)
+        [ displayFlex
+        , alignItems baseline
+        , Css.width (pct 100)
+        , justifyContent spaceBetween
         , whiteSpace noWrap
         , letterSpacing (px 0)
-        , marginRight (px 10)
         , color titleColor
-        , padding2 (px 8) (px 0)
         ]
-
-
-patchMediaCss =
-    batch
-        [ displayFlex
-        , flex (num 1)
-        , flexDirection column
-        , paddingRight (px 14)
-        ]
-
 
 patchInfoCss =
     batch
@@ -302,6 +362,8 @@ patchItemCss : Style
 patchItemCss =
     batch
         [ displayFlex
+        , Css.height (px 114)
+        , Css.width (pct 100)
         , color (hex "ffffff")
         , fontWeight bold
         , borderTop2 (px 1) solid
@@ -314,20 +376,53 @@ patchItemCss =
 
 patchItem : Model -> P.Patch -> Html Msg
 patchItem model patch =
-    div [ css [ patchItemCss ] ]
-        [ patchMedia model patch
-        , patchMeta patch
+    div
+        [ css
+            [ displayFlex
+            , Css.height (px 114)
+            , Css.width (pct 100)
+            , borderTop2 (px 1) solid
+            , borderColor (hex "fff")
+            ]
+        ]
+        [ div
+            [ css
+                [ paddingRight (px 10)
+                , flex (pct 50)
+                , displayFlex
+                , flexDirection column
+                ]
+            ]
+            (patchMedia model patch)
+        , div
+            [ css
+                [color (hex "fff")
+                , paddingLeft (px 10)
+                , flex (pct 50)
+                , displayFlex
+                , flexDirection column
+                ]
+            ]
+            ( patchMeta patch )
         ]
 
+patchTopRow : Style
+patchTopRow =
+    batch
+        [ Css.height (px 36)
+        , displayFlex
+        , alignItems center
+        , borderBottom3 (px 1) solid (hex "333")
+        ]
 
-patchMedia : Model -> P.Patch -> Html Msg
+patchMedia : Model -> P.Patch -> List (Html Msg)
 patchMedia model patch =
     let
         am =
             patch.audioModel |> Maybe.withDefault noPlayingAudioModel
 
         titleColor =
-            if am.playing then
+            if am.playing || am.seekerPosition /= 0.0 then
                 hex "ffffff"
 
             else
@@ -336,27 +431,79 @@ patchMedia model patch =
         patchUrl =
             "patch/" ++ patch.title
     in
-    div [ css [ patchMediaCss ] ]
-        [ div [ css [ Css.height (px 36), displayFlex, patchTitleCss titleColor, alignItems center, borderBottom3 (px 1) solid (hex "333"), flexDirection row ] ]
-            [ div [ css [ flex (num 5), color (hex "ffffff") ] ]
-                [ a [ href patchUrl, css [ linkUnstyle ] ] [ text patch.title ] ]
-            , div [ css [ color (hex "ffffff"), fontSize (px 14) ] ]
-                [ text (P.durationToTime patch.duration) ]
+        [ div
+            [ css [ patchTopRow ] ]
+            [ div
+                [css [ patchTitleCss titleColor ] ]
+                [ a
+                    [ href patchUrl
+                    , css
+                        [ marginRight (px 10)
+                        , fontWeight bold
+                        , fontSize (px 20)
+                        , linkUnstyle
+                        ]
+                    ]
+                    [ text patch.title ]
+                , span
+                    [ css
+                        [ marginLeft (px 10)
+                        , fontSize (px 14)
+                        , fontWeight (int 600)
+                        ]
+                    ]
+                    [ text (P.durationToTime patch.duration) ]
+                ]
             ]
         , div
-            [ css [ Css.height (px 72), displayFlex, alignItems center, flexDirection row ] ]
+            [ css
+                [ displayFlex, alignItems center, flexDirection row ] ]
             [ div
                 [ css [] ]
                 [ playButton patch 48 ]
             , div
-                [ css [ flex (num 5), Css.height (pct 100) ] ]
+                [ css [ flex (num 5), Css.height (px 77) ] ]
                 [ waveformSeeker False patch ]
             , audioNode model patch
             ]
         ]
 
 
-patchMeta : P.Patch -> Html Msg
+patchAttributesCss : Style
+patchAttributesCss =
+    batch
+        [ fontSize (px 14)
+        , letterSpacing (px 0.2)
+        , fontWeight (int 600)
+        -- an invisible text in font  to align baseline
+        -- with the patch title and duration info
+        , after [ Css.property "content" "''"
+                , fontSize (px 20) ]
+        ]
+
+
+patchLinksBoxCss : Style
+patchLinksBoxCss =
+    batch
+        [ displayFlex
+        , alignItems center
+        , flex (num 1)
+        , Css.width (pct 100)
+        , fontSize (px 14)
+        , fontWeight bold
+        , marginTop (px 0)
+        ]
+
+patchLinkCss : Style
+patchLinkCss =
+    batch
+        [ linkUnstyle
+        , flex (num 1)
+        , displayFlex
+        , alignItems center
+        ]
+
+patchMeta : P.Patch -> List (Html Msg)
 patchMeta p =
     let
         durationText =
@@ -368,19 +515,45 @@ patchMeta p =
         patchUrl =
             "patch/" ++ p.title
     in
-    div [ css [ patchMetaCss, patchInfoCss ] ]
-        [ div [ css [ Css.height (px 36), displayFlex, alignItems left, Css.width (pct 100), borderBottom3 (px 1) solid (hex "333") ] ]
-            [ div [ css [ lineHeight (num 1.2), paddingTop (px 8) ] ]
-                [ text attribs ]
-            ]
-        , div [ css [ displayFlex, alignItems center, flex (num 1), Css.width (pct 100), marginTop (px 0) ] ]
-            [ a [ href p.download, css [ linkUnstyle, flex (num 1), displayFlex, Css.width (pct 100), alignItems center, cursor pointer ] ]
-                [ downBttn "#9b9b9b"
-                , span [ css [ marginLeft (px 4) ] ] [ text "download" ]
+        [ div
+            [ css [ patchTopRow ] ]
+            [ div
+                [ css
+                    [ displayFlex
+                    , alignItems baseline
+                    ]
                 ]
-            , a [ href patchUrl, css [ linkUnstyle, flex (num 1), displayFlex ] ]
-                [ rightBttn "#9b9b9b"
-                , span [ css [ marginLeft (px 4), marginTop (px 2) ] ] [ text "score" ]
+                [ span
+                    [ css [ patchAttributesCss ] ]
+                    [ text attribs ]
+                ]
+            ]
+        , div
+            [ css
+                [ patchLinksBoxCss ] ]
+            [ a
+                [ href p.download
+                , css
+                    [ patchLinkCss
+                    , flex (num 1)
+                    ]
+                ]
+                [ downBttn theGrayString
+                , span
+                    [ css [ marginLeft (px 4) ] ]
+                    [ text "download" ]
+                ]
+            , a
+                [ href patchUrl
+                , css
+                    [ patchLinkCss
+                    , flex (num 2)
+                    ]
+                ]
+                [ rightBttn theGrayString
+                , span
+                    [ css [ marginLeft (px 4) ] ]
+                    [ text "score" ]
                 ]
             ]
         ]

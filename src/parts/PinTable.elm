@@ -113,7 +113,7 @@ pinSvg ( xp, yp ) fillColor strokeColor model =
                 |> String.fromInt
 
         xPos =
-            (xp * pinDistanceX) + pinRadius + margin |> String.fromInt
+            (xp * pinDistanceX) + pinRadius + margin + 5 |> String.fromInt
 
         ( strokeCol, strokeWdth, rad ) =
             strokeColor
@@ -178,7 +178,7 @@ audioPanel pins model =
             60 * pinDistanceX + 40 |> String.fromFloat
 
         h =
-            60 * pinDistanceY + 40 |> String.fromFloat
+            60 * pinDistanceY + 40 + pinRadius |> String.fromFloat
 
         pinNumbers =
             if first model.hoverPin < 0 || (second model.hoverPin < 0) then
@@ -209,14 +209,14 @@ pinNumberY ( i, o ) =
              else
                 o * pinDistanceX + margin + gap
             )
-                + 6
+                + 7
                 |> String.fromInt
 
         ( ri, ro ) =
             coordsToPinPos ( i, o )
     in
     Svg.text_
-        [ dx "15"
+        [ dx "13"
         , dy y
         , textAnchor "middle"
         , fontFamily "Metropolis"
@@ -232,7 +232,7 @@ pinNumberX : ( Int, Int ) -> Html PinMsg
 pinNumberX ( i, o ) =
     let
         x =
-            (i * pinDistanceX + margin)
+            (i * pinDistanceX + margin + 8)
                 |> String.fromInt
 
         ( ri, ro ) =
@@ -240,7 +240,7 @@ pinNumberX ( i, o ) =
     in
     Svg.text_
         [ dx x
-        , dy "14"
+        , dy "22"
         , textAnchor "middle"
         , fontFamily "Metropolis"
         , fontWeight "bold"

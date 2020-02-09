@@ -55,9 +55,9 @@ simpleKnobSvg knob =
                 colors.disabled
     in
     svg
-        [ width "40"
-        , height "41"
-        , viewBox "0 0 40 40"
+        [ width "43"
+        , height "43"
+        , viewBox "-1 -1 42 42"
         , onMouseOver (KnobHover knob.name)
         , onMouseOut KnobOut
         ]
@@ -73,6 +73,7 @@ simpleKnobSvg knob =
             [ dx "20"
             , dy "25"
             , textAnchor "middle"
+            , fontWeight "normal"
             , fill "#000"
             ]
             [ Svg.text value ]

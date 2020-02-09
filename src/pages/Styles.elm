@@ -1,4 +1,4 @@
-module Styles exposing (circ, downBttn, linkUnstyle, next, prev, rightBttn, theBlue, theDarkGray, theDarkGrayString, theGray, theGrayString, theLightGray, upBttn, vi, xBox)
+module Styles exposing (circ, downBttn, linkUnstyle, next, prev, rightBttn, theBlue, theDarkGray, theDarkGrayString, theGray, theGrayString, theLightGray, theLightGrayString, upBttn, vi, xBox)
 
 import Css exposing (..)
 import Svg.Styled as Svg exposing (..)
@@ -12,7 +12,6 @@ theBlue =
 
 theGray =
     hex "9b9b9b"
-
 
 theDarkGray =
     hex "4a4a4a"
@@ -32,6 +31,9 @@ theDarkGrayString =
 
 theBlueString =
     "#4a90e2"
+
+theLightGrayString =
+    "#d8d8d8"
 
 
 cross =
@@ -102,7 +104,7 @@ vi pos =
 linkUnstyle : Style
 linkUnstyle =
     batch
-        [ Css.color (hex "fff")
+        [ Css.color inherit
         , Css.textDecoration none
         ]
 

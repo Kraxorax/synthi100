@@ -438,17 +438,18 @@ getPatchTitle route =
         _ ->
             ""
 
-
 sortDescendingBy : String -> List P.Patch -> List P.Patch
-sortDescendingBy s =
-    sortAscendingBy s >> List.reverse
+sortDescendingBy prop ps =
+    if prop == "title" then
+        ps |> List.sortWith (\p1 p2 -> compare p2.title p1.title)
+    else
+        ps |> List.sortWith (\p1 p2 -> compare p2.duration p1.duration)
 
 
 sortAscendingBy : String -> List P.Patch -> List P.Patch
 sortAscendingBy prop ps =
     if prop == "title" then
         ps |> List.sortBy .title
-
     else
         ps |> List.sortBy .duration
 
@@ -653,12 +654,25 @@ globalCSS =
             , color (hex "4A90E2")
             , margin (px 0)
             , fontFamilies [ "Metropolis" ]
-            , maxWidth (px 1440)
+            , maxWidth (px 1280)
             , margin auto
-            , displayFlex
-            , flexDirection column
+            , paddingTop (px 30)
             , height (pct 100)
             ]
+        , Css.Global.h2
+            [ all unset
+            , display block
+            , margin2 (px 11) (px 0)
+            , letterSpacing (px 0.5)
+            , fontSize (px 18)
+            , fontWeight bold
+            ]
+        , selector "#about p:first-child"
+            [ marginTop (px 0) ]
+        , selector "#about p"
+            [ margin2 (px 10) (px 0) ]
+        , selector "#credits p"
+            [ margin2 (px 0) (px 0)]
         , selector "html"
             [ height (pct 100)
               -- fix jumpy initial loading
@@ -678,5 +692,10 @@ fontImport =
             font-family: "Metropolis";
             src: url(/Metropolis-Bold.woff);
             font-weight: bold;
+        }
+        @font-face {
+            font-family: "Metropolis";
+            src: url(/Metropolis-SemiBold.woff);
+            font-weight: 600;
         }
     """ ]
