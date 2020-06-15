@@ -200,7 +200,7 @@ playButton patch size assets =
                 ( Pause patch, assets.svg.pause )
 
             else
-                ( Play patch, assets.svg.pause )
+                ( Play patch, assets.svg.play )
     in
     img [ src bttnUrl, HS.onClick hndlClck, HSA.width size, HSA.height size ] []
 
