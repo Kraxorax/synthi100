@@ -377,14 +377,7 @@ patchItemCss =
 patchItem : Model -> P.Patch -> Html Msg
 patchItem model patch =
     div
-        [ css
-            [ displayFlex
-            , Css.height (px 114)
-            , Css.width (pct 100)
-            , borderTop2 (px 1) solid
-            , borderColor (hex "fff")
-            ]
-        ]
+        [ css [ patchItemCss ] ]
         [ div
             [ css
                 [ paddingRight (px 10)
