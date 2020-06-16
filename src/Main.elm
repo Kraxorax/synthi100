@@ -108,7 +108,18 @@ update msg model =
                     if url.fragment /= Nothing || String.endsWith ".zip" url.path  then
                         ( model, load (Url.toString url))
                     else
-                        ( model, pushUrl model.navKey (Url.toString url) )
+                        ( model
+                        , Cmd.batch
+                            -- If "database" page is scrolled down, clicking on "score"
+                            -- leads you to the "score" page, but page displayes in
+                            -- and already scrolled state.
+                            -- We reset the scroll position to the top when navigating.
+                            [ case urlToRoute url of
+                                Patch _ -> Ports.toTop ()
+                                _       -> Cmd.none
+                            , pushUrl model.navKey (Url.toString url)
+                            ]
+                        )
 
                 Browser.External href ->
                     ( model, load href )

@@ -1,4 +1,4 @@
-module Styles exposing (circ, downBttn, linkUnstyle, next, prev, rightBttn, theBlue, theDarkGray, theDarkGrayString, theGray, theGrayString, theLightGray, theLightGrayString, upBttn, vi, xBox)
+module Styles exposing (circ, downBttn, linkUnstyle, next, prev, rightBttn, theBlue, theDarkGray, theDarkGrayString, theGray, theGrayString, theLightGray, theLightGrayString, upBttn, vi, xBox, closeCross)
 
 import Css exposing (..)
 import Svg.Styled as Svg exposing (..)
@@ -41,6 +41,11 @@ cross =
     , line [ Svg.x1 "16px", Svg.y1 "4px", Svg.x2 "4px", Svg.y2 "16px", Svg.stroke "white" ] []
     ]
 
+closeCross =
+    svg [ Svg.width "20px", Svg.height "20px" ]
+        [ line [ Svg.x1 "0px", Svg.y1 "0px", Svg.x2 "20px", Svg.y2 "20px", Svg.stroke "black" ] []
+        , line [ Svg.x1 "20px", Svg.y1 "0px", Svg.x2 "0px", Svg.y2 "20px", Svg.stroke "black" ] []
+        ]
 
 xBox isCheck =
     let

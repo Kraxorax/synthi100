@@ -271,7 +271,7 @@ leftColumnCss =
 graphical : Model -> Patch -> List (Html Msg)
 graphical model patch =
     [ div
-         [ css [ patchSectionCss, borderBottom3 (px 1) solid (hex "000"),  height (px 60), alignItems center, backgroundColor theGray, minWidth (px 1010) ] ]
+         [ css [ patchSectionCss, borderBottom3 (px 1) solid (hex "000"),  height (px 60), alignItems center, backgroundColor theGray, minWidth (px 1010), position Css.relative ] ]
          [ div [ css [ leftColumnCss, displayFlex, justifyContent spaceBetween, alignItems baseline ] ]
               [ div [ css [ fontSize (px 36), fontWeight bold, letterSpacing (px 0.5)  ] ] [ text "SCORE" ]
               , prevNext patch
@@ -281,6 +281,9 @@ graphical model patch =
             , div [ css [fontSize (px 14), letterSpacing (px 0.2), fontWeight bold ] ]
                     [ text (patch.attributeValues |> String.join " / ") ]
             ]
+        , div
+             [ css [ position Css.absolute, right (px -53), bottom (px 0), cursor pointer, width (px 30), height (px 35), borderBottom3 (px 1) solid (hex "000000"), displayFlex, justifyContent center ] ]
+             [ a [ css [ display block ], href "/database" ]  [ closeCross ] ]
         ]
     , div [ css [ patchSectionCss ] ]
         [ div [ css [ leftColumnCss ] ]
