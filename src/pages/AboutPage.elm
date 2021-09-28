@@ -94,6 +94,7 @@ credits =
                   , br [] []
                   , text "FOR THE SOUND DATABASE"
                   ]
+        , p [] [ strong [] [ text "Marija Šumarac" ] ]
         , p [] [ strong [] [ text "Paul Pignon" ] ]
         , p [] [ strong [] [ text "Paul Oomen" ] ]
         , p [] [ strong [] [ text "Derek Holzer" ] ]
