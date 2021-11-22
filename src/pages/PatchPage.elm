@@ -120,7 +120,7 @@ muteBttn isMute assets =
     in
     img
         [ src url
-        , css [ height (px 20), width (px 25), marginRight (px 8) ]
+        , css [ height (px 20), width (px 25), marginRight (px 8), cursor pointer ]
         , HSA.style "filter" "brightness(1000%)"
         ]
         []

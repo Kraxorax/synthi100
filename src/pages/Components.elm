@@ -46,6 +46,7 @@ volumeSliderCss =
         , Css.property "-moz-appearance" "none"
         , Css.maxWidth (px 70)
         , Css.height (px 2)
+        , Css.cursor pointer
         , pseudoElement "-moz-range-thumb" [ volumeThumbCss ]
         , pseudoElement "-webkit-slider-thumb" [ volumeThumbCss ]
         ]
@@ -63,6 +64,7 @@ muteButtonCss assets =
         , margin (px 0)
         , Css.checked [ backgroundImage (url assets.svg.unmute) ]
         , backgroundImage (url assets.svg.mute)
+        , Css.cursor pointer
         ]
 
 
@@ -151,6 +153,7 @@ waveformSeeker isBlack patch =
             , Css.height (pct 100)
             , Css.position relative
             , Css.float left
+            , Css.cursor pointer
             ]
         ]
         [ img [ src bgSource, color, HSA.css [ Css.width (pct 100), Css.height (pct 100) ] ] []
@@ -202,7 +205,7 @@ playButton patch size assets =
             else
                 ( Play patch, assets.svg.play )
     in
-    img [ src bttnUrl, HS.onClick hndlClck, HSA.width size, HSA.height size ] []
+    img [ src bttnUrl, HS.onClick hndlClck, HSA.width size, HSA.height size, HSA.css [ Css.cursor pointer ] ] []
 
 
 cssHaxor : Html msg

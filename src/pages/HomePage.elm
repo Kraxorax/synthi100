@@ -123,7 +123,7 @@ filterGroup filter attr =
 
 radio : String -> String -> Bool -> Html Msg
 radio val group isChecked =
-    label []
+    label [css [ Css.cursor pointer ] ]
         [ xBox isChecked
         , input
             [ type_ "checkbox"
@@ -176,6 +176,7 @@ volume model =
             [ div
                 [ css [ Css.width (px 25)
                       , Css.height (px 22)
+                      , cursor pointer
                       ]
                 ]
                 [ volumeIcon model ]
@@ -217,6 +218,7 @@ sortingArrowCss assets =
         , Css.margin4 (px 0) (px 0) (px 0) (px 0)
         , Css.minWidth (px 25)
         , Css.height (px 13)
+        , cursor pointer
         , outline none
         , margin2 (px 0) (px 4)
         , Css.checked [ backgroundImage (url assets.svg.sortArrowDownSelected ) ]
@@ -241,6 +243,7 @@ sortingSelectCss assets =
         , Css.letterSpacing (px 0.5)
         , Css.minWidth (px 88)
         , Css.fontSize (px 14)
+        , cursor pointer
         ]
 
 labelCss : Style
@@ -452,10 +455,10 @@ patchMedia model patch =
             [ css
                 [ displayFlex, alignItems center, flexDirection row ] ]
             [ div
-                [ css [] ]
+                [ css [ Css.cursor pointer ] ]
                 [ playButton patch 48 model.assets]
             , div
-                [ css [ flex (num 5), Css.height (px 77) ] ]
+                [ css [ flex (num 5), Css.height (px 77), Css.cursor pointer ] ]
                 [ waveformSeeker False patch ]
             , audioNode model patch
             ]
