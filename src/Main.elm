@@ -98,7 +98,11 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateUrl url ->
-            ( { model | currentRoute = urlToRoute url }, Cmd.none )
+           let newModel = case urlToRoute url of
+                   Patch _ -> clearSelection model
+                   _       -> model
+           in
+           ( { newModel | currentRoute = urlToRoute url }, Cmd.none )
 
         RequestedUrl urlReq ->
             case urlReq of
@@ -447,6 +451,10 @@ getPatchTitle route =
 
         _ ->
             ""
+
+clearSelection : Model -> Model
+clearSelection model = { model | audioPinModel   = setActivePin Audio (-1, -1) Nothing model.audioPinModel,
+                                 controlPinModel = setActivePin Control (-1, -1) Nothing model.controlPinModel }
 
 sortDescendingBy : String -> List P.Patch -> List P.Patch
 sortDescendingBy prop ps =
